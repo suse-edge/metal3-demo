@@ -1,0 +1,32 @@
+---
+# NOTE(gyee): we'll only include the first one that matches. The rest will be ignored.
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+- name: Create external_dns_helm_overrides.yml
+  template:
+    src: external_dns_helm_overrides.yml.j2
+    dest: ~/external_dns_helm_overrides.yml
+
+- name: Deploy external-dns with PowerDNS backing
+  shell: >-
+    env HELM_EXPERIMENTAL_OCI=1 \
+    helm upgrade --install external-dns external-dns \
+      --repo https://charts.bitnami.com/bitnami \
+      --version 6.12.1 --create-namespace --namespace metal-cubed \
+      --values ~/external_dns_helm_overrides.yml \
+      --atomic --timeout 10m

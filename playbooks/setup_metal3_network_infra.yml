@@ -1,0 +1,84 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+
+    - name: Remind user to setup extra_vars.yml
+      fail:
+        msg: |-
+          Did you remember to copy extra_vars.yml.example to extra_vars.yml
+          and configure it appropriately?
+      when:
+        - metal3_network_infra_public_ip is not defined
+
+    - name: Create VM
+      include_role:
+        name: vm
+      when:
+        - (not do_not_install_vm | default(False)) | bool
+      vars:
+        vm_hostname: metal3-network-infra
+        vm_instance_name: metal3-network-infra
+        vm_network: "{{ metal3_network_infra_vm_network }}"
+        vm_public_network_ip: "{{ metal3_network_infra_public_ip }}"
+        vm_libvirt_network_params: "{{ metal3_vm_libvirt_network_params }}"
+
+    - name: Show metal3-network-infra vm IP
+      debug:
+        msg: "Login to the metal3-network-infra vm with 'ssh {{ vm_user }}@{{ metal3_network_infra_provisioning_ip }}' or 'ssh {{ vm_user }}@{{ metal3_network_infra_public_ip }}'"
+
+    - name: Define metal3-network-infra node
+      ansible.builtin.add_host:
+        name: metal3-network-infra
+        hostname: metal3-network-infra
+        ansible_user: "{{ vm_user }}"
+        ansible_host: "{{ metal3_network_infra_public_ip }}"
+        groups:
+          - "{{ metal3_network_infra_host_group | default('metal3_network_infra_group') }}"
+
+- hosts: metal3-network-infra
+  tasks:
+    - name: Install Kubernetes tools and utilities
+      import_role:
+        name: kubernetes-tools
+
+    - name: Deploy RKE2
+      import_role:
+        name: rke2-server
+
+    - name: Deploy cert-manager
+      import_role:
+        name: cert-manager
+
+    - name: Deploy rancher
+      import_role:
+        name: rancher
+      vars:
+        rancher_hostname: metal3-network-infra
+
+    - name: Deploy PowerDNS
+      import_role:
+        name: powerdns
+
+    - name: Deploy dnsmasq
+      import_role:
+        name: dnsmasq
+      vars:
+        provisioning_ip: "{{ metal3_network_infra_provisioning_ip }}"
+      when: enable_dhcp
+
+    - name: Deploy media server
+      import_role:
+        name: media
+
+    - name: Build metal3 images
+      import_role:
+        name: diskimage_builder
+      vars:
+        images_dir: /opt/media
+        build_debug_ipa_images: false
+        build_sample_user_images: false
+        build_metal3_images: true
+      tags:
+        - dib
+        - diskimage_builder

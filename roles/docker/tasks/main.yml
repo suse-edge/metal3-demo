@@ -1,0 +1,50 @@
+---
+# NOTE(gyee): we'll only include the first one that matches. The rest will be ignored.
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "default.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "default.yml"
+
+- name: Include platform-specific nginx tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+- name: Start docker service
+  become: yes
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Install Docker python packages
+  become: yes
+  pip:
+    name: ['docker', 'jsondiff', 'pyyaml']
+
+- name: Add user to the docker group
+  become: yes
+  user:
+    name: "{{ vm_user }}"
+    group: docker
+  register: add_user_to_docker_group
+
+# NOTE: If the goal of this reboot is to ensure that the Ansible
+# session is allowed to run docker commands, we just need to do
+# meta: reset_connection. However that action doesn't support
+# when conditions, so would need to be moved to a separate task
+# list file, and conditionally included with include_tasks. Or
+# just always reset the connection.
+- name: Reboot after docker group changes
+  become: yes
+  reboot:
+    msg: "Rebooting for docker changes to take effect."
+  when:
+    - add_user_to_docker_group is changed

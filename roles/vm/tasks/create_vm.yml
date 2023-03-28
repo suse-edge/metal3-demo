@@ -1,0 +1,106 @@
+---
+# tasks file for vm creation
+
+- name: See if VM {{ vm_instance_name }} exist
+  become: yes
+  community.libvirt.virt:
+    command: list_vms
+  register: list_vms_result
+
+- name: Print VMs
+  debug:
+    msg: "Current defined VMs: {{ list_vms_result.list_vms }}"
+
+- name: Shutdown VM {{ vm_instance_name }}
+  become: yes
+  community.libvirt.virt:
+    name: "{{ vm_instance_name }}"
+    state: destroyed
+  when: vm_instance_name in list_vms_result.list_vms
+
+- name: Undefine VM {{ vm_instance_name }}
+  become: yes
+  community.libvirt.virt:
+    name: "{{ vm_instance_name }}"
+    command: undefine
+  when: vm_instance_name in list_vms_result.list_vms
+
+- name: Wait till VM {{ vm_instance_name }} is deleted
+  become: yes
+  community.libvirt.virt:
+    command: list_vms
+  register: list_vms_result
+  until: vm_instance_name not in list_vms_result.list_vms
+  retries: 10
+  delay: 10
+
+- name: Download latest {{ cloud_image_os_name }} cloud image
+  become: yes
+  get_url:
+    url: "{{ cloud_image_download_url }}"
+    dest: "{{ cloud_image_file }}"
+    checksum: "{{ cloud_image_checksum_url }}"
+    validate_certs: false
+
+- name: Remove old disk image
+  become: yes
+  file:
+    path: "{{ disk_image_file }}"
+    state: absent
+
+- name: Create a disk image from cloud image
+  become: yes
+  shell: |
+    qemu-img create -f qcow2 -F qcow2 -o backing_file={{ cloud_image_file }} {{ disk_image_file }}
+    qemu-img resize {{ disk_image_file }} {{ disk_image_size }}
+
+- name: Create meta data file
+  template:
+    src: meta-data.j2
+    dest: /tmp/meta-data
+    mode: 0600
+
+- name: Create user data file
+  template:
+    src: user-data.j2
+    dest: /tmp/user-data
+    mode: 0600
+
+- name: Remove old cloud init image file
+  become: yes
+  file:
+    path: "{{ cloud_init_image_file }}"
+    state: absent
+
+- name: Create network config file
+  copy:
+    dest: /tmp/network-config
+    content: "{{ vm_network }}"
+
+- name: Create cloud init image with network-config
+  become: yes
+  shell: >
+    mkisofs -output {{ cloud_init_image_file }} -volid cidata -joliet -rock /tmp/meta-data /tmp/user-data /tmp/network-config
+
+- name: Remove cloud init data
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /tmp/meta-data
+    - /tmp/user-data
+  when: remove_cloud_init_data | default(false)
+
+- name: Ensure virt-install is installed
+  shell:
+    which virt-install
+
+- name: Create VM
+  become: yes 
+  shell: >
+    virt-install --connect qemu:///system --virt-type kvm --os-variant {{ vm_os_variant }} --name {{ vm_instance_name }} --ram {{ vm_memory }} --vcpus={{ vm_vcpus }} --disk path={{ disk_image_file }},format=qcow2 --disk {{ cloud_init_image_file }},device=cdrom --import {{ vm_libvirt_network_params }} --graphics none --noautoconsole
+  register: shell_result
+
+- name: Print create VM result
+  debug:
+    msg: "{{ shell_result }}"

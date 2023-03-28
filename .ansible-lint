@@ -1,0 +1,21 @@
+# Ensure that the following ansible-lint rule failures are treated as
+# warnings rather than errors.
+warn_list:
+  # We don't necessarily care about providing the galaxy_info settings
+  # in our roles right now as they are currently for private/internal
+  # use only.
+  - meta-no-info  # meta/main.yml should contain relevant info.
+
+  # ansible-lint complains that tasks which are triggered as a result of
+  # another task having a changed status should be implemented as handlers.
+  # However this is sometimes not possible (e.g. meta reset_connection
+  # doesn't like running under a handler) or not desirable (e.g. if the
+  # system packages have been updated or hostname has been changed we want
+  # to trigger the reboot at the specific point in the play, before we
+  # continue on to setup any services that may have been updated or freshly
+  # installed.
+  - no-handler  # Tasks that run when changed should likely be handlers.
+
+# NOTE: To completely hide complaints about any of the above rules, rather
+# than just converting them to non-fatal warnings, simply move them to a
+# `skip_list` item instead.

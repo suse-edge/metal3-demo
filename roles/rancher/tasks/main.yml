@@ -1,0 +1,44 @@
+---
+# NOTE(gyee): we'll only include the first one that matches. The rest will be ignored.
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+####################################################################
+# Per https://docs.ranchermanager.rancher.io/pages-for-subheaders/ #
+# install-upgrade-on-a-kubernetes-cluster                          #
+####################################################################
+
+- name: Add rancher helm repo
+  kubernetes.core.helm_repository:
+    repo_url: "{{ rancher_helm_repo_url }}"
+    name: "{{ rancher_helm_repo_name }}"
+
+- name: Deploy latest rancher helm chart
+  shell: >
+    helm upgrade {{ rancher_release }} {{ rancher_helm_chart_ref }} --install --atomic --create-namespace --namespace {{ rancher_namespace }} --set installCRDs=true --set hostname={{ rancher_hostname }} --set bootstrapPassword={{ rancher_bootstrap_password }} --set replicas={{ rancher_replicas }} --set extraEnv[0].name=CATTLE_SERVER_URL --set extraEnv[0].value=https://{{ rancher_hostname }}
+  register: rancher_deploy_result
+  until: rancher_deploy_result.rc == 0
+  retries: 3
+  delay: 20
+
+- name: Wait for rancher to be rolled out
+  shell: >
+    kubectl -n {{ rancher_namespace }} rollout status deploy/{{ rancher_release }}
+  register: rancher_rollout_result
+  retries: 5
+  delay: 10
+  until: "'successfully rolled out' in rancher_rollout_result.stdout"

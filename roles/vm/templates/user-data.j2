@@ -1,0 +1,21 @@
+#cloud-config
+package_update: true
+packages:
+  - vlan
+  - qemu-guest-agent
+chpasswd:
+  list: |
+    root:{{ vm_root_user_plain_text_passwd }}
+  expire: false
+ssh_pwauth: true
+users:
+  - name: {{ vm_user }}
+    ssh_authorized_keys: {{ vm_authorized_ssh_keys | to_yaml }}
+    plain_text_passwd: {{ vm_user_plain_text_password }}
+    lock_passwd: false
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: sudo
+    shell: /bin/bash
+runcmd:
+  - echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+  - systemctl restart ssh

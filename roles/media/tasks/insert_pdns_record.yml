@@ -1,0 +1,11 @@
+---
+- name: Check for media server record in PowerDNS
+  shell: >
+    kubectl exec -it `kubectl get pod -n metal-cubed | grep powerdns | awk '{print $1}'` -n metal-cubed -c powerdns-auth -- /usr/bin/pdnsutil list-zone {{ dns_domain }} | grep media.{{ dns_domain }} || true
+  register: check_media_record_result
+
+- name: Add media record in PowerDNS
+  shell: >
+    kubectl exec -it `kubectl get pod -n metal-cubed | grep powerdns | awk '{print $1}'` -n metal-cubed -c powerdns-auth -- /usr/bin/pdnsutil add-record {{ dns_domain }} media A 300 {{ metal3_network_infra_provisioning_ip }}
+  when: "'media' not in check_media_record_result.stdout"
+

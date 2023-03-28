@@ -1,0 +1,77 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+
+    - name: Remind user to setup extra_vars.yml
+      fail:
+        msg: |-
+          Did you remember to copy extra_vars.yml.example to extra_vars.yml
+          and configure it appropriately?
+      when:
+        - metal3_core_public_ip is not defined
+
+    - name: Create VM
+      include_role:
+        name: vm
+      when:
+        - (not do_not_install_vm | default(False)) | bool
+      vars:
+        vm_hostname: metal3-core
+        vm_instance_name: metal3-core
+        vm_network: "{{ metal3_core_vm_network }}"
+        vm_public_network_ip: "{{ metal3_core_public_ip }}"
+        vm_libvirt_network_params: "{{ metal3_vm_libvirt_network_params }}"
+
+    - name: Show metal3-core vm IP
+      debug:
+        msg: "Login to the metal3-core vm with 'ssh {{ vm_user }}@{{ metal3_core_provisioning_ip }}' or 'ssh {{ vm_user }}@{{ metal3_core_public_ip }}'"
+
+    - name: Define metal3-core node
+      ansible.builtin.add_host:
+        name: metal3-core
+        hostname: metal3-core
+        ansible_user: "{{ vm_user }}"
+        ansible_host: "{{ metal3_core_public_ip }}"
+        groups:
+          - "{{ metal3_corehost_group | default('metal3_core_group') }}"
+
+- hosts: metal3-core
+  tasks:
+    - name: Install Kubernetes tools and utilities
+      import_role:
+        name: kubernetes-tools
+
+    - name: Deploy RKE2
+      import_role:
+        name: rke2-server
+
+    - name: Deploy cert-manager
+      import_role:
+        name: cert-manager
+
+    - name: Deploy rancher
+      import_role:
+        name: rancher
+      vars:
+        rancher_hostname: metal3-core
+
+    - name: Deploy capi
+      import_role:
+        name: capi
+
+    - name: Deploy baremetal
+      import_role:
+        name: baremetal
+
+    - name: Install python-ironicclient
+      import_role:
+        name: ironicclient
+      vars:
+        provisioning_ip: "{{ metal3_core_provisioning_ip }}"
+      tags:
+        - ironicclient
+
+    - name: Deploy docker
+      import_role:
+        name: docker

@@ -1,0 +1,61 @@
+---
+# NOTE(gyee): we'll only include the first one that matches. The rest will be ignored.
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+# see https://cluster-api.sigs.k8s.io/user/quick-start.html#install-clusterctl
+- name: Install clusterctl
+  become: yes
+  get_url:
+    url: "https://github.com/kubernetes-sigs/cluster-api/releases/download/{{ capi_core_version }}/clusterctl-linux-amd64"
+    dest: /usr/local/bin/clusterctl
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Install CAPI core and metal3 infrastructure
+  shell: |
+    {% if github_token is defined %}
+    export GITHUB_TOKEN={{ github_token }}
+    {% endif %}
+    clusterctl init --core "cluster-api:{{ capi_core_version }}" --infrastructure "metal3:{{ capi_metal3_version }}"
+
+- name: Wait for CAPI to successfully rolled out
+  shell: >
+    kubectl rollout status Deployment/{{ item.deployment }} -n {{ item.namespace }} 2>&1 | grep 'successfully rolled out'
+  register: rollout_result
+  until: rollout_result.rc == 0
+  retries: 12
+  delay: 10
+  with_items:
+    - {'deployment': 'capi-controller-manager', 'namespace': 'capi-system'}
+    - {'deployment': 'capm3-controller-manager', 'namespace': 'capm3-system'}
+
+- name: Check RKE2 bootstrap and control plane provider setting
+  fail:
+    msg: "ERROR: invalid capi_rke2_bootstrap_control_plane_provider: {{ capi_rke2_bootstrap_control_plane_provider }}. The acceptable values are 'orange' or 'suse-rke2'."
+  when:
+    - "capi_rke2_bootstrap_control_plane_provider | lower  != 'orange'"
+    - "capi_rke2_bootstrap_control_plane_provider | lower  != 'suse-rke2'"
+
+- name: Install bootstrap and control plane provider from Orange
+  include_tasks: install_orange_rke2_bootstrap_control_plane_provider.yml
+  when: "capi_rke2_bootstrap_control_plane_provider | lower == 'orange'"
+
+- name: Install bootstrap and control plane provider from SUSE
+  include_tasks: install_suse_rke2_bootstrap_control_plane_provider.yml
+  when: "capi_rke2_bootstrap_control_plane_provider | lower == 'suse-rke2'"

@@ -1,0 +1,13 @@
+---
+# tasks file for vm
+
+- name: Create VM, destroying existing one, if requested
+  include_tasks: create_vm.yml
+  when:
+    - (do_create_vm | default('true')) | bool
+
+- name: Wait for VM to be up and running SSH
+  wait_for:
+    host: "{{ vm_public_network_ip }}"
+    port: 22
+    delay: 60

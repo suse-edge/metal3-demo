@@ -1,0 +1,16 @@
+global:
+  pdnsIP: {{ pdns_ip }}
+
+zone:
+  name: {{ dns_domain }}
+
+service:
+  ip: {{ pdns_cluster_ip }}
+
+powerdns:
+  api:
+    key: {{ pdns_api_key }}
+
+  webserver:
+    password: {{ pdns_web_password }}
+    port: {{ pdns_api_port }}

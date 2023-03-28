@@ -1,0 +1,23 @@
+---
+#
+# see https://github.com/rancher-sandbox/cluster-api-provider-rke2#setting-up-clusterctl
+#
+- name: Setup clusterctl.yaml
+  template:
+    src: clusterctl.yaml.j2
+    dest: ~/.cluster-api/clusterctl.yaml
+
+- name: Install SUSE RKE2 bootstrap and control plane provider
+  shell: >
+    clusterctl init --bootstrap rke2 --control-plane rke2
+
+- name: Wait for Orange SUSE bootstrap and control plane provider to successfully rolled out
+  shell: >
+    kubectl rollout status Deployment/{{ item.deployment }} -n {{ item.namespace }} 2>&1 | grep 'successfully rolled out'
+  register: rollout_result
+  until: rollout_result.rc == 0
+  retries: 12
+  delay: 10
+  with_items:
+    - {'deployment': 'rke2-bootstrap-controller-manager', 'namespace': 'rke2-bootstrap-system'}
+    - {'deployment': 'rke2-control-plane-controller-manager', 'namespace': 'rke2-control-plane-system'}

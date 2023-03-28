@@ -1,0 +1,15 @@
+---
+- name: Build customer ipa for debugging
+  become: yes
+  shell: |
+    export DIB_DEV_USER_USERNAME={{ ipa_username }}
+    export DIB_DEV_USER_PWDLESS_SUDO=yes
+    export DIB_DEV_USER_PASSWORD={{ ipa_password }}
+    export DIB_DEV_USER_AUTHORIZED_KEYS={{ ipa_user_ssh_key_path }}
+    ironic-python-agent-builder -o {{ ipa_image_name }} -e devuser -e extra-hardware --release 9-stream centos
+  args:
+    chdir: "{{ images_dir }}"
+  register: build_debug_ipa_result
+  until: build_debug_ipa_result.rc == 0
+  retries: 5
+  delay: 10

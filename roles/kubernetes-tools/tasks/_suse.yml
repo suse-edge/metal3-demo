@@ -1,0 +1,39 @@
+---
+- name: Install required packages
+  include_role:
+    name: vm
+    tasks_from: install_suse_package
+  vars:
+    suse_packages: [git, python310, python310-pip, python310-devel, jq, curl, wget, nmap, lsof]
+
+- name: Select python althernative
+  become: yes
+  community.general.alternatives:
+    name: python
+    path: /usr/bin/python3.10
+    priority: 1
+    link: /usr/bin/python
+
+- name: Add snappy repo
+  include_role:
+    name: vm
+    tasks_from: add_suse_repo
+  vars:
+    repo_name: "{{ suse_snap.distro.opensuse.repo }}"
+
+- name: Install Snap packages
+  include_role:
+    name: vm
+    tasks_from: install_suse_package
+  vars:
+    suse_packages: "{{ suse_snap.distro.opensuse.pkgs }}"
+
+- name: Start snapd
+  become: yes
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items:
+    - snapd
+    - snapd.apparmor

@@ -1,0 +1,11 @@
+---
+- name: Install SUSE packages "{{ suse_packages }}"
+  become: yes
+  community.general.zypper:
+    name: "{{ suse_packages }}"
+    state: latest
+    update_cache: yes
+  register: install_suse_packages_result
+  until: "'rc' not in install_suse_packages_result or install_suse_packages_result.rc == 0"
+  retries: 5
+  delay: 30

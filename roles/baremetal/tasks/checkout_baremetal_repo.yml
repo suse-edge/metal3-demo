@@ -1,0 +1,16 @@
+---
+- name: Clone baremetal repo
+  git:
+    repo: "{{ baremetal_repo_url }}"
+    dest: ~/baremetal
+    force: yes
+    version: "{{ baremetal_branch | default('main') }}"
+
+- name: Checkout pull request {{ baremetal_pull_request }}
+  shell: |
+    git config --add remote.origin.fetch '+refs/pull/*/head:refs/remotes/origin/pr/*'
+    git fetch origin
+    git checkout pr/{{ baremetal_pull_request }}
+  args:
+    chdir: ~/baremetal
+  when: baremetal_pull_request is defined

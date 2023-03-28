@@ -1,0 +1,42 @@
+---
+# NOTE(gyee): we'll only include the first one that matches. The rest will be ignored.
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+- name: Checkout baremetal repo
+  include_role:
+    name: baremetal
+    tasks_from: checkout_baremetal_repo
+
+- name: Create media value overrides file
+  template:
+    src: media_helm_overrides.yml.j2
+    dest: ~/media_helm_overrides.yml
+
+- name: Deploy media server via helm
+  shell: >-
+    env HELM_EXPERIMENTAL_OCI=1 \
+    helm upgrade --install media media \
+      --create-namespace --namespace metal-cubed \
+      --values ~/media_helm_overrides.yml \
+      --atomic --timeout 10m
+  args:
+    chdir: ~/baremetal/helm-charts
+
+- name: Add record in PowerDNS
+  include_tasks: insert_pdns_record.yml
+  when: insert_record_in_pdns

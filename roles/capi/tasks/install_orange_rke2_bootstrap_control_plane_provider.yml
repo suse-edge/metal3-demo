@@ -1,0 +1,29 @@
+---
+#
+# see https://gitlab.com/Orange-OpenSource/kanod/cluster-api-rke2#testing-it-out
+#
+
+- name: Clone the Orange RKE2 bootstrap and control plane provider repo
+  git:
+    repo: https://gitlab.com/Orange-OpenSource/kanod/cluster-api-rke2.git
+    dest: ~/cluster-api-rke2
+    force: yes
+    version: "{{ cluster_api_rke2_branch | default('master') }}"
+
+- name: Install Orange RKE2 bootstrap and control plane provider
+  shell: |
+    kubectl apply -k bootstrap/config/default
+    kubectl apply -k controlplane/config/default
+  args:
+    chdir: ~/cluster-api-rke2
+
+- name: Wait for Orange RKE2 bootstrap and control plane provider to successfully rolled out
+  shell: >
+    kubectl rollout status Deployment/{{ item.deployment }} -n {{ item.namespace }} 2>&1 | grep 'successfully rolled out'
+  register: rollout_result
+  until: rollout_result.rc == 0
+  retries: 12
+  delay: 10
+  with_items:
+    - {'deployment': 'capi-rke2-bootstrap-controller-manager', 'namespace': 'capi-rke2-bootstrap-system'}
+    - {'deployment': 'capi-rke2-control-plane-controller-manager', 'namespace': 'capi-rke2-control-plane-system'}

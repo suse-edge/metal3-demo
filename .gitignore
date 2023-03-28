@@ -1,0 +1,15 @@
+metalrc
+
+# settings files
+extra_vars.yml
+
+# venv and associated scripts
+.venv/
+.vscode
+bin/ansible*
+
+# misc tool related files
+.python-version
+
+*.bak
+*.swo

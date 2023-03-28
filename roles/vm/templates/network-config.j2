@@ -1,0 +1,53 @@
+ethernets:
+  {{ public_network['nic'] }}:
+    dhcp4: false
+{% if 'vlan_id' not in public_network %}
+    addresses: ["{{ public_network_ip_cidr | default(public_network_ip) }}"]    
+ {% if 'nameservers' in public_network %}
+    nameservers: {{ public_network['nameservers'] | to_yaml(default_flow_style='Yes') }}
+ {% endif %}
+ {% if 'routes' in public_network %}
+    routes: {{ public_network['routes'] | to_yaml(default_flow_style='Yes') }}
+ {% endif %}
+{% endif %}
+{% if public_network['nic'] != provisioning_network['nic'] %}
+  {{ provisioning_network['nic'] }}:
+    dhcp4: false
+ {% if 'vlan_id' not in provisioning_network %}
+    addresses: ["{{ provisioning_network_ip_cidr | default(provisioning_network_ip) }}"]
+  {% if 'nameservers' in provisioning_network %}
+    nameservers: {{ provisioning_network['nameservers'] | to_yaml }}
+  {% endif %}
+  {% if 'routes' in provisioning_network %}
+routes: {{ provisioning_network['routes'] | to_nice_yaml(indent=6) }}
+  {% endif %}
+ {% endif %}
+{% endif %}
+{% if 'vlan_id' in public_network or 'vlan_id' in provisioning_network %}
+vlans:
+ {% if 'vlan_id' in public_network %}
+  {{ public_network['nic'] }}.{{ public_network['vlan_id'] }}:
+    id: {{ public_network['vlan_id'] }}
+    link: {{ public_network['nic'] }}
+    addresses: ["{{ public_network_ip_cidr | default(public_network_ip) }}"]
+  {% if 'nameservers' in public_network %}
+    nameservers: {{ public_network['nameservers'] | to_yaml }}
+  {% endif %}
+  {% if 'routes' in public_network %}
+routes: {{ public_network['routes'] | to_nice_yaml(indent=6) }}
+  {% endif %}
+ {% endif %}
+ {% if 'vlan_id' in provisioning_network and public_network['nic'] != provisioning_network['nic'] %}
+  {{ provisioning_network['nic'] }}.{{ provisioning_network['vlan_id'] }}:
+    id: {{ provisioning_network['vlan_id'] }}
+    link: {{ provisioning_network['nic'] }}
+    addresses: ["{{ provisioning_network_ip_cidr | default(provisioning_network_ip) }}"]
+  {% if 'nameservers' in provisioning_network %}
+    nameservers: {{ provisioning_network['nameservers'] | to_yaml }}
+  {% endif %}
+  {% if 'routes' in provisioning_network %}
+    routes: {{ provisioning_network['routes'] | to_yaml }}
+  {% endif %}
+ {% endif %}
+{% endif %}
+version: 2

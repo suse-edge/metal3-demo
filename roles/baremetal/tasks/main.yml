@@ -1,0 +1,63 @@
+---
+# NOTE(gyee): we'll only include the first one that matches. The rest will be ignored.
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+- name: Checkout baremetal repo
+  include_tasks: checkout_baremetal_repo.yml
+
+- name: Create directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0775
+  with_items: "{{ directories_to_create }}"
+
+- name: Generate SSH keypair
+  community.crypto.openssh_keypair:
+    type: ed25519
+    path: ~/.ssh/id_ed25519
+    regenerate: always
+  register: ssh_key_gen_result
+
+- name: Set node_ssh_public_key fact
+  set_fact:
+    node_ssh_public_key: "{{ ssh_key_gen_result.public_key }}"
+
+- name: Create metal3-deploy overrides yaml file
+  template:
+    src: "parent-chart-overrides.yaml.j2"
+    dest: "~/parent-chart-overrides.yaml"
+  register: template_parent_overrides
+
+- name: Deploy helm components using file based overrides
+  shell: >-
+    env HELM_EXPERIMENTAL_OCI=1 \
+    helm upgrade --install heavy-metal metal3-deploy \
+      --create-namespace --namespace metal-cubed \
+      --values ~/parent-chart-overrides.yaml \
+      --atomic --timeout 30m
+  args:
+    chdir: ~/baremetal/helm-charts
+
+- name: Copy Get Component Version Script
+  copy:
+    src: get_component_versions.sh
+    dest: ~/
+    mode: 0777

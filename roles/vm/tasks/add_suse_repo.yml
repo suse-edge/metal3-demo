@@ -1,0 +1,19 @@
+---
+- name: Add SUSE CA repo "{{ repo_name }}"
+  become: true
+  community.general.zypper_repository:
+    repo: "{{ repo_name }}"
+    auto_import_keys: "{{ auto_import_keys | default(True) }}"
+    state: present
+  register: add_suse_repo_result
+  until: "'rc' not in add_suse_repo_result or add_suse_repo_result.rc == 0"
+  retries: 6
+  delay: 30
+
+- name: Refresh repos
+  become: true
+  community.general.zypper_repository:
+    repo: '*'
+    runrefresh: true
+  when:
+    - add_suse_repo_result is changed

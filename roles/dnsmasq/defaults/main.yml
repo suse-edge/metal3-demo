@@ -1,0 +1,4 @@
+---
+# baremetal repo
+baremetal_repo_url: https://github.com/rancher-sandbox/baremetal.git
+baremetal_branch: master

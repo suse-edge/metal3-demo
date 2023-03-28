@@ -1,0 +1,32 @@
+global:
+  enable_external_dns: yes
+  enable_pdns: false
+  enable_metal3_media_server: false
+  enable_dnsmasq: false
+  enable_ironic: true
+  enable_pxe_boot: false
+  dnsDomain: {{ dns_domain }}
+  dnsmasqDefaultRouter: {{ dhcp_router | default('192.168.75.254') }}
+  dnsmasqDNSServer: {{ metal3_network_infra_provisioning_ip }}
+  dhcpRange: {{ dhcp_range | default('192.168.75.10,192.168.75.99') }}
+  provisioningInterface: {{ metal3_provisioning_nic }}
+  provisioningIP: {{ metal3_core_provisioning_ip }}
+  ingress:
+    annotations:
+      external-dns.alpha.kubernetes.io/target: {{ metal3_core_provisioning_ip }}
+  dnsConfig:
+    nameservers:
+    - {{ metal3_network_infra_provisioning_ip }}
+    searches:
+    - {{ dns_domain }}
+
+metal3-external-dns:
+  pdns:
+    apiUrl: http://{{ pdns_ip  }}
+    apiPort: {{ pdns_api_port }}
+    apiKey: {{ pdns_api_key }}
+
+metal3-ironic:
+  baremetaloperator:
+    # If no dhpHosts set, all mac addresses will be acknowledged
+    dhcpHosts: {{ dhcp_hosts | default([]) | join(',') }}

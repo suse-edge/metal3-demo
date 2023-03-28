@@ -1,0 +1,5 @@
+global:
+  ingress:
+    annotations:
+      external-dns.alpha.kubernetes.io/target: {{ metal3_network_infra_provisioning_ip }}
+

@@ -1,0 +1,12 @@
+---
+rancher_helm_repo_url: https://releases.rancher.com/server-charts/stable
+rancher_helm_repo_name: rancher-stable
+rancher_helm_chart_ref: rancher-stable/rancher
+
+rancher_release: rancher
+rancher_replicas: 3
+rancher_hostname: "{{ ansible_host }}"
+rancher_namespace: cattle-system
+rancher_bootstrap_secret: bootstrap-secret
+rancher_bootstrap_password: rancher
+

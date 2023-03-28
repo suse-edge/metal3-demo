@@ -1,0 +1,51 @@
+---
+# NOTE(gyee): we'll only include the first one that matches. The rest will be ignored.
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+- name: Download RKE2 installer
+  become: yes
+  get_url:
+    url: "{{ rke2_installer_url }}"
+    dest: /tmp/rke2_installer.sh
+    mode: 0755
+
+- name: Install RKE2
+  shell: >
+    sudo /tmp/rke2_installer.sh
+
+- name: Enable and start rke2-server.service
+  become: yes
+  systemd:
+    name: rke2-server.service
+    state: started
+    enabled: yes
+
+- name: Create .kube
+  file:
+    path: ~/.kube
+    state: directory
+
+- name: Create kube config
+  become: yes
+  copy:
+    src: /etc/rancher/rke2/rke2.yaml
+    dest: /home/{{ rke2_server_user }}/.kube/config
+    owner: "{{ rke2_server_user }}"
+    group: "{{ rke2_server_user_group }}"
+    mode: 0600
+    remote_src: yes

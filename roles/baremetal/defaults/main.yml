@@ -1,0 +1,8 @@
+---
+# baremetal repo
+baremetal_repo_url: https://github.com/rancher-sandbox/baremetal.git
+baremetal_branch: master
+
+# directories to create
+directories_to_create:
+  - /opt/images
