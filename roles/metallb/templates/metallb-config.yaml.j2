@@ -1,0 +1,15 @@
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: ironic-pool
+  namespace: {{ metallb_namespace }}
+spec:
+  addresses:
+  - {{ metallb['ipaddress_pool_start'] }}-{{ metallb['ipaddress_pool_end'] }}
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: ironic
+  namespace: {{ metallb_namespace }}

@@ -1,0 +1,102 @@
+---
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+- name: Clone sylva repo
+  git:
+    repo: "{{ sylva_repo_url }}"
+    dest: ~/metal3
+    force: yes
+    version: "{{ sylva_branch | default('main') }}"
+
+- name: Checkout pull request {{ sylva_pull_request }}
+  shell: |
+    git config --add remote.origin.fetch '+refs/pull/*/head:refs/remotes/origin/pr/*'
+    git fetch origin
+    git checkout pr/{{ sylva_pull_request }}
+  args:
+    chdir: ~/metal3
+  when: sylva_pull_request is defined
+
+- name: Create directories
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+    mode: 0775
+  with_items: "{{ directories_to_create }}"
+
+- name: Generate SSH keypair
+  community.crypto.openssh_keypair:
+    type: ed25519
+    path: ~/.ssh/id_ed25519
+    regenerate: always
+  register: ssh_key_gen_result
+
+- name: Set node_ssh_public_key fact
+  set_fact:
+    node_ssh_public_key: "{{ ssh_key_gen_result.public_key }}"
+
+- name: Create sylva values.yaml
+  template:
+    src: "sylva-overrides.yaml.j2"
+    dest: "~/sylva-overrides.yaml"
+  register: template_values
+
+- name: Add bitnami helm repo
+  kubernetes.core.helm_repository:
+    repo_url: "{{ bitnami_helm_repo_url }}"
+    name: "{{ bitnami_helm_repo_name }}"
+
+- name: Copy custom configuation templates
+  copy:
+    src: "templates/custom-ironic-conf.j2"
+    dest: ~/metal3/ironic-scripts/ironic.conf.j2
+
+- name: create suse directory to hold custom configuration templates
+  file:
+    path: ~/metal3/ironic-scripts/suse/
+    state: directory
+  when:  sylva['ironic']['image']['repository'] is search("registry.opensuse.org")
+
+- name: Copy custom configuration templates when sles based ironic image
+  copy:
+    src: "templates/suse/"
+    dest: "~/metal3/ironic-scripts/suse/"
+  when:  sylva['ironic']['image']['repository'] is search("registry.opensuse.org")
+
+- name: Update configmaps-ironic.yaml when sles based ironic image
+  replace:
+    path: ~/metal3/templates/configmaps-ironic.yaml
+    regexp: '.Files.Get "ironic-scripts/{{item}}'
+    replace: '.Files.Get "ironic-scripts/suse/{{item}}'
+  with_items: [ configure-ironic.sh, ironic.conf.j2, runhttpd ]
+  when:  sylva['ironic']['image']['repository'] is search("registry.opensuse.org")
+
+- name: Dependency update
+  shell: >-
+    helm dependency update
+  args:
+    chdir: ~/metal3
+
+- name: Deploy helm components 
+  shell: >-
+    helm install metal3 . -n {{ sylva.namespace | default("metal3-system") }} --values values.yaml --values ~/sylva-overrides.yaml --create-namespace --atomic --timeout 20m
+  args:
+    chdir: ~/metal3
+

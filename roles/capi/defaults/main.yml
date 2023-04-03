@@ -4,7 +4,7 @@
 # See https://github.com/kubernetes-sigs/cluster-api/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_core_version: v1.3.5
+capi_core_version: v1.4.1
 #capi_core_version: v1.1.5
 
 # CAPI API provider Metal3 release version

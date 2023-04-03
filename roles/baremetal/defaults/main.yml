@@ -6,3 +6,10 @@ baremetal_branch: master
 # directories to create
 directories_to_create:
   - /opt/images
+
+# sylva repo
+sylva_repo_url: https://gitlab.com/sylva-projects/sylva-elements/helm-charts/metal3.git
+sylva_branch: main
+
+bitnami_helm_repo_url: https://charts.bitnami.com/bitnami
+bitnami_helm_repo_name: bitnami

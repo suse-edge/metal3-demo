@@ -213,3 +213,31 @@ storage:
   nfs:
     create: true
     path: "/nfs/share"
+
+# Flag to indicate whether to use sylva based helm charts or rancher-sandbox helmcharts
+use_sylva_helm_charts: true
+auth_enabled: true
+sylva:
+  namespace: metal3-system
+  baremetalOperator:
+    image:
+      repository: "quay.io/metal3-io/baremetal-operator"
+      pullPolicy: "IfNotPresent"
+      tag: "v0.1.1"
+  ironic:
+    image:
+      repository: "quay.io/metal3-io/ironic"
+      pullPolicy: "IfNotPresent"
+      tag: "capm3-v1.2.0"
+      #repository: "registry.opensuse.org/isv/metal3/bci/ironic/containerfile/suse/ironic"
+      #tag: "21.1.1"
+
+  ironic-ipa-downloader:
+    image:
+      repository: "registry.opensuse.org/isv/metal3/bci/ironic/containerfile/suse/ironic-ipa-downloader"
+      pullPolicy: "IfNotPresent"
+      tag: "latest"
+
+#metallb:
+#  ipaddress_pool_start: 192.168.75.16
+#  ipaddress_pool_end: 192.168.75.19

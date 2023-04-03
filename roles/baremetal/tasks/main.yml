@@ -45,6 +45,7 @@
     src: "parent-chart-overrides.yaml.j2"
     dest: "~/parent-chart-overrides.yaml"
   register: template_parent_overrides
+  when: not use_sylva_helm_charts
 
 - name: Deploy helm components using file based overrides
   shell: >-
@@ -55,9 +56,15 @@
       --atomic --timeout 30m
   args:
     chdir: ~/baremetal/helm-charts
+  when: not use_sylva_helm_charts
 
 - name: Copy Get Component Version Script
   copy:
     src: get_component_versions.sh
     dest: ~/
     mode: 0777
+  when: not use_sylva_helm_charts
+
+- name: Install metal3 using the helmcharts from sylva
+  include_tasks: sylva.yml
+  when: use_sylva_helm_charts | default('false')

@@ -62,4 +62,3 @@
   retries: 5
   delay: 10
   until: "'successfully rolled out' in nfs_provisioner_rollout_result.stdout"
-

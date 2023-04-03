@@ -50,6 +50,11 @@
       import_role:
         name: cert-manager
 
+    - name: Deploy metallb
+      import_role:
+        name: metallb
+      when: metallb is defined and metallb['ipaddress_pool_start'] is defined and metallb['ipaddress_pool_end'] is defined
+
     - name: Deploy rancher
       import_role:
         name: rancher
@@ -65,6 +70,10 @@
         name: nfs
       when: storage['nfs']['create'] | default('False')
 
+    - name: Deploy docker
+      import_role:
+        name: docker
+
     - name: Deploy baremetal
       import_role:
         name: baremetal
@@ -76,7 +85,3 @@
         provisioning_ip: "{{ metal3_core_provisioning_ip }}"
       tags:
         - ironicclient
-
-    - name: Deploy docker
-      import_role:
-        name: docker

@@ -1,6 +1,11 @@
 clouds:
   metal3:
+{% if auth_enabled and use_sylva_helm_charts %}
+    auth_type: "http_basic"
+    username: ironic
+    password: changeme
+{% else %}
     auth_type: "none"
+{% endif %}
     endpoint: "http://{{ provisioning_ip }}:6385"
     baremetal_introspection_endpoint_override: "http://{{ provisioning_ip }}:5050"
-

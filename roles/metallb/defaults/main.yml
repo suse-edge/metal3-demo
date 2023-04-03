@@ -1,0 +1,7 @@
+---
+metallb_helm_repo_name: metallb
+metallb_helm_repo_url: https://metallb.github.io/metallb
+metallb_helm_chart_ref: metallb/metallb
+
+metallb_namespace: metallb-system
+metallb_release: metallb

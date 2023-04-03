@@ -1,0 +1,58 @@
+---
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+- name: Add metallb helm repo
+  kubernetes.core.helm_repository:
+    repo_url: "{{ metallb_helm_repo_url }}"
+    name: "{{ metallb_helm_repo_name }}"
+
+- name: Deploy metallb helm chart
+  shell: >
+    helm upgrade {{ metallb_release }} {{ metallb_helm_chart_ref }} --install --atomic --create-namespace --namespace {{ metallb_namespace }}
+
+- name: Wait for metallb to be rolled out
+  shell: >
+    kubectl -n {{ metallb_namespace }} rollout status deployment.apps/metallb-controller
+  register: metallb_rollout_result
+  retries: 5
+  delay: 10
+  until: "'successfully rolled out' in metallb_rollout_result.stdout"
+
+- name: Add labels for elevated permission - see https://metallb.universe.tf/installation/#installation-with-helm
+  shell: |
+    kubectl label namespace  "{{ metallb_namespace }}" pod-security.kubernetes.io/{{item}}=privileged
+  register: label_result
+  with_items:
+    - enforce
+    - warn
+    - audit
+
+- name: Create metallb configuration
+  template:
+    src: "metallb-config.yaml.j2"
+    dest: "~/metallb-config.yaml"
+    mode: "0755"
+
+- name: Configure metallb
+  shell: |
+    kubectl apply -f metallb-config.yaml
+  args:
+    chdir: ~
+  register: result
+  changed_when: result.rc != 0
+

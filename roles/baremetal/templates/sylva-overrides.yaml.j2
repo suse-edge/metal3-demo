@@ -1,0 +1,73 @@
+---
+global:
+  storageClass: "{{ nfs_storage_class_name | default('dynamic') }}"
+images:
+  baremetalOperator:
+    repository: "{{ sylva['baremetalOperator']['image']['repository'] |
+      default('quay.io/metal3-io/baremetal-operator') }}"
+    pullPolicy: "{{ sylva['baremetalOperator']['image']['pullPolicy'] |
+      default('IfNotPresent') }}"
+    tag: "{{ sylva['baremetalOperator']['image']['tag'] | default('v0.1.1') }}"
+  ironic:
+    repository: "{{ sylva['ironic']['image']['repository'] |
+      default('quay.io/metal3-io/ironic') }}"
+    pullPolicy: "{{ sylva['ironic']['image']['pullPolicy'] | default('IfNotPresent') }}"
+    tag: "{{ sylva['ironic']['image']['tag'] | default('capm3-v1.2.0') }}"
+  ironicIPADownloader:
+    repository: "{{ sylva['ironic-ipa-downloader']['image']['repository'] |
+      default('quay.io/metal3-io/ironic-ipa-downloader') }}"
+    pullPolicy: "{{ sylva['ironic-ipa-downloader']['image']['pullPolicy'] |
+      default('IfNotPresent') }}"
+    tag: "{{ sylva['ironic-ipa-downloader']['image']['tag'] | default('latest') }}"
+persistence:
+  ironic:
+    storageClass: "{{ storage['class_name'] | default('dynamic') }}"
+    size: 2Gi
+    accessMode: "{{ storage['access_mode'] | default('ReadWriteMany') }}"
+auth:
+  basicAuthEnabled: {{ auth_enabled }}
+  ironicUsername: ironic
+  ironicPassword: changeme
+  ironicInspectorUsername: ironic
+  ironicInspectorPassword: changeme
+  tlsEnabled: false
+ironicIPADownloaderBaseURI: ""
+ironicIPAExtraHardwareCollectorEnabled: false
+httpProxy: ""
+httpsProxy: ""
+noProxy: ""
+services:
+  ironic:
+    type: LoadBalancer
+    externalIPs:
+      - "{{ metal3_core_provisioning_ip }}"
+    ironicIP: "{{ metal3_core_provisioning_ip }}"
+    ironicAPIPort: 6385
+    ironicInspectorPort: 5050
+    ironicHTTPPort: 6180
+    annotations: {}
+mariadb:
+  architecture: replication
+  primary:
+    persistence:
+      enabled: true
+      size: 2Gi
+      storageClass: "{{ storage['class_name']| default('dynamic') }}"
+    service:
+      type: ClusterIP
+      ports:
+        mysql: 3306
+      clusterIP: 10.43.255.253
+  secondary:
+    readinessProbe:
+      timeoutSeconds: 60
+    persistence:
+      size: 2Gi
+      storageClass: "{{ storage['class_name'] | default('dynamic')}}"
+    replicaCount: 1
+    service:
+      type: ClusterIP
+      ports:
+        mysql: 3306
+      clusterIP: 10.43.255.252
+
