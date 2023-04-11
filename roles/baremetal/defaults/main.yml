@@ -3,6 +3,17 @@
 baremetal_repo_url: https://github.com/rancher-sandbox/baremetal.git
 baremetal_branch: master
 
+# sylva-core repo
+sylva_core_repo_url: https://gitlab.com/sylva-projects/sylva-core.git
+sylva_core_branch: main
+
+# metal3-demo repo
+metal3_demo_repo_url: https://github.com/suse-edge/metal3-demo.git
+metal3_demo_branch: main
+
 # directories to create
 directories_to_create:
   - /opt/images
+
+# DNS zone forwarders
+dns_zone_forwarders: []

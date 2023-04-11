@@ -1,4 +1,45 @@
 #
+# Whether to deploy sylva-core
+#
+deploy_sylva_core: false
+
+########################################################
+# Sylva Configurations                                 #
+#                                                      #
+# NOTE: these configurations are effective only if     #
+# "deploy_sylva_core" is set to "true"                 #
+########################################################
+
+#
+# Repo which contains the workload cluster manifests
+#
+# workload_cluster_manifest_repo: https://gitlab.suse.de/cloud-solutions-sys-eng/metal3-clusters
+
+#
+# The workload cluster manifest repo branch to use. By default,
+# it is set to the "main" branch.
+#
+# workload_cluster_manifest_repo_branch: main
+
+#
+# The path to the chart (in the workload cluster manifests repo above) to use
+#
+# workload_cluster_chart_path: ./hlm006
+
+#
+# If the repo is a private repo and the trusted CA certificate needed in
+# order to validate the repo HTTPs certificate. Specify the name of the
+# secret which contains that CA certificate.
+#
+# NOTE: the secret is expected to be created prior
+#
+# workload_cluster_secret_ref_name: suse-root-ca
+
+##########################
+# General Configurations #
+##########################
+
+#
 # *Your* github person access token, used to interact with github APIs
 # during provisioning of the Metal3 stack, if you are consistently running
 # into github API rate limiting problems.

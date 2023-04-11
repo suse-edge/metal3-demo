@@ -54,7 +54,8 @@
       import_role:
         name: rancher
       vars:
-        rancher_hostname: metal3-network-infra
+        rancher_hostname: metal3-network-infra.{{ dns_domain }}
+        rancher_host_ip: "{{ metal3_network_infra_public_ip }}"
 
     - name: Deploy PowerDNS
       import_role:

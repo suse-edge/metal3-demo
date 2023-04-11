@@ -18,7 +18,30 @@
   include_tasks: "_{{ ansible_os_family | lower }}.yml"
 
 - name: Checkout baremetal repo
-  include_tasks: checkout_baremetal_repo.yml
+  include_tasks: checkout_repo.yml
+  vars:
+    repo_dir: baremetal
+    repo_url: "{{ baremetal_repo_url }}"
+    repo_branch: "{{ baremetal_branch }}"
+    repo_pull_request: "{{ baremetal_pull_request | default('') }}"
+
+- name: Checkout sylva-core repo
+  include_tasks: checkout_repo.yml
+  vars:
+    repo_dir: sylva-core
+    repo_url: "{{ sylva_core_repo_url }}"
+    repo_branch: "{{ sylva_core_branch }}"
+    repo_pull_request: "{{ sylva_core_pull_request | default('') }}"
+  when: deploy_sylva_core
+
+- name: Checkout metal3-demo repo
+  include_tasks: checkout_repo.yml
+  vars:
+    repo_dir: metal3-demo
+    repo_url: "{{ metal3_demo_repo_url }}"
+    repo_branch: "{{ metal3_demo_branch }}"
+    repo_pull_request: "{{ metal3_demo_pull_request | default('') }}"
+  when: deploy_sylva_core
 
 - name: Create directories
   become: yes
@@ -45,6 +68,7 @@
     src: "parent-chart-overrides.yaml.j2"
     dest: "~/parent-chart-overrides.yaml"
   register: template_parent_overrides
+  when: not deploy_sylva_core
 
 - name: Deploy helm components using file based overrides
   shell: >-
@@ -55,6 +79,29 @@
       --atomic --timeout 30m
   args:
     chdir: ~/baremetal/helm-charts
+  when: not deploy_sylva_core
+
+- name: Create values.yaml for Sylva environment
+  template:
+    src: values.yaml.j2
+    dest: ~/metal3-demo/sylva/environments/suse-rke2-capm3/values.yaml
+  when: deploy_sylva_core
+
+- name: Create workload_cluster_git_repo.yaml
+  template:
+    src: workload_cluster_git_repo.yaml.j2
+    dest: ~/metal3-demo/sylva/environments/suse-rke2-capm3/workload_cluster_git_repo.yaml
+  when: deploy_sylva_core
+
+- name: Deploy sylva-core helm charts
+  shell: >-
+    ./apply.sh ~/metal3-demo/sylva/environments/suse-rke2-capm3
+  args:
+    chdir: ~/sylva-core
+  register: sylva_core_deploy_result
+  retries: 3
+  delay: 30 
+  when: deploy_sylva_core
 
 - name: Copy Get Component Version Script
   copy:

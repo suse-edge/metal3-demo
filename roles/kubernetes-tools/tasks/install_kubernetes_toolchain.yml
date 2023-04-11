@@ -65,3 +65,18 @@
   lineinfile:
     path: ~/.bashrc
     line: export PATH="$HOME/.krew/bin:$PATH"
+
+# see https://cluster-api.sigs.k8s.io/user/quick-start.html#install-clusterctl
+- name: Install clusterctl
+  become: yes
+  get_url:
+    url: "https://github.com/kubernetes-sigs/cluster-api/releases/download/{{ capi_core_version }}/clusterctl-linux-amd64"
+    dest: /usr/local/bin/clusterctl
+    mode: 0755
+    owner: root
+    group: root
+
+# install flux CLI per https://fluxcd.io/flux/installation/#install-the-flux-cli
+- name: Install flux CLI
+  shell: >
+    curl -s https://fluxcd.io/install.sh | sudo bash
