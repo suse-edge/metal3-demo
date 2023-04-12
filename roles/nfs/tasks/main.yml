@@ -1,0 +1,65 @@
+---
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+- name: Ensure NFS share directory exists
+  become: yes
+  ansible.builtin.file:
+    path: "{{ storage['nfs']['path'] | default('/nfs/share') }}"
+    state: directory
+    mode: 0777
+    owner: root
+    group: root
+
+- name: Update /etc/exports
+  become: yes
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    state: present
+    line: "{{  storage['nfs']['path'] | default('/nfs/share') }} *(rw,sync,no_subtree_check,insecure)"
+
+- name: restart NFS server
+  become: yes
+  ansible.builtin.service:
+    name: nfs-server
+    state: restarted
+    enabled: true
+
+- name: Export the share
+  become: yes
+  command: 'exportfs -rav'
+
+# For Dynamic provisioning using StorageClass
+- name: Add nfs_provisioner helm repo
+  kubernetes.core.helm_repository:
+    repo_url: "{{ nfs_provisioner_helm_repo_url }}"
+    name: "{{ nfs_provisioner_helm_repo_name }}"
+
+- name: Deploy nfs_provisioner helm chart
+  shell: >
+    helm upgrade {{ nfs_provisioner_release }} {{ nfs_provisioner_helm_chart_ref }} \
+    --install --set nfs.server={{ provisioning_ip }} \
+    --set nfs.path={{ storage['nfs']['path'] | default('/nfs/share') }} --set storageClass.name={{ storage['class_name'] | default('dynamic')}} \
+    --atomic --create-namespace --namespace {{ nfs_provisioner_namespace }}
+- name: Wait for nfs_provisioner to be rolled out
+  shell: >
+    kubectl -n {{ nfs_provisioner_namespace }} rollout status deployment/nfs-subdir-external-provisioner
+  register: nfs_provisioner_rollout_result
+  retries: 5
+  delay: 10
+  until: "'successfully rolled out' in nfs_provisioner_rollout_result.stdout"
+
