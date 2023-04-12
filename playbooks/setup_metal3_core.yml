@@ -60,6 +60,11 @@
       import_role:
         name: capi
 
+    - name: Deploy NFS
+      import_role:
+        name: nfs
+      when: storage['nfs']['create'] | default('False')
+
     - name: Deploy baremetal
       import_role:
         name: baremetal

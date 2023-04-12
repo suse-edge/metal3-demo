@@ -205,3 +205,11 @@ metal3_core_vm_network:
       routes:
         - to: default
           via: 10.84.63.254
+
+# Storage setup on the Metal3 Core VM
+storage:
+  class_name: dynamic
+  access_mode: ReadWriteMany
+  nfs:
+    create: true
+    path: "/nfs/share"
