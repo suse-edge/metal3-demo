@@ -30,3 +30,14 @@ metal3-ironic:
   baremetaloperator:
     # If no dhpHosts set, all mac addresses will be acknowledged
     dhcpHosts: {{ dhcp_hosts | default([]) | join(',') }}
+  persistence:
+    ironic:
+      storageClass: "{{ storage['class_name'] | default('dynamic') }}"
+
+mariadb:
+  primary:
+    persistence:
+      storageClass: "{{ storage['class_name'] | default('dynamic') }}"
+  secondary:
+    persistence:
+      storageClass: "{{ storage['class_name'] | default('dynamic') }}"
