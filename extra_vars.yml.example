@@ -40,6 +40,13 @@ deploy_sylva_core: false
 ##########################
 
 #
+# RKE2 channel to install a specific version of RKE2 server.
+# This is to ensure that the given RKE2 version is compatible with the latest
+# version of Rancher.
+#
+rke2_channel_version: v1.24
+
+#
 # *Your* github person access token, used to interact with github APIs
 # during provisioning of the Metal3 stack, if you are consistently running
 # into github API rate limiting problems.
