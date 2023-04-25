@@ -34,10 +34,6 @@ metal3-ironic:
     ironic:
       storageClass: "{{ storage['class_name'] | default('dynamic') }}"
 
-mariadb:
-  primary:
-    persistence:
-      storageClass: "{{ storage['class_name'] | default('dynamic') }}"
-  secondary:
-    persistence:
-      storageClass: "{{ storage['class_name'] | default('dynamic') }}"
+metal3-mariadb:
+  persistence:
+    storageClass: "mysql"

@@ -16,21 +16,39 @@
 - name: Include platform-specific common tasks
   include_tasks: "_{{ ansible_os_family | lower }}.yml"
 
+- name: Disable NFS v3
+  become: yes
+  ansible.builtin.lineinfile:
+    path: /etc/sysconfig/nfs
+    regexp: '^NFS3_SERVER_SUPPORT='
+    line: NFS3_SERVER_SUPPORT="no"
+
 - name: Ensure NFS share directory exists
   become: yes
   ansible.builtin.file:
     path: "{{ storage['nfs']['path'] | default('/nfs/share') }}"
     state: directory
     mode: 0777
-    owner: root
-    group: root
+    owner: nobody
+    group: nobody
+
+- name: Ensure database data folder exists
+  become: yes
+  ansible.builtin.file:
+    path: "/var/lib/mysql"
+    state: directory
+    mode: 0777
+    owner: nobody
+    group: nobody
+    recurse: yes
 
 - name: Update /etc/exports
   become: yes
-  ansible.builtin.lineinfile:
+  blockinfile:
     path: /etc/exports
-    state: present
-    line: "{{  storage['nfs']['path'] | default('/nfs/share') }} *(rw,sync,no_subtree_check,insecure)"
+    block: |
+      {{  storage['nfs']['path'] | default('/nfs/share') }} *(rw,sync,no_subtree_check,insecure)
+      /var/lib/mysql *(rw,sync,no_subtree_check,insecure,all_squash,anonuid=0,anongid=60)
 
 - name: restart NFS server
   become: yes
@@ -49,17 +67,34 @@
     repo_url: "{{ nfs_provisioner_helm_repo_url }}"
     name: "{{ nfs_provisioner_helm_repo_name }}"
 
-- name: Deploy nfs_provisioner helm chart
+- name: Deploy nfs_provisioner helm chart for /nfs/share
   shell: >
     helm upgrade {{ nfs_provisioner_release }} {{ nfs_provisioner_helm_chart_ref }} \
     --install --set nfs.server={{ provisioning_ip }} \
     --set nfs.path={{ storage['nfs']['path'] | default('/nfs/share') }} --set storageClass.name={{ storage['class_name'] | default('dynamic')}} \
+    --set storageClass.defaultClass=true \
+    --set storageClass.provisionerName=nfs-provisioner-01 \
     --atomic --create-namespace --namespace {{ nfs_provisioner_namespace }}
-- name: Wait for nfs_provisioner to be rolled out
-  shell: >
-    kubectl -n {{ nfs_provisioner_namespace }} rollout status deployment/nfs-subdir-external-provisioner
+
+- name: Wait for nfs_provisioner for /nfs/share
+    kubectl -n {{ nfs_provisioner_namespace }} rollout status deployment/{{ nfs_provisioner_release }}
   register: nfs_provisioner_rollout_result
   retries: 5
   delay: 10
   until: "'successfully rolled out' in nfs_provisioner_rollout_result.stdout"
 
+- name: Deploy nfs_provisioner helm chart for db data
+  shell: >
+    helm upgrade {{ nfs_provisioner_release }}-db {{ nfs_provisioner_helm_chart_ref }} \
+    --install --set nfs.server={{ provisioning_ip }} \
+    --set nfs.path="/var/lib/mysql" --set storageClass.name="mysql" \
+    --set storageClass.provisionerName=nfs-provisioner-02 \
+    --atomic --create-namespace --namespace {{ nfs_provisioner_namespace }}
+
+- name: Wait for nfs_provisioner for db data to be rolled out
+  shell: >
+    kubectl -n {{ nfs_provisioner_namespace }} rollout status deployment/{{ nfs_provisioner_release }}-db
+  register: nfs_provisioner_rollout_result
+  retries: 5
+  delay: 10
+  until: "'successfully rolled out' in nfs_provisioner_rollout_result.stdout"
