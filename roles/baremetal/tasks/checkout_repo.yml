@@ -1,0 +1,16 @@
+---
+- name: Clone {{ repo_dir }} repo
+  git:
+    repo: "{{ repo_url }}"
+    dest: ~/{{ repo_dir }}
+    force: yes
+    version: "{{ repo_branch | default('main') }}"
+
+- name: Checkout pull request {{ repo_pull_request }}
+  shell: |
+    git config --add remote.origin.fetch '+refs/pull/*/head:refs/remotes/origin/pr/*'
+    git fetch origin
+    git checkout pr/{{ repo_pull_request }}
+  args:
+    chdir: ~/{{ repo_dir }}
+  when: repo_pull_request != ""

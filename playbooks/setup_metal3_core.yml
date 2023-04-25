@@ -22,6 +22,8 @@
         vm_network: "{{ metal3_core_vm_network }}"
         vm_public_network_ip: "{{ metal3_core_public_ip }}"
         vm_libvirt_network_params: "{{ metal3_vm_libvirt_network_params }}"
+        vm_memory: 32768
+        vm_vcpus: 8
 
     - name: Show metal3-core vm IP
       debug:
@@ -42,6 +44,10 @@
       import_role:
         name: kubernetes-tools
 
+    - name: Deploy docker
+      import_role:
+        name: docker
+
     - name: Deploy RKE2
       import_role:
         name: rke2-server
@@ -54,29 +60,25 @@
       import_role:
         name: rancher
       vars:
-        rancher_hostname: metal3-core
+        rancher_hostname: metal3-core.{{ dns_domain }}
+        rancher_host_ip: "{{ metal3_core_public_ip }}"
 
     - name: Deploy capi
       import_role:
         name: capi
+      when: not deploy_sylva_core
 
     - name: Deploy NFS
       import_role:
         name: nfs
       when: storage['nfs']['create'] | default('False')
 
-    - name: Deploy baremetal
-      import_role:
-        name: baremetal
-
     - name: Install python-ironicclient
       import_role:
         name: ironicclient
       vars:
         provisioning_ip: "{{ metal3_core_provisioning_ip }}"
-      tags:
-        - ironicclient
 
-    - name: Deploy docker
+    - name: Deploy baremetal
       import_role:
-        name: docker
+        name: baremetal

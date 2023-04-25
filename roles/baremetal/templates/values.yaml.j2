@@ -1,0 +1,206 @@
+#jinja2: trim_blocks:False
+---
+source_templates:
+  suse-baremetal:
+    kind: GitRepository
+    spec:
+      url: https://github.com/rancher-sandbox/baremetal.git
+      ref:
+        branch: master
+
+{% if workload_cluster_manifest_repo is defined %}
+# NOTE: we have to pre-create any private repo which require a private
+# trusted CA certificate for HTTPs validation because Sylva seem to used
+# the secretRef for a different purpose. It is deviated from the upstream
+# Flux spec (https://github.com/fluxcd/source-controller/blob/main/docs/spec/v1beta2/gitrepositories.md) for GitRepository
+  workload-cluster:
+    kind: GitRepository
+    spec:
+      url: {{ workload_cluster_manifest_repo }}
+      ref:
+        branch: {{ workload_cluster_manifest_repo_branch | default('main') }}
+    existing_source:
+      name: workload-cluster
+      kind: GitRepository
+{% endif %}
+
+units:
+  coredns:
+    enabled: true
+    repo: sylva-core
+    kustomization_spec:
+      path: ./kustomize-units/coredns
+      wait: true
+      patches:
+        - target:
+            kind: ConfigMap
+            name: coredns
+          patch: |
+            - op: replace
+              path: /data/Corefile
+              value: |
+{% for zone in (dns_zone_forwarders) %}
+                {{ zone.zone }}:53 {
+                    errors
+                    forward suse.de{% for srv in (zone.forwarders) %} {{ srv }}{% endfor %}
+                }
+{% endfor %}
+                {{ dns_domain }}:53 {
+                    errors
+                    forward {{ dns_domain }} {{ metal3_network_infra_provisioning_ip }}
+                }
+                .:53 {
+                    errors
+                    health {
+                        lameduck 5s
+                    }
+                    ready
+                    kubernetes cluster.local in-addr.arpa ip6.arpa {
+                        pods insecure
+                        fallthrough in-addr.arpa ip6.arpa
+                        ttl 30
+                    }
+                    prometheus :9153
+                    forward . /etc/resolv.conf {
+                        max_concurrent 1000
+                    }
+                    cache 30
+                    loop
+                    reload
+                    loadbalance
+                }
+        - target:
+            kind: ConfigMap
+            name: coredns
+          patch: |
+            - op: replace
+              path: /metadata/name
+              value: '{% raw %}{{ (.Values.cluster.capi_providers.bootstrap_provider | eq "cabpk") | ternary "coredns" "rke2-coredns-rke2-coredns" }}{% endraw %}'
+      postBuild:
+        substitute:
+          CLUSTER_EXTERNAL_IP: '{% raw %}{{ .Values.cluster.cluster_external_ip }}{% endraw %}'
+          CLUSTER_EXTERNAL_DOMAIN: '{% raw %}{{ .Values.cluster.cluster_external_domain }}{% endraw %}'
+
+  keycloak:
+    enabled: no
+
+  # no need to install rancher as it already exists
+  rancher:
+    enabled: no
+
+  metallb:
+    enabled: no
+
+  # disable it for now
+  k8s-gateway:
+    enabled: no
+
+  vault:
+    enabled: no
+
+  vault-operator:
+    enabled: no
+
+  metal3:
+    enabled: yes
+    depends_on:
+      cert-manager: true
+    repo: suse-baremetal
+    helmrelease_spec:
+      chart:
+        spec:
+          chart: helm-charts/metal3-deploy
+      timeout: 30m
+      install:
+        createNamespace: true
+        timeout: 30m
+      targetNamespace: metal3-system
+      values: # see https://github.com/rancher-sandbox/baremetal/blob/master/helm-charts/metal3-deploy/values.yaml
+        global:
+          enable_external_dns: yes
+          enable_pdns: false
+          enable_metal3_media_server: false
+          enable_dnsmasq: false
+          enable_ironic: true
+          enable_pxe_boot: false
+          dnsDomain: {{ dns_domain }}
+          dnsmasqDefaultRouter: {{ dhcp_router | default('192.168.75.254') }}
+          dnsmasqDNSServer: {{ metal3_network_infra_provisioning_ip }}
+          dhcpRange: {{ dhcp_range | default('192.168.75.10,192.168.75.99') }}
+          provisioningInterface: {{ metal3_provisioning_nic }}
+          provisioningIP: {{ metal3_core_provisioning_ip }}
+          ingress:
+            annotations:
+              external-dns.alpha.kubernetes.io/target: {{ metal3_core_provisioning_ip }}
+          dnsConfig:
+            nameservers:
+            - {{ metal3_network_infra_provisioning_ip }}
+            searches:
+            - {{ dns_domain }}
+
+        metal3-ironic:
+          persistence:
+            ironic:
+              storageClass: "dynamic"
+
+        metal3-external-dns:
+          pdns:
+            apiUrl: http://{{ pdns_ip  }}
+            apiPort: {{ pdns_api_port }}
+            apiKey: {{ pdns_api_key }}
+
+  # NOTE: for an existing management cluster, we don't need to deploy cluster
+  # again. It's for bootstrapping and pivot only.
+  cluster:
+    enabled: no
+
+  workload-cluster:
+    enabled: no
+
+{% if workload_cluster_manifest_repo is defined %}
+  suse-metal3-workload-cluster:
+    enabled: yes
+    depends_on:
+      coredns: true
+      metal3: true
+    repo: workload-cluster
+    kustomization_spec:
+      path: "{{ workload_cluster_chart_path }}"
+      timeout: 45m
+      wait: true
+      postBuild:
+        substitute:
+          CLUSTER_NAME: {{ workload_cluster_name | default("sample-cluster") }}
+          RKE2_VERSION: {{ workload_cluster_rke2_version | default("v1.25.3+rke2r1") }}
+
+  workload-cluster-import:
+    enabled: yes
+    depends_on:
+      workload-cluster: false
+      suse-metal3-workload-cluster: true
+      rancher: false
+
+  capi-rancher-import:
+    enabled: yes
+    depends_on:
+      rancher: false
+      k8s-gateway: false
+{% endif %}
+
+cluster:
+  admin_password: rancher
+  cluster_external_ip: {{ metal3_core_provisioning_ip }}
+  cluster_external_domain: {{ dns_domain }}
+  test_workload_cluster_name: {{ workload_cluster_name | default("sample-cluster") }}
+  capi_providers:
+    infra_provider: capm3
+    bootstrap_provider: cabpr
+  flux_webui:
+    admin_user: admin
+    admin_password: FluxAdmin1
+
+proxies:
+  # put your own proxy settings here if you need
+  http_proxy: ""
+  https_proxy: ""
+  no_proxy: ""

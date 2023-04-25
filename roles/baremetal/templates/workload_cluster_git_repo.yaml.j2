@@ -1,0 +1,19 @@
+#jinja2: trim_blocks:False
+---
+{% if workload_cluster_manifest_repo is defined %}
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: workload-cluster
+  namespace: default
+spec:
+  interval: 1m
+  url: {{ workload_cluster_manifest_repo }}
+  ref:
+    branch: {{ workload_cluster_manifest_repo_branch | default('main') }}
+{% if workload_cluster_secret_ref_name is defined %}
+  gitImplementation: libgit2
+  secretRef:
+    name: {{ workload_cluster_secret_ref_name }}
+{% endif %}
+{% endif %}
