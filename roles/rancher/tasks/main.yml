@@ -29,7 +29,7 @@
 
 - name: Deploy latest rancher helm chart
   shell: >
-    helm upgrade {{ rancher_release }} {{ rancher_helm_chart_ref }} --install --atomic --create-namespace --namespace {{ rancher_namespace }} --set installCRDs=true --set hostname={{ rancher_hostname }} --set bootstrapPassword={{ rancher_bootstrap_password }} --set replicas={{ rancher_replicas }} --set extraEnv[0].name=CATTLE_SERVER_URL --set extraEnv[0].value=https://{{ rancher_hostname }} --set ingress.extraAnnotations.'external-dns\.alpha\.kubernetes\.io/target'={{ rancher_host_ip }} --set global.cattle.psp.enabled=false
+    helm upgrade {{ rancher_release }} {{ rancher_helm_chart_ref }} --install --atomic --create-namespace --namespace {{ rancher_namespace }} --set installCRDs=true --set hostname={{ rancher_hostname }} --set bootstrapPassword={{ rancher_bootstrap_password }} --set replicas={{ rancher_replicas }} --set extraEnv[0].name=CATTLE_SERVER_URL --set extraEnv[0].value=https://{{ rancher_hostname }} --set ingress.extraAnnotations.'external-dns\.alpha\.kubernetes\.io/target'={{ rancher_host_ip }}
   register: rancher_deploy_result
   until: rancher_deploy_result.rc == 0
   retries: 3
