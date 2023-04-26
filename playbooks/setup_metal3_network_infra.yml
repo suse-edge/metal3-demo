@@ -29,6 +29,7 @@
 
     - name: Define metal3-network-infra node
       ansible.builtin.add_host:
+        ansible_python_interpreter: "{{ vm_python_interpreter | default('/usr/bin/python3') }}"
         name: metal3-network-infra
         hostname: metal3-network-infra
         ansible_user: "{{ vm_user }}"

@@ -31,6 +31,7 @@
 
     - name: Define metal3-core node
       ansible.builtin.add_host:
+        ansible_python_interpreter: "{{ vm_python_interpreter | default('/usr/bin/python3') }}"
         name: metal3-core
         hostname: metal3-core
         ansible_user: "{{ vm_user }}"
