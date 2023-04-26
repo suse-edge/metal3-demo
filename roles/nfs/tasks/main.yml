@@ -77,6 +77,7 @@
     --atomic --create-namespace --namespace {{ nfs_provisioner_namespace }}
 
 - name: Wait for nfs_provisioner for /nfs/share
+  shell: >
     kubectl -n {{ nfs_provisioner_namespace }} rollout status deployment/{{ nfs_provisioner_release }}
   register: nfs_provisioner_rollout_result
   retries: 5
