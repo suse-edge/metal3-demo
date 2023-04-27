@@ -21,6 +21,8 @@ global:
     - {{ dns_domain }}
 
 metal3-external-dns:
+  domainFilters:
+    - {{ dns_domain }}
   pdns:
     apiUrl: http://{{ pdns_ip  }}
     apiPort: {{ pdns_api_port }}
