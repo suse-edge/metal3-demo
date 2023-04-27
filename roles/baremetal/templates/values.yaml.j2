@@ -141,7 +141,11 @@ units:
         metal3-ironic:
           persistence:
             ironic:
-              storageClass: "dynamic"
+              storageClass: "{{ storage['class_name'] | default('dynamic') }}"
+
+        metal3-mariadb:
+          persistence:
+            storageClass: "mysql"
 
         metal3-external-dns:
           pdns:
