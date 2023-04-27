@@ -1,0 +1,8 @@
+---
+- name: Checkout baremetal repo
+  include_tasks: checkout_repo.yml
+  vars:
+    repo_dir: baremetal
+    repo_url: "{{ baremetal_repo_url }}"
+    repo_branch: "{{ baremetal_branch }}"
+    repo_pull_request: "{{ baremetal_pull_request | default('') }}"
