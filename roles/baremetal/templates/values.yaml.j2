@@ -4,9 +4,9 @@ source_templates:
   suse-baremetal:
     kind: GitRepository
     spec:
-      url: https://github.com/rancher-sandbox/baremetal.git
+      url: {{ baremetal_repo_url }}
       ref:
-        branch: master
+        branch: {{ baremetal_branch | default('master') }}
 
 {% if workload_cluster_manifest_repo is defined %}
 # NOTE: we have to pre-create any private repo which require a private
