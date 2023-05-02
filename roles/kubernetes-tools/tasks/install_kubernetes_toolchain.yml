@@ -43,6 +43,13 @@
   retries: 5
   delay: 5
 
+# per https://github.com/johanhaleby/kubetail#installation
+- name: Install kubetail
+  get_url:
+    url: "{{ kubetail_download_url }}"
+    dest: ~/bin/kubetail
+    mode: 0755
+
 - name: Check to see if krew is installed
   shell: >
     kubectl krew 2>&1
