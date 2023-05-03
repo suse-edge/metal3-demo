@@ -45,10 +45,12 @@ units:
                     forward suse.de{% for srv in (zone.forwarders) %} {{ srv }}{% endfor %}
                 }
 {% endfor %}
+{% if dns_provider == 'pdns' %}
                 {{ dns_domain }}:53 {
                     errors
                     forward {{ dns_domain }} {{ metal3_network_infra_provisioning_ip }}
                 }
+{% endif %}
                 .:53 {
                     errors
                     health {

@@ -2,7 +2,7 @@ global:
   pdnsIP: {{ pdns_ip }}
 
 zone:
-  name: {{ dns_domain }}
+  name: {{ dns_domain_override | default(dns_domain) }}
 
 service:
   ip: {{ pdns_cluster_ip }}

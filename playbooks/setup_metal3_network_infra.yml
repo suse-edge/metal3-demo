@@ -61,6 +61,18 @@
     - name: Deploy PowerDNS
       import_role:
         name: powerdns
+      when: dns_provider == "pdns"
+
+    # NOTE(gyee): for provision networks which have no route to public network,
+    # we need to deploy powerDNS so that it is serving the provisioning network
+    # and it is capable of forwarding to public DNS. However, we have to give
+    # it a bogus domain so that it won't be conflicting without our DNS domain.
+    - name: Deploy PowerDNS with bogus domain
+      import_role:
+        name: powerdns
+      vars:
+        dns_domain_override: bogus.baremetal
+      when: dns_provider == "cloudflare"
 
     - name: Deploy NFS
       import_role:

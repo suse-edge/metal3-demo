@@ -160,7 +160,36 @@ enable_dhcp: true
 #dhcp_range: 192.168.122.100,192.168.122.130
 
 #
-# PowerDNS configurations.
+# DNS provider. Valid values are "pdns" or "cloudflare"
+# By default, it is set to "pdns".
+#
+# NOTE: if it is set to "cloudflare". PowerDNS will NOT be installed
+# on the network infra VM.
+#
+dns_provider: pdns
+
+#
+# CloudFlare DNS configuration. This configuration is required if
+# dns_provider is set to "cloudflare"
+#
+# cloudflare:
+#   apiToken: <cf api token>
+#   proxied: false
+
+#
+# DNS server IP. If dns_provider is set to "pdns",
+# this must be the provisioning IP of the network infra VM.
+# If dns_provider is set to "cloudflare", and the provisioning network
+# have access to the public DNS, it should set to
+# the IP 1.1.1.1, which is the DNS server for CloudFlare. Otherwise,
+# if the provisioning have no route to public DNS, it must set to the
+# provisioning IP of the network infra VM.
+#
+dns_server: "{{ metal3_network_infra_provisioning_ip }}"
+
+#
+# PowerDNS configurations. This configuration is required if
+# metal3_network_infra_dns_provider is "pdns".
 #
 pdns_ip: "{{ metal3_network_infra_provisioning_ip }}"
 pdns_api_port: 8081
@@ -233,7 +262,7 @@ metal3_core_vm_network:
       dhcp4: false
       addresses: ["{{ metal3_core_provisioning_ip }}/24"]
       nameservers:
-        addresses: ["{{ metal3_network_infra_provisioning_ip }}"]
+        addresses: ["{{ dns_server }}"]
         search:
           - "{{ dns_domain }}"
       routes:
@@ -247,7 +276,7 @@ metal3_core_vm_network:
       link: eth1
       addresses: ["{{ metal3_core_public_ip }}/21"]
       nameservers:
-        addresses: ["{{ metal3_network_infra_provisioning_ip }}"]
+        addresses: ["{{ dns_server }}"]
         search:
           - "{{ dns_domain }}"
       routes:
