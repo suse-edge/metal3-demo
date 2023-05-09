@@ -8,4 +8,4 @@
   register: install_suse_packages_result
   until: "'rc' not in install_suse_packages_result or install_suse_packages_result.rc == 0"
   retries: 10
-  delay: 30
+  delay: 60

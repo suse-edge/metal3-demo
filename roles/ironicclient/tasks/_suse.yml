@@ -13,3 +13,11 @@
     path: /usr/bin/python3.10
     priority: 1
     link: /usr/bin/python
+
+- name: Select python3 althernative
+  become: yes
+  community.general.alternatives:
+    name: python3
+    path: /usr/bin/python3.10
+    priority: 1
+    link: /usr/bin/python3
