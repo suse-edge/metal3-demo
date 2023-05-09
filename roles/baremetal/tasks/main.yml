@@ -93,6 +93,13 @@
     dest: ~/metal3-demo/sylva/environments/suse-rke2-capm3/workload_cluster_git_repo.yaml
   when: deploy_sylva_core
 
+- name: Install Sylva python dependencies
+  become: yes
+  pip:
+    name: [yamllint]
+    state: latest
+  when: deploy_sylva_core
+
 - name: Deploy sylva-core helm charts
   shell: >-
     ./apply.sh ~/metal3-demo/sylva/environments/suse-rke2-capm3
@@ -100,7 +107,7 @@
     chdir: ~/sylva-core
   register: sylva_core_deploy_result
   retries: 3
-  delay: 30 
+  delay: 30
   when: deploy_sylva_core
 
 - name: Copy Get Component Version Script
