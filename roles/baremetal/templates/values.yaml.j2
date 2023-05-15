@@ -125,6 +125,8 @@ units:
           enable_dnsmasq: false
           enable_ironic: true
           enable_pxe_boot: false
+          enable_metal3_nfs_subdir_external_provisioner_for_ironic: true
+          enable_metal3_nfs_subdir_external_provisioner_for_mariadb: true
           dnsDomain: {{ dns_domain }}
           dnsmasqDefaultRouter: {{ dhcp_router | default('192.168.75.254') }}
           dnsmasqDNSServer: {{ metal3_network_infra_provisioning_ip }}
@@ -139,6 +141,23 @@ units:
             - {{ metal3_network_infra_provisioning_ip }}
             searches:
             - {{ dns_domain }}
+
+        metal3-nfs-subdir-external-provisioner-ironic:
+          nfs:
+            server: {{ metal3_core_provisioning_ip }}
+            path: /nfs/share
+          storageClass:
+            name: "{{ storage['class_name'] | default('dynamic') }}"
+            defaultClass: true
+            provisionerName: nfs-provisioner-01
+
+        metal3-nfs-subdir-external-provisioner-mariadb:
+          nfs:
+            server: {{ metal3_core_provisioning_ip }}
+            path: /var/lib/mysql
+          storageClass:
+            name: "mysql"
+            provisionerName: nfs-provisioner-02
 
         metal3-ironic:
           persistence:
