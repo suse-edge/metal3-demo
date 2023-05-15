@@ -34,8 +34,12 @@
     name: "{{ cert_manager_helm_repo_name }}"
 
 - name: Deploy cert-manager helm chart
-  shell: >
+  shell: |
+    {% if dns_provider is defined and dns_provider == 'cloudflare' %}
+    helm upgrade {{ cert_manager_release }} {{ cert_manager_helm_chart_ref }} --install --atomic --create-namespace --namespace {{ cert_manager_namespace }} --set installCRDs=true --set extraArgs='{--dns01-recursive-nameservers-only,--dns01-recursive-nameservers=8.8.8.8:53,1.1.1.1:53}'
+    {% else %}
     helm upgrade {{ cert_manager_release }} {{ cert_manager_helm_chart_ref }} --install --atomic --create-namespace --namespace {{ cert_manager_namespace }} --set installCRDs=true
+    {% endif %}      
 
 - name: Wait for cert-manager to be rolled out
   shell: >
