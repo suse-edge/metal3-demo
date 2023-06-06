@@ -2,7 +2,7 @@ global:
   pdnsIP: {{ pdns_ip }}
 
 zone:
-  name: {{ dns_domain_override | default(dns_domain) }}
+  name: {% if dns_provider == "cloudflare" %}bogus.baremetal{% else %}{{ dns_domain }}{% endif %}
 
 service:
   ip: {{ pdns_cluster_ip }}
