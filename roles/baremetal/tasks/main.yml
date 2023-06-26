@@ -17,13 +17,16 @@
 - name: Include platform-specific common tasks
   include_tasks: "_{{ ansible_os_family | lower }}.yml"
 
-- name: Checkout baremetal repo
+- name: Checkout charts repo
   include_tasks: checkout_repo.yml
   vars:
-    repo_dir: baremetal
+    repo_dir: charts-repo-temp
     repo_url: "{{ baremetal_repo_url }}"
     repo_branch: "{{ baremetal_branch }}"
     repo_pull_request: "{{ baremetal_pull_request | default('') }}"
+    
+- name: Organize charts repo
+  include_tasks: organize_charts_repo.yml
 
 - name: Checkout sylva-core repo
   include_tasks: checkout_repo.yml
@@ -78,7 +81,7 @@
       --values ~/parent-chart-overrides.yaml \
       --atomic --timeout 30m
   args:
-    chdir: ~/baremetal/helm-charts
+    chdir: ~/charts
   when: not deploy_sylva_core
 
 - name: Create values.yaml for Sylva environment

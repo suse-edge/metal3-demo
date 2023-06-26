@@ -1,4 +1,6 @@
 ---
 # baremetal repo
-baremetal_repo_url: https://github.com/rancher-sandbox/baremetal.git
-baremetal_branch: master
+# baremetal_repo_url: https://github.com/rancher-sandbox/baremetal.git
+# baremetal_branch: master
+baremetal_repo_url: https://github.com/dbw7/charts.git
+baremetal_branch: hardcoded-config

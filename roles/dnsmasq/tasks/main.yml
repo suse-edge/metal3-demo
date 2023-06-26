@@ -36,4 +36,4 @@
       --values ~/ironic-dnsmasq-only-chart-overrides.yaml \
       --atomic --timeout 20m
   args:
-    chdir: ~/baremetal/helm-charts
+    chdir: ~/charts
