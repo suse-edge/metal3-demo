@@ -26,7 +26,7 @@
     repo_pull_request: "{{ baremetal_pull_request | default('') }}"
     
 - name: Organize charts repo
-  include_tasks: organize_charts_repo.yml
+  include_tasks: organize_charts_repo_core.yml
 
 - name: Checkout sylva-core repo
   include_tasks: checkout_repo.yml
@@ -101,6 +101,13 @@
   pip:
     name: [yamllint]
     state: latest
+  when: deploy_sylva_core
+
+- name: Increase timeout on Sylva install to prevent playbook from failing
+  ansible.builtin.lineinfile:
+    path: "~/sylva-core/apply.sh"
+    regexp: '^\s*sylvactl watch ${MGMT_CLUSTER_KUBECONFIG} --reconcile --timeout 20m'
+    line: 'sylvactl watch ${MGMT_CLUSTER_KUBECONFIG} --reconcile --timeout 45m'
   when: deploy_sylva_core
 
 - name: Deploy sylva-core helm charts

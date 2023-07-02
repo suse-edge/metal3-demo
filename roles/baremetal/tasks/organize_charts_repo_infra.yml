@@ -1,21 +1,24 @@
 ---
+# The purpose of this chart is to format the charts directory within the infra VM to function
+# properly within the metal3-demo. The reason I added this is because the rancher-sandbox baremetal
+# repo was formatted different from the new suse-edge repo.
+
 - name: Ensure charts directory exists
   file:
     path: "{{ ansible_env.HOME }}/charts"
     state: directory
     
-
-- name: add metal3-deploy chart contents to metal3-deply in charts dir
+- name: Add metal3-deploy chart contents to metal3-deply in charts dir
   become: yes
   ansible.builtin.shell: sudo mv {{ ansible_env.HOME }}/baremetal/charts/metal3-deploy/0.1.0 {{ ansible_env.HOME }}/charts/metal3-deploy
         
-- name: Find 
+- name: Save all sub-charts within Metal3 charts as "dirs"
   find:
     paths: "{{ ansible_env.HOME }}/charts/metal3-deploy/charts"
     file_type: directory
   register: dirs
   
-- name: Create symbolic links
+- name: Create symbolic links of "dirs" subcharts
   file:
     src: "{{ item.path }}"
     dest: "{{ ansible_env.HOME }}/charts/{{ item.path | basename }}"
@@ -23,9 +26,6 @@
   with_items: "{{ dirs.files }}"
   when: item.path | basename not in ['nfs-subdir-external-provisioner', 'external-dns']
   
-# - name: Create symbolic links
-#   file:
-#     src: "{{ item.path }}"
-#     dest: "~/charts/{{ item.path | basename }}"
-#     state: link
-#   with_items: "{{ dirs.files }}"
+- name: Delete temporary chart directory
+  become: yes
+  ansible.builtin.shell: sudo rm -r {{ ansible_env.HOME }}/baremetal
