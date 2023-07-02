@@ -25,7 +25,3 @@
     state: link
   with_items: "{{ dirs.files }}"
   when: item.path | basename not in ['nfs-subdir-external-provisioner', 'external-dns']
-  
-- name: Delete temporary chart directory
-  become: yes
-  ansible.builtin.shell: sudo rm -r {{ ansible_env.HOME }}/baremetal
