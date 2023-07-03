@@ -1,3 +1,4 @@
 ---
+# charts repo
 baremetal_repo_url: https://github.com/suse-edge/charts.git
 baremetal_branch: main
