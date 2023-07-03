@@ -84,3 +84,7 @@
       tags:
         - dib
         - diskimage_builder
+
+    - name: Delete temporary chart directory
+      become: yes
+      ansible.builtin.shell: sudo rm -r {{ ansible_env.HOME }}/baremetal

@@ -35,7 +35,7 @@
       --values ~/media_helm_overrides.yml \
       --atomic --timeout 10m
   args:
-    chdir: ~/baremetal/helm-charts
+    chdir: ~/charts
 
 - name: Add record in PowerDNS
   include_tasks: insert_pdns_record.yml
