@@ -22,7 +22,7 @@
     name: baremetal
     tasks_from: checkout_baremetal_repo
 
-- name: Create irionic-dnsmasq overrides yaml file
+- name: Create ironic-dnsmasq overrides yaml file
   template:
     src: ironic-dnsmasq-only-overrides.yaml.j2
     dest: ~/ironic-dnsmasq-only-chart-overrides.yaml

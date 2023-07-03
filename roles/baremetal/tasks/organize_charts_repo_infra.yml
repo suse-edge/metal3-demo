@@ -8,7 +8,7 @@
     path: "{{ ansible_env.HOME }}/charts"
     state: directory
     
-- name: Add metal3-deploy chart contents to metal3-deply in charts dir
+- name: Add metal3-deploy chart contents to metal3-deploy in charts dir
   become: yes
   ansible.builtin.shell: sudo mv {{ ansible_env.HOME }}/baremetal/charts/metal3-deploy/0.1.0 {{ ansible_env.HOME }}/charts/metal3-deploy
         
