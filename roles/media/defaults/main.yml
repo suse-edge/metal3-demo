@@ -1,7 +1,7 @@
 ---
-# baremetal repo
-baremetal_repo_url: https://github.com/rancher-sandbox/baremetal.git
-baremetal_branch: master
+# charts repo
+baremetal_repo_url: https://github.com/suse-edge/charts.git
+baremetal_branch: main
 
 # whether to manually add record in PowerDNS
 insert_record_in_pdns: true

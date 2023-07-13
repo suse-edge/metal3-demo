@@ -82,13 +82,13 @@ GetIronicLibVer () {
 printf ' %67s\n' | tr ' ' _
 printf "|Component           |Version                                      |\n" 
 printf ' %67s\n' | tr ' ' -
-HELMDIR=$HOME/baremetal/helm-charts
+HELMDIR=$HOME/charts
 for component in `ls $HELMDIR`; do
 	if [[ $component == "metal3-deploy" ]]; then
 		continue
         fi		
 
-	HELMIMGLST=`helm template ~/baremetal/helm-charts/$component | grep 'image:' | grep "image:" | awk -F" " '{print $2}' | sed 's/^"//g' | sed 's/\"//g' | sort | awk '!seen[$0]++'` 
+	HELMIMGLST=`helm template ~/charts/$component | grep 'image:' | grep "image:" | awk -F" " '{print $2}' | sed 's/^"//g' | sed 's/\"//g' | sort | awk '!seen[$0]++'` 
 	case "$component" in
 		"ironic") 
 			for IMAGE in $HELMIMGLST; do

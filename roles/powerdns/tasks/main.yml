@@ -21,6 +21,11 @@
   include_role:
     name: baremetal
     tasks_from: checkout_baremetal_repo
+    
+- name: Organize charts repo
+  include_role:
+    name: baremetal
+    tasks_from: organize_charts_repo_infra
 
 - name: Create powerdns_helm_overrides.yml
   template:
@@ -35,4 +40,4 @@
       --values ~/powerdns_helm_overrides.yml \
       --atomic --timeout 10m
   args:
-    chdir: ~/baremetal/helm-charts
+    chdir: ~/charts
