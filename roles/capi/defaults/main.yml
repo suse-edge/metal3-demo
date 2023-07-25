@@ -17,7 +17,7 @@ capi_metal3_version: v1.3.0
 
 # infrastructure provider
 # acceptable values are: "orange" or "suse-rke2"
-capi_rke2_bootstrap_control_plane_provider: orange
+capi_rke2_bootstrap_control_plane_provider: suse-rke2
 
 # SUSE RKE2 bootstrap and control plane provider version
 #
