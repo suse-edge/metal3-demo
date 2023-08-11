@@ -8,7 +8,10 @@
     dest: ~/.cluster-api/clusterctl.yaml
 
 - name: Install SUSE RKE2 bootstrap and control plane provider
-  shell: >
+  shell: |
+    {% if github_token is defined %}
+    export GITHUB_TOKEN={{ github_token }}
+    {% endif %}
     clusterctl init --bootstrap rke2 --control-plane rke2
 
 - name: Wait for Orange SUSE bootstrap and control plane provider to successfully rolled out
