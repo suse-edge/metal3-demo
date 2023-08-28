@@ -1,0 +1,79 @@
+---
+- name: Define metal3-core node
+  hosts: localhost
+  gather_facts: False
+  tasks:
+    
+      
+    - name: Add new host
+      delegate_to: localhost
+      ansible.builtin.add_host:
+        name: "metal3-core"
+        hostname: "metal3-core"
+        groups: "{{ metal3_corehost_group | default('metal3_core_group') }}"
+        ansible_python_interpreter: "{{ vm_python_interpreter | default('/usr/bin/python3') }}"
+        ansible_user: "metal"
+        ansible_host: "192.168.125.99"
+
+- name: Tasks on new host
+  hosts: metal3-core
+  tasks:
+  
+    - name: Installing Python dependency
+      become: yes
+      ansible.builtin.zypper:
+        name: python310-dbm
+        state: present
+    
+    - name: Get ironic-bin configmap
+      shell: kubectl get configmap ironic-bin -n metal-cubed -o yaml > output.yaml
+    
+    # This script adds suse.autologin where necessary to the ironic configmap make these vms work as a BMH
+    - name: Copy script over
+      copy: 
+        src: /root/vbmc/config.sh
+        dest: /home/metal/config.sh
+    
+    - name: Give script execute permissions
+      shell: chmod +x config.sh
+      
+    - name: Execute script
+      shell: ./config.sh
+      
+    - name: Apply ironic changes
+      shell: kubectl apply -f output.yaml
+      
+    - name: Get name of ironic pod
+      shell: kubectl get pods -n metal-cubed | grep -o -E 'heavy-metal-metal3-ironic-[a-z0-9]+-[a-z0-9]+'
+      register: ironic_pod
+
+    - name: Delete ironic pod to make it restart
+      shell: kubectl delete pod {{ ironic_pod.stdout }} -n metal-cubed
+      
+    - name: Wait for ironic to restart
+      pause:
+        seconds: 120
+        
+    - name: Copy node1 yaml over
+      copy: 
+        src: /root/vbmc/node1.yaml
+        dest: /home/metal/node1.yaml
+        
+    - name: Copy node2 yaml over
+      copy: 
+        src: /root/vbmc/node2.yaml
+        dest: /home/metal/node2.yaml
+        
+    - name: Copy node3 yaml over
+      copy: 
+        src: /root/vbmc/node3.yaml
+        dest: /home/metal/node3.yaml
+        
+    - name: Create first bmh
+      shell: kubectl apply -f node1.yaml
+      
+    - name: Create second bmh
+      shell: kubectl apply -f node2.yaml
+      
+    - name: Create third bmh
+      shell: kubectl apply -f node3.yaml

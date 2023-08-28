@@ -1,0 +1,124 @@
+##
+# Whether to deploy sylva-core
+#
+deploy_sylva_core: false
+sylva_core_repo_url: https://gitlab.com/codefol/sylva-core.git
+sylva_core_branch: metal3_existing_rancher
+baremetal_repo_url: https://github.com/dbw7/charts.git
+baremetal_branch: hardcoded-config
+
+# VM user name
+vm_user: metal
+
+# VM user plain text password (not hash)
+vm_user_plain_text_password: metal
+
+# NOTE: this should be *your* (local user) SSH public key since *you*
+# will be using it to login to the VMs. The SSH public keys listed
+# here will be appended to the VM user's authorized_keys file.
+#
+vm_authorized_ssh_keys:
+ -YOU CAN REPLACE THIS BUT THE SCRIPT WILL CHANGE THIS AUTOMATICALLY 
+ 
+rke2_channel_version: v1.24
+
+dns_domain: suse.baremetal
+
+
+metal3_provisioning_nic: &metal3_provisioning_nic eth1
+
+
+# metal3_vm_libvirt_network_params: '--network bridge=virbr0,model=virtio --network bridge=br-eth3,model=virtio'
+metal3_vm_libvirt_network_params: '--network bridge=m3-egress,model=virtio --network bridge=m3-prov,model=virtio'
+
+#vm_memory: 16384
+
+
+metal3_network_infra_provisioning_ip: 192.168.124.100
+vm_prov_gw: 192.168.124.1
+vm_prov_net: 192.168.124.0/24
+
+
+metal3_network_infra_public_ip: 192.168.125.100
+vm_egress_gw: 192.168.125.1
+
+
+enable_dhcp: true
+
+
+dhcp_router: 192.168.124.1
+dhcp_range: 192.168.124.150,192.168.124.180
+
+
+dns_provider: pdns
+pdns_ip: "{{ metal3_network_infra_provisioning_ip }}"
+pdns_api_port: 8081
+pdns_web_password: IveG0tDaPower8
+pdns_api_key: IveG0tDaPower8
+
+
+metal3_network_infra_vm_network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: false
+      addresses: ["{{ metal3_network_infra_public_ip }}/24"]
+      nameservers:
+        addresses: [8.8.8.8]
+        search:
+          - "{{ dns_domain }}"
+      routes:
+        - to: default
+          via: "{{ vm_egress_gw }}"
+    *metal3_provisioning_nic:
+      dhcp4: false
+      addresses: ["{{ metal3_network_infra_provisioning_ip }}/24"]
+      nameservers:
+        addresses: [8.8.8.8]
+        search:
+          - "{{ dns_domain }}"
+      routes:
+        - to: "{{ vm_prov_net }}"
+          via: "{{ vm_prov_gw }}"
+
+
+metal3_core_provisioning_ip: 192.168.124.99
+
+#
+# Public IP
+#
+metal3_core_public_ip: 192.168.125.99
+
+
+metal3_core_vm_network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: false
+      addresses: ["{{ metal3_core_public_ip }}/24"]
+      nameservers:
+        addresses: "{{ metal3_network_infra_provisioning_ip }}"
+        search:
+          - "{{ dns_domain }}"
+      routes:
+        - to: default
+          via: "{{ vm_egress_gw }}"
+    *metal3_provisioning_nic:
+      dhcp4: false
+      addresses: ["{{ metal3_core_provisioning_ip }}/24"]
+      nameservers:
+        addresses: "{{ metal3_network_infra_provisioning_ip }}"
+        search:
+          - "{{ dns_domain }}"
+      routes:
+        - to: "{{ vm_prov_net }}"
+          via: "{{ vm_prov_gw }}"
+
+
+# Storage setup on the Metal3 Core VM
+storage:
+  class_name: dynamic
+  access_mode: ReadWriteMany
+  nfs:
+    create: true
+    path: "/nfs/share"
