@@ -1,0 +1,128 @@
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: Cluster
+metadata:
+  name: sample-cluster
+  namespace: default
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - 192.168.0.0/18
+    services:
+      cidrBlocks:
+      - 10.96.0.0/12 # Doesn't matter because they are an internal network
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha1
+    kind: RKE2ControlPlane
+    name: sample-cluster
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: Metal3Cluster
+    name: sample-cluster
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha1
+kind: RKE2ControlPlane
+metadata:
+  name: sample-cluster
+  namespace: default
+spec:
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    kind: Metal3MachineTemplate
+    name: sample-cluster-controlplane
+  replicas: 1
+  agentConfig:
+    kubelet:
+      extraArgs:
+        - provider-id=metal3://{{ ds.meta_data.uuid }}
+    version: v1.25.3+rke2r1 # Has to be the same as what's running in the metal3-demo/whatever is being ran
+    nodeName: '{{ ds.meta_data.local_hostname }}'
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: Metal3MachineTemplate
+metadata:
+  name: sample-cluster-controlplane
+  namespace: default
+spec:
+  template:
+    spec:
+      dataTemplate:
+        name: sample-cluster-controlplane-template
+      hostSelector:
+        matchLabels:
+          cluster-role: control-plane
+      image:
+        checksum: http://media.suse.baremetal/ubuntu_22.04-efi.qcow2.md5
+        checksumType: md5
+        format: qcow2
+        url: http://media.suse.baremetal/ubuntu_22.04-efi.qcow2
+---
+apiVersion: cluster.x-k8s.io/v1beta1
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: sample-cluster
+    nodepool: nodepool-0
+  name: sample-cluster
+  namespace: default
+spec:
+  clusterName: sample-cluster
+  replicas: 1
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: sample-cluster
+      nodepool: nodepool-0
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: sample-cluster
+        nodepool: nodepool-0
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha1
+          kind: RKE2ConfigTemplate
+          name: sample-cluster-workers
+      clusterName: sample-cluster
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+        kind: Metal3MachineTemplate
+        name: sample-cluster-workers
+      nodeDrainTimeout: 0s
+      version: v1.25.3+rke2r1
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+kind: Metal3MachineTemplate
+metadata:
+  name: sample-cluster-workers
+  namespace: default
+spec:
+  template:
+    spec:
+      dataTemplate:
+        name: sample-cluster-workers-template
+      hostSelector:
+        matchLabels:
+          cluster-role: worker
+      image:
+        checksum: http://media.suse.baremetal/ubuntu_22.04-efi.qcow2.md5
+        checksumType: md5
+        format: qcow2
+        url: http://media.suse.baremetal/ubuntu_22.04-efi.qcow2
+---
+apiVersion: bootstrap.cluster.x-k8s.io/v1alpha1
+kind: RKE2ConfigTemplate
+metadata:
+  name: sample-cluster-workers
+  namespace: default
+spec:
+  template:
+    spec:
+      preRKE2Commands:
+        - sleep 30 # fix to give OS time to become ready
+      agentConfig:
+        version: v1.25.3+rke2r1
+        kubelet:
+          extraArgs:
+            - provider-id=metal3://{{ ds.meta_data.uuid }}
+        nodeName: '{{ ds.meta_data.local_hostname }}'
