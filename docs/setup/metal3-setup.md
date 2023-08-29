@@ -61,6 +61,8 @@ cp extra_vars.yml.example extra_vars.yml
 <details>
   <summary>Click here for a pre-configured extra_vars.yml file</summary>
 
+### Note:
+The pre-configured extra_vars.yml points to a fork of the Sylva repo: https://gitlab.com/codefol/sylva-core.git branch: metal3_existing_rancher. This is because this fork contains required changes that allow the Sylva deployment to work when enabled in the Metal3 Demo.
 ```yaml
 ##
 # Whether to deploy sylva-core
@@ -188,9 +190,9 @@ storage:
     path: "/nfs/share"
 
 ```
+- The Metal3 Demo points to a fork of the upstream Sylva repo: https://gitlab.com/codefol/sylva-core.git branch: metal3_existing_rancher. This is because this fork contains required changes that allow the Sylva deployment to work when enabled in the Metal3 Demo.
 </details>
 <br>
-
 5. Define virsh egress and provisioning networks (This configuration is specific to step 4)
    - CD into the libvirt directory within the metal3-demo that was cloned earlier 
    - Define and start the networks
