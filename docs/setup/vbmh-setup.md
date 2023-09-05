@@ -192,35 +192,6 @@ sudo zypper install -y python310-dbm
 ```
 - To use "baremetal" commands, this dependency recently became necessary.
 
-Get the Ironic Config Map
-```
-kubectl get configmap ironic-bin -n metal-cubed -o yaml > output.yaml
-```
-
-Add `suse.autologin` to lines 289, 728, and 733 within the config map.
-```
-sed -i '289s#.*#    kernel --timeout 60000 {{ env.IRONIC_BOOT_BASE_URL }}/images/ironic-python-agent.kernel suse.autologin ipa-insecure=1 ipa-inspection-collectors=default,extra-hardware,logs systemd.journald.forward_to_console=yes BOOTIF=${mac} ipa-debug=1 ipa-enable-vlan-interfaces={{ env.IRONIC_INSPECTOR_VLAN_INTERFACES }} ipa-inspection-dhcp-all-interfaces=1 ipa-collect-lldp=0 {{ env.INSPECTOR_EXTRA_ARGS }} initrd=ironic-python-agent.initramfs {% if env.IRONIC_RAMDISK_SSH_KEY %}sshkey="{{ env.IRONIC_RAMDISK_SSH_KEY|trim }}"{% endif %} {{ env.IRONIC_KERNEL_PARAMS|trim }} || goto retry_boot#' output.yaml
-
-sed -i '728s#.*#    kernel_append_params = nofb nomodeset vga=normal suse.autologin ipa-insecure={{ env.IPA_INSECURE }} {% if env.IRONIC_RAMDISK_SSH_KEY %}sshkey="{{ env.IRONIC_RAMDISK_SSH_KEY|trim }}"{% endif %} {{ env.IRONIC_KERNEL_PARAMS|trim }}#' output.yaml
-
-sed -i '733s#.*#    kernel_append_params = nofb nomodeset vga=normal suse.autologin ipa-insecure={{ env.IPA_INSECURE }} {% if env.IRONIC_RAMDISK_SSH_KEY %}sshkey="{{ env.IRONIC_RAMDISK_SSH_KEY|trim }}"{% endif %} {{ env.IRONIC_KERNEL_PARAMS|trim }}#' output.yaml
-```
-
-Apply The new configmap.
-```
-kubectl apply -f output.yaml
-```
-- The above lines have been added so that ironic is able to log into the VMs for provisioning with no issue.
-- If the apply command doesn't work immediately, re-get the ironic config map and perform each sed command separately, then reapply the yaml.
-
-Restart Ironic Pod to make sure changes are active.
-```
-IRONIC_POD=$(kubectl get pods -n metal-cubed | grep -o -E 'heavy-metal-metal3-ironic-[a-z0-9]+-[a-z0-9]+')
-kubectl delete pod $IRONIC_POD -n metal-cubed
-```
-- Wait for Ironic to restart, this may take a minute or so.
-- These two commands that restart ironic are specific to the names of ironic containers without Sylva enabled, if Sylva is enabled, I recommend going into K9S, manually searching for the ironic container inside of the `metal3-system` namespace and deleting it with `CTRL+k`
-
 Apply the bare metal node YAML files
 ```
 kubectl apply -f node1.yaml
