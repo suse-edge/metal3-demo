@@ -4,4 +4,4 @@
     name: vm
     tasks_from: install_suse_package
   vars:
-    suse_packages: [qemu-tools, kpartx]
+    suse_packages: [qemu-tools, kpartx, guestfs-tools]
