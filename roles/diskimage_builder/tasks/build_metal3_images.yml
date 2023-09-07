@@ -1,19 +1,20 @@
 ---
-- name: Build metal3 image
+- name: Download Leap image
+  get_url: "{{ image_url }}"
+  dest: "{{ images_dir }}"
+  checksum: "{{ image_checksum }}"
+
+- name: Modify cloud-init data sources
   become: yes
   shell: |
-    export DIB_DEV_USER_USERNAME=devuser
-    export DIB_DEV_USER_PASSWORD=suse
-    export DIB_DEV_USER_PWDLESS_SUDO=yes
-    export DIB_DEV_USER_SHELL=/bin/bash
-    export DIB_DEV_USER_AUTHORIZED_KEYS=/home/metal/.ssh/id_ed25519.pub
-    export DIB_CLOUD_INIT_DATASOURCES="Ec2, ConfigDrive, OpenStack"
-    export DIB_RELEASE=15.2
-    disk-image-create opensuse-minimal vm block-device-gpt dhcp-all-interfaces devuser -o opensuse-leap_15.2-gpt
-    md5sum opensuse-leap_15.2-gpt.qcow2 > opensuse-leap_15.2-gpt.qcow2.md5
+    - echo "datasource_list: [  Ec2, ConfigDrive, OpenStack, None ]" > 91-dib-cloud-init-datasources.cfg
+    - |
+    echo "#cloud-config
+    datasource:
+      Ec2:
+        strict_id: false
+    " > 92-ec2-datasource.cfg
+    - virt-copy-in -a "{{ image_name }}" ./91-dib-cloud-init-datasources.cfg /etc/cloud/cloud.cfg.d
+    - virt-copy-in -a "{{ image_name }}" ./92-ec2-datasource.cfg /etc/cloud/cloud.cfg.d
   args:
     chdir: "{{ images_dir }}"
-  register: build_metal3_image_result
-  until: build_metal3_image_result.rc == 0
-  retries: 5
-  delay: 10
