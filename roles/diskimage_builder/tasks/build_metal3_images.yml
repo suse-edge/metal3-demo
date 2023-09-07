@@ -3,14 +3,14 @@
   become: yes
   shell: |
     export DIB_DEV_USER_USERNAME=devuser
-    export DIB_DEV_USER_PASSWORD=ubuntu
+    export DIB_DEV_USER_PASSWORD=suse
     export DIB_DEV_USER_PWDLESS_SUDO=yes
     export DIB_DEV_USER_SHELL=/bin/bash
     export DIB_DEV_USER_AUTHORIZED_KEYS=/home/metal/.ssh/id_ed25519.pub
     export DIB_CLOUD_INIT_DATASOURCES="Ec2, ConfigDrive, OpenStack"
-    export DIB_RELEASE=jammy
-    disk-image-create ubuntu vm block-device-efi dhcp-all-interfaces devuser -o ubuntu_22.04-efi
-    md5sum ubuntu_22.04-efi.qcow2 > ubuntu_22.04-efi.qcow2.md5
+    export DIB_RELEASE=15.2
+    disk-image-create opensuse-minimal vm block-device-gpt dhcp-all-interfaces devuser -o opensuse-leap_15.2-gpt
+    md5sum opensuse-leap_15.2-gpt.qcow2 > opensuse-leap_15.2-gpt.qcow2.md5
   args:
     chdir: "{{ images_dir }}"
   register: build_metal3_image_result
