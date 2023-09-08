@@ -1,20 +1,21 @@
 ---
 - name: Download Leap image
-  get_url: "{{ image_url }}"
-  dest: "{{ images_dir }}"
-  checksum: "{{ image_checksum }}"
+  get_url:
+    url: "{{ image_url }}"
+    dest: "{{ images_dir }}"
+    checksum: "{{ image_checksum }}"
 
 - name: Modify cloud-init data sources
   become: yes
   shell: |
-    - echo "datasource_list: [  Ec2, ConfigDrive, OpenStack, None ]" > 91-dib-cloud-init-datasources.cfg
-    - |
+    echo "datasource_list: [  Ec2, ConfigDrive, OpenStack, None ]" > 91-dib-cloud-init-datasources.cfg
     echo "#cloud-config
     datasource:
       Ec2:
-        strict_id: false
-    " > 92-ec2-datasource.cfg
-    - virt-copy-in -a "{{ image_name }}" ./91-dib-cloud-init-datasources.cfg /etc/cloud/cloud.cfg.d
-    - virt-copy-in -a "{{ image_name }}" ./92-ec2-datasource.cfg /etc/cloud/cloud.cfg.d
+        strict_id: false" > 92-ec2-datasource.cfg
+    virt-copy-in -a "{{ image_name }}" 91-dib-cloud-init-datasources.cfg /etc/cloud/cloud.cfg.d
+    virt-copy-in -a "{{ image_name }}" 92-ec2-datasource.cfg /etc/cloud/cloud.cfg.d
+    md5sum "{{ image_name }}" > "{{ image_name }}".md5
+    rm 91-dib-cloud-init-datasources.cfg 92-ec2-datasource.cfg
   args:
     chdir: "{{ images_dir }}"
