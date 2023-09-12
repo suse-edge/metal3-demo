@@ -1,5 +1,6 @@
 ---
 - name: Download Leap image
+  become: yes
   get_url:
     url: "{{ image_url }}"
     dest: "{{ images_dir }}"
