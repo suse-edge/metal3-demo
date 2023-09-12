@@ -5,7 +5,7 @@
     dest: "{{ images_dir }}"
     checksum: "{{ image_checksum }}"
 
-- name: Modify cloud-init data sources
+- name: Modify cloud-init config
   become: yes
   shell: |
     echo "datasource_list: [  Ec2, ConfigDrive, OpenStack, None ]" > 91-dib-cloud-init-datasources.cfg
@@ -15,6 +15,7 @@
         strict_id: false" > 92-ec2-datasource.cfg
     virt-copy-in -a "{{ image_name }}" 91-dib-cloud-init-datasources.cfg /etc/cloud/cloud.cfg.d
     virt-copy-in -a "{{ image_name }}" 92-ec2-datasource.cfg /etc/cloud/cloud.cfg.d
+    virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e "s/^(\s*)lock_passwd.*/\1lock_passwd: False/"
     md5sum "{{ image_name }}" > "{{ image_name }}".md5
     rm 91-dib-cloud-init-datasources.cfg 92-ec2-datasource.cfg
   args:
