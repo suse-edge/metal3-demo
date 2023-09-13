@@ -79,6 +79,11 @@ Add this line to /etc/hosts
 ```
 - This is necessary for DNS resolutions for Metal3 in the metal3-demo environment.
 
+Navigate into the `vbmc` directory
+```
+cd ~/vbmc
+```
+
 Create Password Configuration within `~/vbmc`
 ```
 htpasswd -b -B -c auth.conf foo foo
@@ -186,18 +191,14 @@ SSH Into the metal3-core VM
 ssh metal@192.168.125.99
 ```
 
-Install Python Dependency
-```
-sudo zypper install -y python310-dbm
-```
-- To use "baremetal" commands, this dependency recently became necessary.
-
 Apply the bare metal node YAML files
 ```
 kubectl apply -f node1.yaml
 kubectl apply -f node2.yaml
 ```
 - You can monitor the progress of the provisioning using the following commands:
-  - `baremetal node list`
-  - `kubectl get bmh`
-- A `manageable` state is the desired state. It may take a few minutes for provisioning to complete.
+  - `watch -n 2 baremetal node list`
+  - `watch -n 2 kubectl get bmh`
+- A `manageable` or `available` state (respective to which command is used) is the desired state. It may take a few minutes for provisioning to complete.
+- Using `baremetal node list` may show `manageable` immediately after creating the nodes, but this is only temporary, we want to wait for it to say `manageable` after it has been inspected.
+- If there is an issue during the provisioning process. Take the baremetal UUID and do `baremetal node show UUID` for a detailed output on what might have went wrong.  
