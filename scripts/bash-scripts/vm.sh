@@ -4,12 +4,24 @@ set -e
 
 set -o pipefail
 
-echo "This script assumes you've already ran the m3 one click demo script.
+echo "This script assumes you've already ran the SUSE Edge M3 demo script.
 "
 
-sudo mkdir /root/vbmc
-cd /root/vbmc
+echo "Please enter your server's IP Address:"
+read IP_ADDR
 
+echo $IP_ADDR
+
+cd ~
+HOMEDIR=$(pwd)
+
+if [ ! -d "$HOMEDIR/metal3-demo/vbmc" ]; then
+  sudo mkdir $HOMEDIR/metal3-demo/vbmc
+fi
+
+cd $HOMEDIR/metal3-demo/vbmc
+
+VBMCDIR="$HOMEDIR/metal3-demo/vbmc"
 
 # Need to define default pool for redfish to work properly
 
@@ -28,34 +40,29 @@ sudo apt install apache2-utils -y
 pip install sushy-tools
 sudo DEBIAN_FRONTEND=noninteractive apt install podman -y
 
-if [ ! -d "/root/vbmc" ]; then
-  mkdir /root/vbmc
-fi
+
 
 # We create 3 VMs that act as bare metal hosts
 
 echo "Creating 3 virtual nodes"
 
-virt-install --name node-1 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node1.qcow2 --network bridge=m3-prov,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --graphics vnc --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1 --noautoconsole
+virt-install --name node-1 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node1.qcow2 --network bridge=m3-prov,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1
 
-virt-install --name node-2 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node2.qcow2 --network bridge=m3-prov,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --graphics vnc --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1 --noautoconsole
+virt-install --name node-2 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node2.qcow2 --network bridge=m3-prov,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1
 
-virt-install --name node-3 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node3.qcow2 --network bridge=m3-prov,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --graphics vnc --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1 --noautoconsole
+virt-install --name node-3 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node3.qcow2 --network bridge=m3-prov,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1
 
 
 echo "Finished creating 3 virtual nodes"
 echo "Starting sushy-tools podman"
 
-cd /root/vbmc
+cd $VBMCDIR
 
-IP_ADDR=$(ifconfig | grep "bond0: " -A 1 | awk '/inet / {print $2}')
 
-echo $IP_ADDR
-
-cat << EOF > /root/vbmc/sushy.config
-SUSHY_EMULATOR_AUTH_FILE = '/root/vbmc/auth.conf'
-SUSHY_EMULATOR_SSL_CERT = '/root/vbmc/cert.pem'
-SUSHY_EMULATOR_SSL_KEY = '/root/vbmc/key.pem'
+cat << EOF > $VBMCDIR/sushy.config
+SUSHY_EMULATOR_AUTH_FILE = '$VBMCDIR/auth.conf'
+SUSHY_EMULATOR_SSL_CERT = '$VBMCDIR/cert.pem'
+SUSHY_EMULATOR_SSL_KEY = '$VBMCDIR/key.pem'
 SUSHY_EMULATOR_LISTEN_IP = '0.0.0.0'
 SUSHY_EMULATOR_VMEDIA_DEVICES = {
     "Cd": {
@@ -88,7 +95,7 @@ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3
 
 # We run sushy-tools in podman so that it is running in the background
 
-sudo podman run -d --rm  --privileged  --name sushy-tools   -v ${HOME}/vbmc:/root/vbmc:Z   -v /var/run/libvirt:/var/run/libvirt:Z   -e SUSHY_EMULATOR_CONFIG=/root/vbmc/sushy.config   -p 8000:8000   quay.io/metal3-io/sushy-tools:latest sushy-emulator
+sudo podman run -d --rm --privileged  --name sushy-tools   -v ${HOME}/metal3-demo/vbmc:$VBMCDIR:Z   -v /var/run/libvirt:/var/run/libvirt:Z   -e SUSHY_EMULATOR_CONFIG=$VBMCDIR/sushy.config   -p 8000:8000   quay.io/metal3-io/sushy-tools:latest sushy-emulator
 echo "Finished starting sushy-tools podman"
 
 echo "Sleeping for 10 seconds to make sure podman has started"
@@ -114,7 +121,7 @@ echo $NODE3MAC
 
 # We create custom BMH yamls using the data we collected earlier
 
-cat << EOF > /root/vbmc/node1.yaml
+cat << EOF > $VBMCDIR/node1.yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -141,7 +148,7 @@ spec:
     credentialsName: bmc-1-credentials
 EOF
 
-cat << EOF > /root/vbmc/node2.yaml
+cat << EOF > $VBMCDIR/node2.yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -168,7 +175,7 @@ spec:
     credentialsName: bmc-2-credentials
 EOF
 
-cat << EOF > /root/vbmc/node3.yaml
+cat << EOF > $VBMCDIR/node3.yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -195,17 +202,7 @@ spec:
     credentialsName: bmc-3-credentials
 EOF
 
-# In order for the provisioning to work properly, we need to add suse.autologin on multiple lines within the ironic config map
-# Here we create a script that does this, then move it to the metal3 core vm using ansible
-
-cat << EOF > /root/vbmc/config.sh
-sed -i '289s#.*#    kernel --timeout 60000 {{ env.IRONIC_BOOT_BASE_URL }}/images/ironic-python-agent.kernel suse.autologin ipa-insecure=1 ipa-inspection-collectors=default,extra-hardware,logs systemd.journald.forward_to_console=yes BOOTIF=${mac} ipa-debug=1 ipa-enable-vlan-interfaces={{ env.IRONIC_INSPECTOR_VLAN_INTERFACES }} ipa-inspection-dhcp-all-interfaces=1 ipa-collect-lldp=0 {{ env.INSPECTOR_EXTRA_ARGS }} initrd=ironic-python-agent.initramfs {% if env.IRONIC_RAMDISK_SSH_KEY %}sshkey="{{ env.IRONIC_RAMDISK_SSH_KEY|trim }}"{% endif %} {{ env.IRONIC_KERNEL_PARAMS|trim }} || goto retry_boot#' output.yaml
-
-sed -i '728s#.*#    kernel_append_params = nofb nomodeset vga=normal suse.autologin ipa-insecure={{ env.IPA_INSECURE }} {% if env.IRONIC_RAMDISK_SSH_KEY %}sshkey="{{ env.IRONIC_RAMDISK_SSH_KEY|trim }}"{% endif %} {{ env.IRONIC_KERNEL_PARAMS|trim }}#' output.yaml
-
-sed -i '733s#.*#    kernel_append_params = nofb nomodeset vga=normal suse.autologin ipa-insecure={{ env.IPA_INSECURE }} {% if env.IRONIC_RAMDISK_SSH_KEY %}sshkey="{{ env.IRONIC_RAMDISK_SSH_KEY|trim }}"{% endif %} {{ env.IRONIC_KERNEL_PARAMS|trim }}#' output.yaml
-EOF
 
 # We run an ansible playbook that completes setting up the VBMC BMHs
-curl https://raw.githubusercontent.com/dbw7/m3-one-click-demo/main/vbmc/playbook.yaml > ~/vbmc/playbook.yaml
-ansible-playbook playbook.yaml -vvv
+cd $HOMEDIR/metal3-demo/scripts/playbooks
+ansible-playbook vm-playbook.yaml -e "VBMCDIR=$VBMCDIR" -vvv

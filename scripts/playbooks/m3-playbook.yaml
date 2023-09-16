@@ -2,60 +2,12 @@
 - name: Equinix Setup
   hosts: localhost
   become: true
-  tasks:
-      #Ignore this due to the comment below
-    - name: Update apt
-      apt: 
-        upgrade: full 
-        force_apt_get: yes 
-        update_cache: yes
-      when: false
-      #Gonna keep this disabled for now as the shell script already does this
-      
+  tasks: 
     - name: Install git
       apt: 
         name: git
         state: present
       #when: false
-      
-    - name: create m3-demo directory
-      file:
-        path: "{{ ansible_env.HOME }}/m3-demo-parent"
-        state: directory
-      #when: false
-    
-    - name: Clone m3-demo repo
-      shell: git clone https://github.com/dbw7/metal3-demo.git
-      args:
-        chdir: "{{ ansible_env.HOME }}/m3-demo-parent"
-      #when: false
-    
-    - name: Add extra_vars.yml to m3-demo
-      copy:
-        src: "{{ ansible_env.HOME }}/ansible/extra_vars.yml"
-        dest: "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/extra_vars.yml"
-    
-    - name: Replace baremetal repo url
-      ansible.builtin.lineinfile:
-        path: "{{ item }}"
-        regexp: '^\s*baremetal_repo_url:'
-        line: 'baremetal_repo_url: https://github.com/dbw7/charts.git'
-      loop:
-        - "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/roles/baremetal/defaults/main.yml"
-        - "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/roles/dnsmasq/defaults/main.yml"
-        - "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/roles/media/defaults/main.yml" 
-        - "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/roles/powerdns/defaults/main.yml"
-        
-    - name: Replace baremetal repo branch
-      ansible.builtin.lineinfile:
-        path: "{{ item }}"
-        regexp: '^\s*baremetal_branch:'
-        line: 'baremetal_branch: hardcoded-config'
-      loop:
-        - "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/roles/baremetal/defaults/main.yml"
-        - "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/roles/dnsmasq/defaults/main.yml"
-        - "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/roles/media/defaults/main.yml" 
-        - "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/roles/powerdns/defaults/main.yml"
         
     - name: Install Dependencies
       apt:
@@ -79,7 +31,7 @@
     - name: Install ansible galaxy collections
       command:
         cmd: ansible-galaxy collection install -r requirements.yml
-        chdir: "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo"
+        chdir: "{{ ansible_env.HOME }}/metal3-demo"
       become: yes
       #when: false
       
@@ -90,7 +42,7 @@
         
     - name: Define egress
       become: yes
-      command: virsh net-define "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/libvirt/egress.xml"
+      command: virsh net-define "{{ ansible_env.HOME }}/metal3-demo/libvirt/egress.xml"
 
     - name: Start egress
       become: yes
@@ -98,10 +50,16 @@
       
     - name: Define egress
       become: yes
-      command: virsh net-define "{{ ansible_env.HOME }}/m3-demo-parent/metal3-demo/libvirt/provisioning.xml"
+      command: virsh net-define "{{ ansible_env.HOME }}/metal3-demo/libvirt/provisioning.xml"
 
     - name: Start egress
       become: yes
       command: virsh net-start provisioning
+
+    - name: Replace baremetal repo url
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.HOME }}/metal3-demo/extra_vars.yml"
+        regexp: '^\s*deploy_sylva_core:'
+        line: 'deploy_sylva_core: {{ sylva }}'
       
       
