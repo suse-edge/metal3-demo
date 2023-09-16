@@ -42,9 +42,9 @@ virt-install --name node-2 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/image
 ```
 - This assumes you will be running 1 control plane and 1 worker node.
 
-Create a directory to store Sushy-tools related files
+Create a directory to store Sushy-tools related files and navigate into it
 ```
-mkdir ~/vbmc
+mkdir ~/vbmc; cd ~vbmc
 ```
 
 Create the Sushy Config file
@@ -79,19 +79,16 @@ Add this line to /etc/hosts
 ```
 - This is necessary for DNS resolutions for Metal3 in the metal3-demo environment.
 
-Navigate into the `vbmc` directory
-```
-cd ~/vbmc
-```
+## The following steps take place within the `~/vbmc` directory.
 
-Create Password Configuration within `~/vbmc`
+Create Password Configuration
 ```
 htpasswd -b -B -c auth.conf foo foo
 ```
 - Defaults are for simplicity, feel free to change.
 - This is the authentication into Redfish running on Sushy tools.
 
-Create SSL Certificates within `~/vbmc`
+Create SSL Certificates
 ```
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 --noenc -subj "/C=/ST=/L=/O=/OU=/CN="
 ```
@@ -121,8 +118,8 @@ NODE2MAC=$(sudo virsh dumpxml node-2 | grep 'mac address' | grep -ioE "([0-9A-Fa
 - If your VMs aren't defined in root's virsh, you may need to remove "sudo" from the NODE1MAC virsh commands.
 
 
-Create the BMH yamls using the virtual machine information
-### Control plane Node
+### Create the BMH yamls using the virtual machine information
+#### Control plane Node
 ```
 cat << EOF > ~/vbmc/node1.yaml
 apiVersion: v1
@@ -151,7 +148,7 @@ spec:
     credentialsName: bmc-1-credentials
 EOF
 ```
-### Worker Node
+#### Worker Node
 ```
 cat << EOF > ~/vbmc/node2.yaml
 apiVersion: v1
