@@ -118,7 +118,7 @@ NODE2MAC=$(sudo virsh dumpxml node-2 | grep 'mac address' | grep -ioE "([0-9A-Fa
 - If your VMs aren't defined in root's virsh, you may need to remove "sudo" from the NODE1MAC virsh commands.
 
 
-### Create the BMH yamls using the virtual machine information
+### Create the BMH manifests using the virtual machine information
 #### Control plane Node
 ```
 cat << EOF > ~/vbmc/node1.yaml
