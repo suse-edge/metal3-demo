@@ -68,8 +68,8 @@ cp extra_vars.yml.example extra_vars.yml
 deploy_sylva_core: false
 sylva_core_repo_url: https://gitlab.com/codefol/sylva-core.git
 sylva_core_branch: metal3_existing_rancher
-baremetal_repo_url: https://github.com/dbw7/charts.git
-baremetal_branch: hardcoded-config
+baremetal_repo_url: https://github.com/suse-edge/charts.git
+baremetal_branch: main
 
 # VM user name
 vm_user: metal
