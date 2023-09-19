@@ -39,69 +39,17 @@ public network (i.e. tagged VLAN).
 
 # Prerequisites <a name="prerequisites" />
 
-* Ansible >= 2.9.17. The environments were tested with ansible-core 2.11.12.
-* KVM (i.e. qemu-kvm), preferably the latest and greatest. The environments
-  were tested with qemu-kvm 2.11.
 * Host is expected to have two network bridges, one for the provisioning
   network (BMC) and the other for the public network (i.e. tagged VLAN).
 * Host with at least 32GB RAM & 200GB free disk space.
 * Github credential (i.e. username/personal access token), for cloning repos
-* genisoimage >= 1.1.11. You can install it from vendor repo. For example:
-
-  ```console
-  sudo zypper install genisoimage
-  ```
-
-* Install the required Ansible modules in `requirements.yml`, after
-  installing Ansible from above.
-
-  Either run this command line if using the system Ansible:
-  ```console
-  ansible-galaxy collection install -r requirements.yml
-  ```
-
-  Or run this command line if using the venv Ansible
-  ```console
-  bin/ansible-galaxy collection install -r requirements.yml
-  ```
 
 # How To Setup Metal3 Demo Environment <a name="how_to_setup_metal3_demo" />
+- Refer to the [Metal3 Setup Doc](./docs/setup/metal3-setup.md) for a walkthrough of the Metal3 Demo environment setup.
+- The [VBMH Setup Doc](./docs/setup/vbmh-setup.md) is a walkthrough of the setup of virtual machines to act as bare metal hosts.
+- The [RKE2 Setup Doc](./docs/setup/rke2-cluster.md) is a walkthrough of the deployment of a sample RKE2 cluster on the virtual bare metal hosts.
+- Example RKE2 deployment manifests exist [here](./docs/example-manifests/).
 
-1. Copy `extra_vars.yml.example` to `extra_vars.yml`.
-2. Edit `extra_vars.yml` to make sure the values matches your
-   networking infrastructure.
-3. Run `setup_metal3_network_infra.sh` to create the Metal3 Network Infra VM.
-4. Run `setup_metal3_core.sh` to create the Metal3 Core VM.
-   NOTE: Metal3 Network Infra VM must be successfully created prior to creating
-   the Metal3 Core VM.
-
-# How To Use Metal3 Demo Environment <a name="how_to_use_metal3_demo" />
-
-To login to the Metal3 Network Infra VM:
-
-```console
-ssh <vm_user>@<metal3_network_infra_public_ip>
-```
-
-You can alos use `virsh` to login the VM from serial console:
-
-```console
-virsh console metal3-network-infra
-```
-
-To login to the Metal3 Core VM:
-
-```console
-ssh <vm_user>@<metal3_core_public_ip>
-```
-
-You can alos use `virsh` to login the VM from serial console:
-
-```console
-virsh console metal3-core
-```
-
-To create a workload cluster, see https://github.com/rancher-sandbox/baremetal/tree/reorganize-tree/demo/clusterctl-examples.
 
 [CAPI]: https://cluster-api.sigs.k8s.io/introduction.html
 [cloud_init_network_config]: https://cloudinit.readthedocs.io/en/latest/reference/network-config.html
