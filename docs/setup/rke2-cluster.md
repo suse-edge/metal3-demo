@@ -50,13 +50,13 @@ virsh net-update provisioning add-last dns-host dns.xml --live
 ```
 curl https://raw.githubusercontent.com/suse-edge/metal3-demo/rke2-example-manifests/sample-files/combined-deployment.yaml > rke2.yaml
 ```
-
+- This configuration is specific to the [Metal3 Setup Readme](./metal3-setup.md) and [VBMH Readme](./vbmh-setup.md) setup docs. If you have made your own changes or have differences in your setup, you may need to update the RKE2 manifest.
 
 7. Deploy the cluster
 ```
 kubectl apply -f rke2.yaml
 ```
-- If you followed the [Metal3 Setup Readme](./metal3-setup.md) and [VBMH Readme](./vbmh-setup.md) exactly, you will not need to change anything. However, if you have differences in your setup, you may need to make changes to the RKE2 manifest.
+
 
 8. Verify that it's working
 ```
