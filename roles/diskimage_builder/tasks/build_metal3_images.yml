@@ -9,10 +9,8 @@
 - name: Modify cloud-init config
   become: yes
   shell: |
-    echo "datasource_list: [  ConfigDrive, OpenStack, None ]" > 91-dib-cloud-init-datasources.cfg
-    virt-copy-in -a "{{ image_name }}" 91-dib-cloud-init-datasources.cfg /etc/cloud/cloud.cfg.d
+    virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e "s/^datasource_list.*/datasource_list: [ ConfigDrive, OpenStack, None ]/"
     virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e "s/^(\s*)lock_passwd.*/\1lock_passwd: False/"
     md5sum "{{ image_name }}" > "{{ image_name }}".md5
-    rm 91-dib-cloud-init-datasources.cfg
   args:
     chdir: "{{ images_dir }}"
