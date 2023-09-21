@@ -19,12 +19,6 @@
   hosts: metal3-core
   tasks:
   
-    - name: Installing Python dependency
-      become: yes
-      ansible.builtin.zypper:
-        name: python310-dbm
-        state: present
-        
     - name: Copy node1 yaml over
       copy: 
         src: "{{ VBMCDIR }}/node1.yaml"
