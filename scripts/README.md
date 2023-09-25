@@ -15,15 +15,15 @@ cd ~/metal3-demo/scripts/bash-scripts/
 ## Deploy Metal3 Infrastructure
 To deploy Metal3 without Sylva enabled, run:
 ```
-./m3.sh
+./deploy_m3.sh
 ```
 To deploy Metal3 with Sylva enabled, pass the `--sylva` flag like so:
 ```
-./m3.sh --sylva
+./deploy_m3.sh --sylva
 ```
 
 ## Provision Virtual Bare Metal Hosts
 ```
 cd ~/metal3-demo/scripts/bash-scripts/
-./vm.sh
+./provision_virtual_bmh.sh
 ```
