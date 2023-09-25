@@ -4,8 +4,7 @@ set -e
 
 set -o pipefail
 
-echo "This script assumes you've already ran the SUSE Edge M3 demo script.
-"
+printf "This script assumes you've already ran the SUSE Edge M3 demo script.\n"
 
 echo "Please enter your server's IP Address:"
 read IP_ADDR
@@ -14,14 +13,13 @@ echo $IP_ADDR
 
 cd ~
 HOMEDIR=$(pwd)
+VBMCDIR="$HOMEDIR/metal3-demo/vbmc"
 
-if [ ! -d "$HOMEDIR/metal3-demo/vbmc" ]; then
-  sudo mkdir $HOMEDIR/metal3-demo/vbmc
+if [ ! -d $VBMCDIR ]; then
+  mkdir $VBMCDIR
 fi
 
-cd $HOMEDIR/metal3-demo/vbmc
-
-VBMCDIR="$HOMEDIR/metal3-demo/vbmc"
+cd $VBMCDIR
 
 # Need to define default pool for redfish to work properly
 
@@ -55,8 +53,6 @@ virt-install --name node-3 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/image
 
 echo "Finished creating 3 virtual nodes"
 echo "Starting sushy-tools podman"
-
-cd $VBMCDIR
 
 
 cat << EOF > $VBMCDIR/sushy.config
@@ -98,7 +94,7 @@ openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 3
 sudo podman run -d --rm --privileged  --name sushy-tools   -v ${HOME}/metal3-demo/vbmc:$VBMCDIR:Z   -v /var/run/libvirt:/var/run/libvirt:Z   -e SUSHY_EMULATOR_CONFIG=$VBMCDIR/sushy.config   -p 8000:8000   quay.io/metal3-io/sushy-tools:latest sushy-emulator
 echo "Finished starting sushy-tools podman"
 
-echo "Sleeping for 10 seconds to make sure podman has started"
+echo "Sleeping for 10 seconds to make sure the sushy-tools container has started"
 sleep 10s
 
 # We automatically grab the mac address of each vm and the sushy-tools id of each vm
@@ -107,17 +103,17 @@ NODE1ID=$(curl -L https://$IP_ADDR:8000/redfish/v1/Systems/node-1 -k -u "foo:foo
 NODE2ID=$(curl -L https://$IP_ADDR:8000/redfish/v1/Systems/node-2 -k -u "foo:foo" | jq -r '.UUID')
 NODE3ID=$(curl -L https://$IP_ADDR:8000/redfish/v1/Systems/node-3 -k -u "foo:foo" | jq -r '.UUID')
 
-echo $NODE1ID
-echo $NODE2ID
-echo $NODE3ID
+echo Node 1 ID: $NODE1ID
+echo Node 2 ID: $NODE2ID
+echo Node 3 ID: $NODE3ID
 
 NODE1MAC=$(virsh dumpxml node-1 | grep 'mac address' | grep -ioE "([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
 NODE2MAC=$(virsh dumpxml node-2 | grep 'mac address' | grep -ioE "([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
 NODE3MAC=$(virsh dumpxml node-3 | grep 'mac address' | grep -ioE "([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
 
-echo $NODE1MAC
-echo $NODE2MAC
-echo $NODE3MAC
+echo Node 1 Mac: $NODE1MAC
+echo Node 2 Mac: $NODE2MAC
+echo Node 3 Mac: $NODE3MAC
 
 # We create custom BMH yamls using the data we collected earlier
 

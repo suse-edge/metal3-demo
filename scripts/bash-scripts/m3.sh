@@ -5,7 +5,7 @@ SYLVA_ENABLED="false"
 
 param1="$1"
 
-if [ "$param1" = "-s" ] ; then
+if [ "$param1" = "--sylva" ] ; then
     SYLVA_ENABLED="true"
 fi
 

@@ -28,10 +28,7 @@ dns_domain: suse.baremetal
 metal3_provisioning_nic: &metal3_provisioning_nic eth1
 
 
-# metal3_vm_libvirt_network_params: '--network bridge=virbr0,model=virtio --network bridge=br-eth3,model=virtio'
 metal3_vm_libvirt_network_params: '--network bridge=m3-egress,model=virtio --network bridge=m3-prov,model=virtio'
-
-#vm_memory: 16384
 
 
 metal3_network_infra_provisioning_ip: 192.168.124.100
