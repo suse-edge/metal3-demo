@@ -48,7 +48,7 @@ virsh net-update provisioning add-last dns-host dns.xml --live
 
 6. Inside of the Metal3-core vm, download the following file:
 ```
-curl https://raw.githubusercontent.com/suse-edge/metal3-demo/rke2-example-manifests/sample-files/combined-deployment.yaml > rke2.yaml
+curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-files/rke2-cluster-deployment.yaml > rke2.yaml
 ```
 - This configuration is specific to the [Metal3 Setup Readme](./metal3-setup.md) and [VBMH Readme](./vbmh-setup.md) setup docs. If you have made your own changes or have differences in your setup, you may need to update the RKE2 manifest.
 
