@@ -49,7 +49,7 @@ public network (i.e. tagged VLAN).
 - The [VBMH Setup Doc](./docs/setup/vbmh-setup.md) is a walkthrough of the setup of virtual machines to act as bare metal hosts.
 - The [RKE2 Setup Doc](./docs/setup/rke2-cluster.md) is a walkthrough of the deployment of a sample RKE2 cluster on the virtual bare metal hosts.
 - Example RKE2 deployment manifests exist [here](./docs/example-manifests/).
-
+- For the automation of this deployment, [click here.](./scripts/README.md)
 
 [CAPI]: https://cluster-api.sigs.k8s.io/introduction.html
 [cloud_init_network_config]: https://cloudinit.readthedocs.io/en/latest/reference/network-config.html
