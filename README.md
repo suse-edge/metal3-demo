@@ -48,8 +48,8 @@ public network (i.e. tagged VLAN).
 - Refer to the [Metal3 Setup Doc](./docs/setup/metal3-setup.md) for a walkthrough of the Metal3 Demo environment setup.
 - The [VBMH Setup Doc](./docs/setup/vbmh-setup.md) is a walkthrough of the setup of virtual machines to act as bare metal hosts.
 - The [RKE2 Setup Doc](./docs/setup/rke2-cluster.md) is a walkthrough of the deployment of a sample RKE2 cluster on the virtual bare metal hosts.
-- Example RKE2 cluster deployment manifest exists [here](./docs/example-files/).
-
+- Example RKE2 deployment manifest exists [here](./docs/example-manifests/).
+- For the automation of this deployment, [click here.](./scripts/README.md)
 
 [CAPI]: https://cluster-api.sigs.k8s.io/introduction.html
 [cloud_init_network_config]: https://cloudinit.readthedocs.io/en/latest/reference/network-config.html

@@ -1,0 +1,60 @@
+---
+- name: Equinix Setup
+  hosts: localhost
+  become: true
+  tasks: 
+    - name: Install git
+      apt: 
+        name: git
+        state: present
+        
+    - name: Install Dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      with_items:
+        - libvirt-clients
+        - qemu-kvm
+        - libvirt-daemon-system
+        - python3-pip
+        - pkg-config
+        - libvirt-dev
+        - mkisofs
+        - qemu
+        - virtinst
+        - qemu-efi
+        - sshpass
+      
+    - name: Install ansible galaxy collections
+      command:
+        cmd: ansible-galaxy collection install -r requirements.yml
+        chdir: "{{ ansible_env.HOME }}/metal3-demo"
+      become: yes
+      
+    - name: Install libvirt-python
+      ansible.builtin.pip:
+        name: libvirt-python
+        executable: pip3
+        
+    - name: Define egress network
+      become: yes
+      command: virsh net-define "{{ ansible_env.HOME }}/metal3-demo/libvirt/egress.xml"
+
+    - name: Start egress network
+      become: yes
+      command: virsh net-start egress
+      
+    - name: Define provisioning network
+      become: yes
+      command: virsh net-define "{{ ansible_env.HOME }}/metal3-demo/libvirt/provisioning.xml"
+
+    - name: Start provisioning network
+      become: yes
+      command: virsh net-start provisioning
+
+    - name: Enable or disable Sylva based on input flags
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env.HOME }}/metal3-demo/extra_vars.yml"
+        regexp: '^\s*deploy_sylva_core:'
+        line: 'deploy_sylva_core: {{ sylva }}'

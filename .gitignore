@@ -13,3 +13,6 @@ bin/ansible*
 
 *.bak
 *.swo
+
+# folder created by the vm.sh script
+vbmc
