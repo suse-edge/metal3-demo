@@ -6,11 +6,15 @@
     dest: "{{ images_dir }}"
     checksum: "{{ image_checksum }}"
 
+# Use "opensuse:root" credentials for the dev user.
+# Generate another password by running "openssl passwd -6 -salt SalTsaLt PASSWORD"
+# and replacing the "passwd" entry below (keep in mind some characters must be escaped e.g. "/", "$").
 - name: Modify cloud-init config
   become: yes
   shell: |
-    virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e "s/^datasource_list.*/datasource_list: [ ConfigDrive, OpenStack, None ]/"
-    virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e "s/^(\s*)lock_passwd.*/\1lock_passwd: False/"
+    virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e 's/datasource_list.*/datasource_list: [ ConfigDrive, OpenStack, None ]/'
+    virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)lock_passwd.*/\1lock_passwd: False/'
+    virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)(name: opensuse)/\1\2\n\1passwd: \$6\$SalTsaLt\$4U6ktRhvpSUKdG2XHWmsxlvykFSJRnMyOLYPcWLoCuj3oHB4NaE9Is0wXf4guihZvmSBTairoUvh6s5.JoJED\//'
     md5sum "{{ image_name }}" > "{{ image_name }}".md5
   args:
     chdir: "{{ images_dir }}"
