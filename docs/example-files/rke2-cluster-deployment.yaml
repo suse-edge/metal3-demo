@@ -135,19 +135,6 @@ spec:
     port: 6443
   noCloudProvider: true
 ---
-apiVersion: ipam.metal3.io/v1alpha1
-kind: IPPool
-metadata:
-  name: provisioning-pool
-  namespace: default
-spec:
-  clusterName: sample-cluster
-  namePrefix: sample-cluster-prov
-  pools:
-  - end: 192.168.124.165
-    start: 192.168.124.150
-  prefix: 24
----
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3DataTemplate
 metadata:
@@ -156,9 +143,6 @@ metadata:
 spec:
   clusterName: sample-cluster
   metaData:
-    ipAddressesFromIPPool:
-    - key: provisioningIP
-      name: provisioning-pool
     objectNames:
     - key: name
       object: machine
@@ -166,9 +150,6 @@ spec:
       object: machine
     - key: local_hostname
       object: machine
-    prefixesFromIPPool:
-    - key: provisioningCIDR
-      name: provisioning-pool
   networkData:
     links:
       ethernets:
@@ -177,9 +158,8 @@ spec:
           fromHostInterface: eth0
         type: phy
     networks:
-      ipv4:
+      ipv4DHCP:
       - id: eth0
-        ipAddressFromIPPool: provisioning-pool
         link: eth0
         routes:
         - gateway:
@@ -198,9 +178,6 @@ metadata:
 spec:
   clusterName: sample-cluster
   metaData:
-    ipAddressesFromIPPool:
-    - key: provisioningIP
-      name: provisioning-pool
     objectNames:
     - key: name
       object: machine
@@ -208,9 +185,6 @@ spec:
       object: machine
     - key: local_hostname
       object: machine
-    prefixesFromIPPool:
-    - key: provisioningCIDR
-      name: provisioning-pool
   networkData:
     links:
       ethernets:
@@ -219,9 +193,8 @@ spec:
           fromHostInterface: eth0
         type: phy
     networks:
-      ipv4:
+      ipv4DHCP:
       - id: eth0
-        ipAddressFromIPPool: provisioning-pool
         link: eth0
         routes:
         - gateway:
