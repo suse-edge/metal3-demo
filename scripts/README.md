@@ -24,6 +24,5 @@ To deploy Metal3 with Sylva enabled, pass the `--sylva` flag like so:
 
 ## Provision Virtual Bare Metal Hosts
 ```
-cd ~/metal3-demo/scripts/bash-scripts/
 ./provision_virtual_bmh.sh
 ```
