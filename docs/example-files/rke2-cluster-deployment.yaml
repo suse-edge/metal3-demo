@@ -52,10 +52,10 @@ spec:
         matchLabels:
           cluster-role: control-plane
       image:
-        checksum: http://media.suse.baremetal/ubuntu_22.04-efi.qcow2.md5
+        checksum: http://media.suse.baremetal/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2.md5
         checksumType: md5
         format: qcow2
-        url: http://media.suse.baremetal/ubuntu_22.04-efi.qcow2
+        url: http://media.suse.baremetal/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
 ---
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
@@ -102,10 +102,10 @@ spec:
         matchLabels:
           cluster-role: worker
       image:
-        checksum: http://media.suse.baremetal/ubuntu_22.04-efi.qcow2.md5
+        checksum: http://media.suse.baremetal/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2.md5
         checksumType: md5
         format: qcow2
-        url: http://media.suse.baremetal/ubuntu_22.04-efi.qcow2
+        url: http://media.suse.baremetal/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha1
 kind: RKE2ConfigTemplate
