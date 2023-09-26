@@ -1,5 +1,5 @@
 ---
-- name: Download Leap image
+- name: Download OS image
   become: yes
   get_url:
     url: "{{ image_url }}"

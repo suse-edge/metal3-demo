@@ -78,9 +78,9 @@
         name: diskimage_builder
       vars:
         images_dir: /opt/media
-        image_url: https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.5/images/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
-        image_checksum: sha256:https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.5/images/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2.sha256
-        image_name: openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
+        image_url: "{{ opensuse_leap_image_url }}"
+        image_checksum: "{{ opensuse_leap_image_checksum }}"
+        image_name: "{{ opensuse_leap_image_name }}"
         build_debug_ipa_images: false
         build_sample_user_images: false
         build_metal3_images: true
