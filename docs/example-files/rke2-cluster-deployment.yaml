@@ -164,8 +164,8 @@ spec:
         routes:
         - gateway:
             string: 192.168.124.1
-          network: 192.168.124.0
-          prefix: 24
+          network: 0.0.0.0
+          prefix: 0
     services:
       dns:
       - 192.168.124.1
@@ -199,8 +199,8 @@ spec:
         routes:
         - gateway:
             string: 192.168.124.1
-          network: 192.168.124.0
-          prefix: 24
+          network: 0.0.0.0
+          prefix: 0
     services:
       dns:
       - 192.168.124.1
