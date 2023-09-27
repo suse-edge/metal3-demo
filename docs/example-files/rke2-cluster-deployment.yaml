@@ -7,10 +7,10 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - 192.168.0.0/18
+        - 192.168.0.0/18
     services:
       cidrBlocks:
-      - 10.96.0.0/12 # Doesn't matter because they are an internal network
+        - 10.96.0.0/12 # Doesn't matter because they are an internal network
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1alpha1
     kind: RKE2ControlPlane
@@ -144,31 +144,31 @@ spec:
   clusterName: sample-cluster
   metaData:
     objectNames:
-    - key: name
-      object: machine
-    - key: local-hostname
-      object: machine
-    - key: local_hostname
-      object: machine
+      - key: name
+        object: machine
+      - key: local-hostname
+        object: machine
+      - key: local_hostname
+        object: machine
   networkData:
     links:
       ethernets:
-      - id: eth0
-        macAddress:
-          fromHostInterface: eth0
-        type: phy
+        - id: eth0
+          macAddress:
+            fromHostInterface: eth0
+          type: phy
     networks:
       ipv4DHCP:
-      - id: eth0
-        link: eth0
-        routes:
-        - gateway:
-            string: 192.168.124.1
-          network: 0.0.0.0
-          prefix: 0
+        - id: eth0
+          link: eth0
+          routes:
+            - gateway:
+                string: 192.168.124.1
+              network: 0.0.0.0
+              prefix: 0
     services:
       dns:
-      - 192.168.124.1
+        - 192.168.124.1
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3DataTemplate
@@ -179,28 +179,28 @@ spec:
   clusterName: sample-cluster
   metaData:
     objectNames:
-    - key: name
-      object: machine
-    - key: local-hostname
-      object: machine
-    - key: local_hostname
-      object: machine
+      - key: name
+        object: machine
+      - key: local-hostname
+        object: machine
+      - key: local_hostname
+        object: machine
   networkData:
     links:
       ethernets:
-      - id: eth0
-        macAddress:
-          fromHostInterface: eth0
-        type: phy
+        - id: eth0
+          macAddress:
+            fromHostInterface: eth0
+          type: phy
     networks:
       ipv4DHCP:
-      - id: eth0
-        link: eth0
-        routes:
-        - gateway:
-            string: 192.168.124.1
-          network: 0.0.0.0
-          prefix: 0
+        - id: eth0
+          link: eth0
+          routes:
+            - gateway:
+                string: 192.168.124.1
+              network: 0.0.0.0
+              prefix: 0
     services:
       dns:
-      - 192.168.124.1
+        - 192.168.124.1
