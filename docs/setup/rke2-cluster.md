@@ -1,39 +1,45 @@
-# Intro 
+# Intro
 
 ## RKE2 Workload Cluster Deployment on Metal<sup>3</sup>
 
-This is a step by step guide on deploying RKE2 workload clusters on the SUSE Metal<sup>3</sup> Demo environment
+This is a step-by-step guide on deploying RKE2 workload clusters on the SUSE Metal<sup>3</sup> Demo environment.
 
 ### Pre-requisites
+
 - A fully functioning Metal<sup>3</sup> deployment
-- At least 2 virtual bare metal hosts
+- Two available virtual bare metal hosts
 
 ## Deploying the Workload Cluster
+
 - For simplicity, we will continue working in the `vbmc` directory created in the [VBMH Readme](./vbmh-setup.md).
-```
+
+```shell
 cd ~/vbmc
 ```
 
-1. Get the mac address of the VBMH that will act as the control plane and save it as a variable
-``` 
-CONTROLPLANEMAC=$(sudo virsh dumpxml node-1 | grep 'mac address' | grep -ioE "([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
-```
+1. Get the MAC address of the VBMH that will act as the control plane and save it as a variable
 
+```shell
+CONTROLPLANEMAC=$(virsh dumpxml node-1 | grep 'mac address' | grep -ioE "([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")
+```
 
 2. Create an XML file with the following information:
-```
+
+```shell
 cat << EOF > ~/vbmc/host.xml
 <host mac='$CONTROLPLANEMAC' ip='192.168.124.200'/>
 EOF
 ```
 
 3. Perform a live update to the provisioning network to give a static IP to the VBMH
-```
+
+```shell
 virsh net-update provisioning add-last ip-dhcp-host host.xml --live
 ```
 
 4. Create an XML file containing the following
-```
+
+```shell
 cat << EOF > ~/vbmc/dns.xml
 <host ip='192.168.124.100'>
   <hostname>media.suse.baremetal</hostname>
@@ -42,23 +48,60 @@ EOF
 ```
 
 5. Live update the provisioning network once again
-```
+
+```shell
 virsh net-update provisioning add-last dns-host dns.xml --live
 ```
 
-6. Inside of the Metal3-core vm, download the following file:
-```
-curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-files/rke2-cluster-deployment.yaml > rke2.yaml
-```
-- This configuration is specific to the [Metal3 Setup Readme](./metal3-setup.md) and [VBMH Readme](./vbmh-setup.md) setup docs. If you have made your own changes or have differences in your setup, you may need to update the RKE2 manifest.
-
-7. Deploy the cluster
-```
-kubectl apply -f rke2.yaml
+6. SSH into the metal3-core VM
+```shell
+ssh metal@192.168.125.99
 ```
 
+7. Download the example manifests
 
-8. Verify that it's working
+```shell
+curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-manifests/dhcp/rke2-control-plane.yaml > rke2-control-plane.yaml
+curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-manifests/dhcp/rke2-agent.yaml > rke2-agent.yaml
 ```
-clusterctl describe cluster sample-cluster
+
+- This configuration is specific to the [Metal3](./metal3-setup.md) and [VBMH](./vbmh-setup.md) setup docs.
+  If you have made your own changes or have differences in your setup, you may need to update the manifests.
+- This configuration assumes DHCP-only network setup.
+
+8. Deploy the control plane
+
+```shell
+kubectl apply -f rke2-control-plane.yaml
+```
+
+9. Verify that the control plane is properly provisioned
+
+```shell
+$ clusterctl describe cluster sample-cluster
+  NAME                                                    READY  SEVERITY  REASON  SINCE  MESSAGE
+  Cluster/sample-cluster                                  True                     22m
+  ├─ClusterInfrastructure - Metal3Cluster/sample-cluster  True                     27m
+  ├─ControlPlane - RKE2ControlPlane/sample-cluster        True                     22m
+  │ └─Machine/sample-cluster-chflc                        True                     23m
+```
+
+10. Deploy the agent
+
+```shell
+kubectl apply -f rke2-agent.yaml
+```
+
+11. Verify that the agent is properly provisioned and has successfully joined the cluster
+
+```shell
+$ clusterctl describe cluster sample-cluster
+  NAME                                                    READY  SEVERITY  REASON  SINCE  MESSAGE
+  Cluster/sample-cluster                                  True                     25m
+  ├─ClusterInfrastructure - Metal3Cluster/sample-cluster  True                     30m
+  ├─ControlPlane - RKE2ControlPlane/sample-cluster        True                     25m
+  │ └─Machine/sample-cluster-chflc                        True                     27m
+  └─Workers
+    └─MachineDeployment/sample-cluster                    True                     22m
+      └─Machine/sample-cluster-56df5b4499-zfljj           True                     23m
 ```
