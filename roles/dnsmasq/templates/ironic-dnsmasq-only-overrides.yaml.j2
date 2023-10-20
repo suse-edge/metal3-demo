@@ -8,9 +8,6 @@ global:
   dhcpRange: {{ dhcp_range | default('192.168.75.10,192.168.75.99') }}
   provisioningInterface: {{ metal3_provisioning_nic }}
   provisioningIP: {{ provisioning_ip | default(metal3_core_provisioning_ip) }}
-  ingress:
-    annotations:
-      external-dns.alpha.kubernetes.io/target: {{ provisioning_ip | default(metal3_core_provisioning_ip) }}
 
 metal3-ironic:
   baremetaloperator:
