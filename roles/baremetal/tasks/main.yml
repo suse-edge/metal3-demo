@@ -24,9 +24,6 @@
     repo_url: "{{ baremetal_repo_url }}"
     repo_branch: "{{ baremetal_branch }}"
     repo_pull_request: "{{ baremetal_pull_request | default('') }}"
-    
-- name: Organize charts repo
-  include_tasks: organize_charts_repo_core.yml
 
 - name: Checkout sylva-core repo
   include_tasks: checkout_repo.yml
@@ -66,7 +63,7 @@
   set_fact:
     node_ssh_public_key: "{{ ssh_key_gen_result.public_key }}"
 
-- name: Create metal3-deploy overrides yaml file
+- name: Create metal3 overrides yaml file
   template:
     src: "parent-chart-overrides.yaml.j2"
     dest: "~/parent-chart-overrides.yaml"
@@ -76,7 +73,7 @@
 - name: Deploy helm components using file based overrides
   shell: >-
     env HELM_EXPERIMENTAL_OCI=1 \
-    helm upgrade --install heavy-metal metal3-deploy \
+    helm upgrade --install heavy-metal metal3 \
       --create-namespace --namespace metal-cubed \
       --values ~/parent-chart-overrides.yaml \
       --atomic --timeout 30m

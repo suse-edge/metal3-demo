@@ -84,7 +84,7 @@ printf "|Component           |Version                                      |\n"
 printf ' %67s\n' | tr ' ' -
 HELMDIR=$HOME/charts
 for component in `ls $HELMDIR`; do
-	if [[ $component == "metal3-deploy" ]]; then
+	if [[ $component == "metal3" ]]; then
 		continue
         fi		
 
