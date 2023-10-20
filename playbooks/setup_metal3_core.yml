@@ -69,11 +69,6 @@
         name: capi
       when: not deploy_sylva_core
 
-    - name: Deploy NFS
-      import_role:
-        name: nfs
-      when: storage['nfs']['create'] | default('False')
-
     - name: Install python-ironicclient
       import_role:
         name: ironicclient
