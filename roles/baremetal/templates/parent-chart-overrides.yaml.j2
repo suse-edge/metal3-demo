@@ -1,9 +1,6 @@
 global:
-  enable_metal3_media_server: false
   enable_dnsmasq: false
-  enable_ironic: true
   enable_pxe_boot: false
-  dnsDomain: {{ dns_domain }}
   dnsmasqDefaultRouter: {{ dhcp_router | default('192.168.75.254') }}
   dnsmasqDNSServer: {{ dns_server | default(metal3_network_infra_provisioning_ip) }}
   dhcpRange: {{ dhcp_range | default('192.168.75.10,192.168.75.99') }}

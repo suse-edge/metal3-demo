@@ -105,13 +105,13 @@ units:
     helmrelease_spec:
       chart:
         spec:
-          chart: charts/metal3-deploy/0.1.0
+          chart: charts/metal3/0.2.0
       timeout: 30m
       install:
         createNamespace: true
         timeout: 30m
       targetNamespace: metal3-system
-      values: # see https://github.com/rancher-sandbox/baremetal/blob/master/helm-charts/metal3-deploy/values.yaml
+      values: # see https://github.com/suse-edge/charts/tree/main/charts/metal3
         global:
           enable_metal3_media_server: false
           enable_dnsmasq: false
