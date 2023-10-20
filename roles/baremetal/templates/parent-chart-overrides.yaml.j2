@@ -1,8 +1,8 @@
 global:
-  enable_dnsmasq: false
-  enable_pxe_boot: false
-  dnsmasqDefaultRouter: {{ dhcp_router | default('192.168.75.254') }}
-  dnsmasqDNSServer: {{ dns_server | default(metal3_network_infra_provisioning_ip) }}
-  dhcpRange: {{ dhcp_range | default('192.168.75.10,192.168.75.99') }}
+  enable_dnsmasq: true
+  enable_pxe_boot: true
+  dnsmasqDefaultRouter: {{ dhcp_router | default('192.168.124.1') }}
+  dnsmasqDNSServer: {{ dns_server | default('192.168.124.1') }}
+  dhcpRange: {{ dhcp_range | default('192.168.124.100,192.168.124.200') }}
   provisioningInterface: {{ metal3_provisioning_nic }}
-  provisioningIP: {{ metal3_core_provisioning_ip }}
+  provisioningIP: {{ metal3_core_provisioning_ip | default('192.168.124.99') }}
