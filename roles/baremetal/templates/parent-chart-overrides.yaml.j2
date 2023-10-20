@@ -1,6 +1,5 @@
 global:
   enable_external_dns: yes
-  enable_pdns: false
   enable_metal3_media_server: false
   enable_dnsmasq: false
   enable_ironic: true
@@ -26,16 +25,6 @@ metal3-external-dns:
   domainFilters:
     - {{ dns_domain }}
   provider: {{ dns_provider }}
-{% if dns_provider == 'pdns' %}
-  pdns:
-    apiUrl: http://{{ pdns_ip  }}
-    apiPort: {{ pdns_api_port }}
-    apiKey: {{ pdns_api_key }}
-{% endif %}
-{% if dns_provider == 'cloudflare' %}
-  cloudflare:
-    {{ cloudflare | to_nice_yaml | indent(4) }}
-{% endif %}
 
 metal3-nfs-subdir-external-provisioner-ironic:
   nfs:

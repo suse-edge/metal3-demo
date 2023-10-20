@@ -22,9 +22,6 @@ all the pieces, namely CAPI (Cluster API) controller, RKE2 bootstrap provider
 (CABPR), RKE2 control plane provider (CACPPR),
 Metal3 infrastructure provider (CAPM3), Baremetal Operator, and
 OpenStack Ironic, in a typical production Metal3 management cluster.
-The external-dns controller on the Metal3 Core VM (management cluster)
-is configured to use the PowerDNS running on the Metal3 Network Infra VM,
-which illustrates what a production environment should look like.
 
 ## Networking <a name="networking" />
 

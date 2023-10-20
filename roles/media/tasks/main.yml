@@ -36,18 +36,3 @@
       --atomic --timeout 10m
   args:
     chdir: ~/charts
-
-- name: Add record in PowerDNS
-  include_tasks: insert_pdns_record.yml
-  when:
-    - dns_provider == 'pdns'
-    - insert_record_in_pdns
-
-- name: Add record in CloudFlare
-  community.general.cloudflare_dns:
-    zone: "{{ dns_domain }}"
-    record: media.{{ dns_domain }}
-    type: A
-    value: "{{ metal3_network_infra_provisioning_ip }}"
-    api_token: "{{ cloudflare.apiToken }}"
-  when: dns_provider == 'cloudflare'
