@@ -96,13 +96,10 @@ opensuse_leap_image_name: openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
 # metal3-network-infra and metal3-core respectively. The metal3-network-infra
 # VM contains all necessary networking infrastructure components that
 # Metal3 stack dependeds on, which are expected to be available in a
-# typical production environment. i.e. DNS server, DHCP server, etc. 
+# typical production environment. i.e. DHCP server, etc. 
 # The metal3-core VM, on the other hand, has only the essential CAPI and
 # Metal3 components. i.e. CAPI, RKE2 bootstrap and control plane provider,
 # Metal3 infrastructure provider, baremetal operator, and Ironic.
-# The external-dns in metal3-core is configured to utilize the DNS server
-# running in metal3-network-infra. Likewise, metal3-core is leveraging the
-# DNS server in metal3-network-infra for all DNS resolutions.
 #
 # The Metal3 demo environment is expected to have two networks, which are
 # provisioning and public network. The provisioning network is used
@@ -117,12 +114,6 @@ opensuse_leap_image_name: openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
 # For same environments, though not recommended for obviouse reasons,
 # provisioning and public network can be the same so as long as the
 # network have public access.
-
-#
-# DNS domain for the Metal3 stack. All the public endpoints created in DNS
-# will have this domain. e.g. boot.ironic.suse.baremetal, media.suse.baremetal, etc
-#
-dns_domain: suse.baremetal
 
 #
 # NIC for the provisioning network

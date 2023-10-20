@@ -1,5 +1,4 @@
 global:
-  enable_external_dns: yes
   enable_metal3_media_server: false
   enable_dnsmasq: false
   enable_ironic: true
@@ -12,19 +11,6 @@ global:
   dhcpRange: {{ dhcp_range | default('192.168.75.10,192.168.75.99') }}
   provisioningInterface: {{ metal3_provisioning_nic }}
   provisioningIP: {{ metal3_core_provisioning_ip }}
-  ingress:
-    annotations:
-      external-dns.alpha.kubernetes.io/target: {{ metal3_core_provisioning_ip }}
-  dnsConfig:
-    nameservers:
-    - {{ dns_server | default(metal3_network_infra_provisioning_ip) }}
-    searches:
-    - {{ dns_domain }}
-
-metal3-external-dns:
-  domainFilters:
-    - {{ dns_domain }}
-  provider: {{ dns_provider }}
 
 metal3-nfs-subdir-external-provisioner-ironic:
   nfs:

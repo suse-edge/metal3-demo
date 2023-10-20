@@ -22,11 +22,6 @@
     name: baremetal
     tasks_from: checkout_baremetal_repo
 
-- name: Create media value overrides file
-  template:
-    src: media_helm_overrides.yml.j2
-    dest: ~/media_helm_overrides.yml
-
 - name: Deploy media server via helm
   shell: >-
     env HELM_EXPERIMENTAL_OCI=1 \
