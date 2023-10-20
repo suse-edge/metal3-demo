@@ -2,6 +2,3 @@
 # charts repo
 baremetal_repo_url: https://github.com/suse-edge/charts.git
 baremetal_branch: main
-
-# whether to manually add record in PowerDNS
-insert_record_in_pdns: true

@@ -102,11 +102,6 @@ for component in `ls $HELMDIR`; do
 
 			done	
                 ;;
-	        "powerdns")
-			VERSION=$(echo $HELMIMGLST | grep pdns | awk -F ':' '{print $2}')
-			COMPONENT="powerdns"
-			printf "|%-20s|%-45s|\n" $COMPONENT "$VERSION"
-	        ;;		
 	        "media") 
 			VERSION=$(echo $HELMIMGLST | grep nginx | awk -F ':' '{print $2}')
 			COMPONENT="media"

@@ -45,12 +45,6 @@ units:
                     forward suse.de{% for srv in (zone.forwarders) %} {{ srv }}{% endfor %}
                 }
 {% endfor %}
-{% if dns_provider == 'pdns' %}
-                {{ dns_domain }}:53 {
-                    errors
-                    forward {{ dns_domain }} {{ metal3_network_infra_provisioning_ip }}
-                }
-{% endif %}
                 .:53 {
                     errors
                     health {
@@ -120,7 +114,6 @@ units:
       values: # see https://github.com/rancher-sandbox/baremetal/blob/master/helm-charts/metal3-deploy/values.yaml
         global:
           enable_external_dns: yes
-          enable_pdns: false
           enable_metal3_media_server: false
           enable_dnsmasq: false
           enable_ironic: true
@@ -171,10 +164,6 @@ units:
         metal3-external-dns:
           domainFilters:
             - {{ dns_domain }}
-          pdns:
-            apiUrl: http://{{ pdns_ip  }}
-            apiPort: {{ pdns_api_port }}
-            apiKey: {{ pdns_api_key }}
 
   # NOTE: for an existing management cluster, we don't need to deploy cluster
   # again. It's for bootstrapping and pivot only.
