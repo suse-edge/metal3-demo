@@ -1,7 +1,0 @@
----
-- name: Install required packages
-  include_role:
-    name: vm
-    tasks_from: install_suse_package
-  vars:
-    suse_packages: [nfs-kernel-server]
