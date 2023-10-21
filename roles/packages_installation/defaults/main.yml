@@ -1,0 +1,19 @@
+packages:
+  ubuntu:
+    - git
+    - libvirt-clients
+    - qemu-kvm
+    - libvirt-daemon-system
+    - python3-pip
+    - pkg-config
+    - libvirt-dev
+    - mkisofs
+    - qemu
+    - virtinst
+    - qemu-efi
+    - sshpass
+    - libguestfs-tools
+    - podman
+    - python3-lxml
+  pip3:
+    - libvirt-python
