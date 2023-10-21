@@ -7,56 +7,40 @@ the Kubernetes native API. (see https://metal3.io/)
 
 ### Pre-requisite Dependencies
 
-<details>
-  <summary>Click Here for list of Ubuntu Dependencies (22.04 LTS)</summary>
-  <br>
+Currently requires an Ubuntu (22.04 LTS) host to enable testing on Equinix.
 
-Make sure your packages are up-to-date
+1. Create a non-root user with sudo access
 
-  ```shell
-  sudo DEBIAN_FRONTEND=noninteractive apt-get update -y
-  sudo DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
-  ```
+If one does not already exist e.g:
 
-Dependencies: <br>
-Make sure to have python3-pip and python3-lxml installed first:
+```
+sudo useradd auser -m -s /bin/bash
+sudo echo "auser ALL=NOPASSWD: ALL" > /etc/sudoers.d/auser
+sudo su - auser
+```
 
-  ```shell
-  sudo DEBIAN_FRONTEND=noninteractive apt install python3-pip python3-lxml -y
-  ```
-
-  ```shell
-  python3 -m pip install ansible
-  sudo DEBIAN_FRONTEND=noninteractive apt install libvirt-clients -y
-  sudo DEBIAN_FRONTEND=noninteractive apt install qemu-kvm -y
-  sudo DEBIAN_FRONTEND=noninteractive apt install libvirt-daemon-system -y
-  sudo DEBIAN_FRONTEND=noninteractive apt install pkg-config -y
-  sudo DEBIAN_FRONTEND=noninteractive apt install libvirt-dev -y
-  sudo DEBIAN_FRONTEND=noninteractive apt install mkisofs -y
-  sudo DEBIAN_FRONTEND=noninteractive apt install qemu -y
-  sudo DEBIAN_FRONTEND=noninteractive apt install virtinst -y
-  sudo DEBIAN_FRONTEND=noninteractive apt install qemu-efi -y
-  sudo DEBIAN_FRONTEND=noninteractive apt install sshpass -y
-  pip3 install libvirt-python
-  ```
-
-</details>
-
-## Deploying the SUSE Edge Metal<sup>3</sup> Demo
-
-1. Begin by cloning the SUSE Edge M3 Demo repo
+2. Clone this metal3-demo repo
 
 ```shell
 git clone https://github.com/suse-edge/metal3-demo.git
 ```
 
-2. Copy the pre-configured_extra_vars.yml to extra_vars.yml
+3. Install pre-requisite packages
+
+```shell
+cd metal3-demo
+./01_prepare_host.sh
+```
+
+## Deploying the SUSE Edge Metal<sup>3</sup> Demo
+
+1. Copy the pre-configured_extra_vars.yml to extra_vars.yml
 
 ```shell
 cp scripts/required-files/pre-configured_extra_vars.yml extra_vars.yml
 ```
 
-3. Follow the instructions within extra_vars.yml to configure it according to your needs. If you would like a
+2. Follow the instructions within extra_vars.yml to configure it according to your needs. If you would like a
    pre-configured file, skip to step 4, otherwise, skip to step 6.
 
 - Important note: There are hardcoded memory and cpu configurations within `playbooks/setup_metal3_core.yaml`
@@ -65,7 +49,7 @@ cp scripts/required-files/pre-configured_extra_vars.yml extra_vars.yml
 - The lowest resource configuration that is confirmed to work is: 6 VCPUs and 16000 vm_memory
   in `playbooks/setup_metal3_core.yaml` and 8000 vm_memory in `roles/vm/defaults/main.yaml`.
 
-4. Show Pre-configured extra_vars.yml.
+3. Show Pre-configured extra_vars.yml.
 
 <details>
   <summary>Click here for a pre-configured extra_vars.yml file</summary>
@@ -140,7 +124,7 @@ metal3_core_vm_network:
 </details>
 <br>
 
-5. Define virsh egress network (This configuration is specific to step 4)
+4. Define virsh egress network (This configuration is specific to step 4)
     - CD into the libvirt directory within the metal3-demo that was cloned earlier
     - Define and start the network
    ```shell
@@ -148,13 +132,13 @@ metal3_core_vm_network:
    ```
     - If you plan not to use the virsh networks, you will need to set up your own network bridges.
 
-6. Install the ansible-galaxy requirements
+5. Install the ansible-galaxy requirements
     - CD into the metal3-demo directory and install ansible requirements
    ```shell
    ansible-galaxy collection install -r requirements.yml
    ```
 
-7. Create the Network Infra VM
+6. Create the Network Infra VM
 
 - In the main directory of the repository, execute the script to create the network-infra VM
 
@@ -165,7 +149,7 @@ metal3_core_vm_network:
 - You may pass `-vvv` at the end of the script to see the output of the script
 - The network-infra script must have completed without any errors before creating the core VM in step 8
 
-8. Create the core VM
+7. Create the core VM
 
   ```shell
   ./setup_metal3_core.sh
@@ -173,7 +157,7 @@ metal3_core_vm_network:
 
 - You may pass `-vvv` at the end of the script to see the output
 
-9. Assuming you are using the networks defined in the `libvirt` directory,
+8. Assuming you are using the networks defined in the `libvirt` directory,
    you can ssh into each of the VMs using the IPs below
 
 - Core VM Running Metal3: `ssh metal@192.168.125.99` or `virsh console metal3-core`

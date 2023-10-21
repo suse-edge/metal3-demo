@@ -1,0 +1,8 @@
+---
+- name: Prepare host prerequisites
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  tasks:
+    - import_role:
+        name: packages_installation

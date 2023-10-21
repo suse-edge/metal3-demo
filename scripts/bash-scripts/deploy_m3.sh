@@ -1,20 +1,5 @@
 #!/bin/bash
 
-# Update package lists
-sudo DEBIAN_FRONTEND=noninteractive apt-get update -y
-
-# Full upgrade
-sudo DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y
-
-# Install pip3
-sudo DEBIAN_FRONTEND=noninteractive apt install python3-pip -y
-
-# Install  python3-lxml
-sudo DEBIAN_FRONTEND=noninteractive apt install python3-lxml -y
-
-# Install ansible
-python3 -m pip install ansible
-
 # Generate ssh key to use to log into the metal-cubed servers
 ssh-keygen -t ed25519 -C "m3-demo" -f ~/.ssh/id_ed25519 -N ""
 

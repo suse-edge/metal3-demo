@@ -1,0 +1,13 @@
+- name: Install packages
+  block:
+    - name: Install required packages on Ubuntu
+      package:
+        name: "{{ packages.ubuntu}}"
+        state: present
+      become: yes
+  when: ansible_facts['distribution'] == "Ubuntu"
+- name: Install pip packages
+  pip:
+    executable: "pip3"
+    name: "{{ packages.pip3 }}"
+    state: present
