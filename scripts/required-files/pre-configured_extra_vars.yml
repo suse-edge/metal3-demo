@@ -56,21 +56,17 @@ metal3_network_infra_vm_network:
   ethernets:
     eth0:
       dhcp4: false
-      addresses: ["{{ metal3_network_infra_public_ip }}/24"]
+      addresses: ["{{ metal3_core_public_ip }}/24"]
       nameservers:
-        addresses: [8.8.8.8]
-        search:
-          - "{{ dns_domain }}"
+        addresses: "{{ vm_egress_gw }}"
       routes:
         - to: default
           via: "{{ vm_egress_gw }}"
     *metal3_provisioning_nic:
       dhcp4: false
-      addresses: ["{{ metal3_network_infra_provisioning_ip }}/24"]
+      addresses: ["{{ metal3_core_provisioning_ip }}/24"]
       nameservers:
-        addresses: [8.8.8.8]
-        search:
-          - "{{ dns_domain }}"
+        addresses: "{{ vm_prov_gw }}"
       routes:
         - to: "{{ vm_prov_net }}"
           via: "{{ vm_prov_gw }}"
@@ -91,9 +87,7 @@ metal3_core_vm_network:
       dhcp4: false
       addresses: ["{{ metal3_core_public_ip }}/24"]
       nameservers:
-        addresses: "{{ metal3_network_infra_provisioning_ip }}"
-        search:
-          - "{{ dns_domain }}"
+        addresses: "{{ vm_egress_gw }}"
       routes:
         - to: default
           via: "{{ vm_egress_gw }}"
@@ -101,9 +95,7 @@ metal3_core_vm_network:
       dhcp4: false
       addresses: ["{{ metal3_core_provisioning_ip }}/24"]
       nameservers:
-        addresses: "{{ metal3_network_infra_provisioning_ip }}"
-        search:
-          - "{{ dns_domain }}"
+        addresses: "{{ vm_prov_gw }}"
       routes:
         - to: "{{ vm_prov_net }}"
           via: "{{ vm_prov_gw }}"
