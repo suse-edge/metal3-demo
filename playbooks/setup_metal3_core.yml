@@ -64,6 +64,10 @@
         rancher_hostname: metal3-core.{{ dns_domain }}
         rancher_host_ip: "{{ metal3_core_public_ip }}"
 
+    - name: Deploy local-path-provisioner
+      import_role:
+        name: local-path-provisioner
+
     - name: Deploy capi
       import_role:
         name: capi

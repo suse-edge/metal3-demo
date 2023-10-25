@@ -17,22 +17,21 @@
 - name: Include platform-specific common tasks
   include_tasks: "_{{ ansible_os_family | lower }}.yml"
 
-- name: Checkout baremetal repo
+- name: Checkout local-path-provisioner repo
   include_role:
     name: baremetal
-    tasks_from: checkout_baremetal_repo
+    tasks_from: checkout_repo
+  vars:
+    repo_dir: local-path-provisioner
+    repo_url: "{{ local_path_provisioner_repo_url }}"
+    repo_branch: "{{ local_path_provisioner_branch }}"
+    repo_pull_request: "{{ local_path_provisioner_pull_request | default('') }}"
 
-- name: Organize charts repo
-  include_role:
-    name: baremetal
-    tasks_from: organize_charts_repo_infra
-
-- name: Deploy media server via helm
+- name: Deploy local-path-provisioner via helm
   shell: >-
     env HELM_EXPERIMENTAL_OCI=1 \
-    helm upgrade --install media media \
-      --create-namespace --namespace metal-cubed \
-      --values ~/media_helm_overrides.yml \
+    helm upgrade --install local-path-provisioner ./deploy/chart/local-path-provisioner \
+      --create-namespace --namespace local-path-storage \
       --atomic --timeout 10m
   args:
-    chdir: ~/charts
+    chdir: ~/local-path-provisioner
