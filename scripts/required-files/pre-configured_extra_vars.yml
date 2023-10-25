@@ -56,7 +56,7 @@ metal3_network_infra_vm_network:
   ethernets:
     eth0:
       dhcp4: false
-      addresses: ["{{ metal3_core_public_ip }}/24"]
+      addresses: ["{{ metal3_network_infra_public_ip }}/24"]
       nameservers:
         addresses: "{{ vm_egress_gw }}"
       routes:
@@ -64,7 +64,7 @@ metal3_network_infra_vm_network:
           via: "{{ vm_egress_gw }}"
     *metal3_provisioning_nic:
       dhcp4: false
-      addresses: ["{{ metal3_core_provisioning_ip }}/24"]
+      addresses: ["{{ metal3_network_infra_provisioning_ip }}/24"]
       nameservers:
         addresses: "{{ vm_prov_gw }}"
       routes:
@@ -75,9 +75,10 @@ metal3_network_infra_vm_network:
 metal3_core_provisioning_ip: 192.168.124.99
 
 #
-# Public IP
+# Public IPs
 #
 metal3_core_public_ip: 192.168.125.99
+metal3_core_ironic_ip: 192.168.125.10
 
 
 metal3_core_vm_network:

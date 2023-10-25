@@ -6,3 +6,13 @@ global:
   dhcpRange: {{ dhcp_range | default('192.168.124.100,192.168.124.200') }}
   provisioningInterface: {{ metal3_provisioning_nic }}
   provisioningIP: {{ metal3_core_provisioning_ip | default('192.168.124.99') }}
+  ironicIP: {{ metal3_core_ironic_ip | default('192.168.125.10') }}
+
+metal3-mariadb:
+  persistence:
+    storageClass: "local-path"
+
+metal3-ironic:
+  persistence:
+    ironic:
+      storageClass: "local-path"

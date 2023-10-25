@@ -25,6 +25,9 @@
     repo_branch: "{{ baremetal_branch }}"
     repo_pull_request: "{{ baremetal_pull_request | default('') }}"
 
+- name: Organize charts repo
+  include_tasks: organize_charts_repo_core.yml
+
 - name: Checkout sylva-core repo
   include_tasks: checkout_repo.yml
   vars:
