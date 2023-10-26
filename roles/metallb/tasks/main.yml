@@ -1,0 +1,64 @@
+---
+# NOTE(gyee): we'll only include the first one that matches. The rest will be ignored.
+- name: Include OS family vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+    - "main.yml"
+
+- name: Include OS distribution vars
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower | replace(' ', '_') }}.yml"
+    - "{{ ansible_distribution | replace(' ', '_') }}.yml"
+    - "main.yml"
+
+- name: Include platform-specific common tasks
+  include_tasks: "_{{ ansible_os_family | lower }}.yml"
+
+- name: Add metallb helm repo
+  kubernetes.core.helm_repository:
+    repo_url: "{{ metallb_helm_repo_url }}"
+    name: "{{ metallb_helm_repo_name }}"
+
+- name: Deploy metallb helm chart
+  shell: |
+    env HELM_EXPERIMENTAL_OCI=1 \
+    helm upgrade --install {{ metallb_release }} {{ metallb_helm_chart_ref }} \
+      --create-namespace --namespace {{ metallb_namespace }} \
+      --atomic --timeout 10m
+
+- name: Wait for metallb to be rolled out
+  shell: >
+    kubectl -n {{ metallb_namespace }} rollout status deploy/metallb-controller
+  register: metallb_rollout_result
+  retries: 5
+  delay: 10
+  until: "'successfully rolled out' in metallb_rollout_result.stdout"
+
+- name: Apply IPAddressPool with kubectl
+  shell: |
+    cat <<-EOF | kubectl apply -f -
+    apiVersion: metallb.io/v1beta1
+    kind: IPAddressPool
+    metadata:
+      name: ip-pool
+      namespace: {{ metallb_namespace }}
+    spec:
+      addresses:
+      - {{ metal3_core_ironic_ip }}/32
+    EOF
+
+- name: Apply L2Advertisement with kubectl
+  shell: |
+    cat <<-EOF | kubectl apply -f -
+    apiVersion: metallb.io/v1beta1
+    kind: L2Advertisement
+    metadata:
+      name: ip-pool-l2-adv
+      namespace: {{ metallb_namespace }}
+    spec:
+      ipAddressPools:
+      - ip-pool
+    EOF

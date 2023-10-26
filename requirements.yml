@@ -4,4 +4,3 @@ collections:
   - name: community.libvirt
   - name: containers.podman
   - name: kubernetes.core
-
