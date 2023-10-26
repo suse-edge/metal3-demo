@@ -1,0 +1,7 @@
+---
+metallb_helm_repo_name: edge
+metallb_helm_repo_url: https://suse-edge.github.io/charts
+metallb_helm_chart_ref: edge/metallb
+
+metallb_namespace: metallb-system
+metallb_release: metallb

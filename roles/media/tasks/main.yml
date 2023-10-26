@@ -32,7 +32,6 @@
     env HELM_EXPERIMENTAL_OCI=1 \
     helm upgrade --install media media \
       --create-namespace --namespace metal-cubed \
-      --values ~/media_helm_overrides.yml \
       --atomic --timeout 10m
   args:
     chdir: ~/charts

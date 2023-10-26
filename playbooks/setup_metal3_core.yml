@@ -68,6 +68,12 @@
       import_role:
         name: local-path-provisioner
 
+    - name: Deploy metallb
+      import_role:
+        name: metallb
+      vars:
+        metal3_core_ironic_ip: "{{ metal3_core_ironic_ip }}"
+
     - name: Deploy capi
       import_role:
         name: capi
