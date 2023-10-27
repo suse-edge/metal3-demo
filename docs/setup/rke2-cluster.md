@@ -41,7 +41,7 @@ virsh net-update provisioning add-last ip-dhcp-host host.xml --live
 
 ```shell
 cat << EOF > ~/vbmc/dns.xml
-<host ip='192.168.124.100'>
+<host ip='192.168.125.100'>
   <hostname>media.suse.baremetal</hostname>
 </host>
 EOF
