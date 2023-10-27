@@ -19,10 +19,10 @@ Make sure your packages are up-to-date
   ```
 
 Dependencies: <br>
-Make sure to have python3-pip installed first:
+Make sure to have python3-pip and python3-lxml installed first:
 
   ```shell
-  sudo DEBIAN_FRONTEND=noninteractive apt install python3-pip -y
+  sudo DEBIAN_FRONTEND=noninteractive apt install python3-pip python3-lxml -y
   ```
 
   ```shell
