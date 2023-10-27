@@ -44,11 +44,11 @@ sudo DEBIAN_FRONTEND=noninteractive apt install podman -y
 
 echo "Creating 3 virtual nodes"
 
-virt-install --name node-1 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node1.qcow2 --network bridge=m3-prov,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1
+virt-install --name node-1 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node1.qcow2 --network bridge=m3-egress,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1
 
-virt-install --name node-2 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node2.qcow2 --network bridge=m3-prov,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1
+virt-install --name node-2 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node2.qcow2 --network bridge=m3-egress,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1
 
-virt-install --name node-3 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node3.qcow2 --network bridge=m3-prov,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1
+virt-install --name node-3 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/images/node3.qcow2 --network bridge=m3-egress,model=virtio --osinfo detect=on --console pty,target_type=virtio --noautoconsole --boot nvram.template=/usr/share/OVMF/OVMF_VARS.fd --boot loader=/usr/share/OVMF/OVMF_CODE.secboot.fd --boot loader.secure=no --boot loader.type=pflash --boot loader.readonly=yes --debug -v --machine pc-q35-5.1
 
 
 echo "Finished creating 3 virtual nodes"
