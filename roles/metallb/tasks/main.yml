@@ -37,28 +37,12 @@
   delay: 10
   until: "'successfully rolled out' in metallb_rollout_result.stdout"
 
-- name: Apply IPAddressPool with kubectl
-  shell: |
-    cat <<-EOF | kubectl apply -f -
-    apiVersion: metallb.io/v1beta1
-    kind: IPAddressPool
-    metadata:
-      name: ip-pool
-      namespace: {{ metallb_namespace }}
-    spec:
-      addresses:
-      - {{ metal3_core_ironic_ip }}/32
-    EOF
+- name: Create metallb ip-address-pool yaml file
+  template:
+    src: "ip-address-pool.yaml.j2"
+    dest: "~/ip-address-pool.yaml"
+  register: template_ip_address_pool
 
-- name: Apply L2Advertisement with kubectl
-  shell: |
-    cat <<-EOF | kubectl apply -f -
-    apiVersion: metallb.io/v1beta1
-    kind: L2Advertisement
-    metadata:
-      name: ip-pool-l2-adv
-      namespace: {{ metallb_namespace }}
-    spec:
-      ipAddressPools:
-      - ip-pool
-    EOF
+- name: Apply ip-address-pool
+  shell: >-
+    kubectl apply -f ~/ip-address-pool.yaml
