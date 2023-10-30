@@ -27,7 +27,7 @@ CONTROLPLANEMAC=$(virsh dumpxml node-1 | grep 'mac address' | grep -ioE "([0-9A-
 
 ```shell
 cat << EOF > ~/vbmc/host.xml
-<host mac='$CONTROLPLANEMAC' ip='192.168.124.200'/>
+<host mac='$CONTROLPLANEMAC' ip='192.168.125.200'/>
 EOF
 ```
 

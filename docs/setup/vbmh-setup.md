@@ -85,7 +85,7 @@ EOF
 Add this line to /etc/hosts
 
 ```text
-192.168.124.99 boot.ironic.suse.baremetal api.ironic.suse.baremetal inspector.ironic.suse.baremetal media.suse.baremetal
+192.168.125.100 boot.ironic.suse.baremetal api.ironic.suse.baremetal inspector.ironic.suse.baremetal media.suse.baremetal
 ```
 
 - This is necessary for DNS resolutions for Metal3 in the metal3-demo environment.
