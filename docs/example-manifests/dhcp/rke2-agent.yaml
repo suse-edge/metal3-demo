@@ -91,9 +91,9 @@ spec:
           link: eth0
           routes:
             - gateway:
-                string: 192.168.124.1
+                string: 192.168.125.1
               network: 0.0.0.0
               prefix: 0
     services:
       dns:
-        - 192.168.124.1
+        - 192.168.125.1

@@ -27,7 +27,7 @@ metadata:
   namespace: default
 spec:
   controlPlaneEndpoint:
-    host: 192.168.124.200 # Has to match the IP of the control plane node
+    host: 192.168.125.200 # Has to match the IP of the control plane node
     port: 6443
   noCloudProvider: true
 ---
@@ -96,9 +96,9 @@ spec:
           link: eth0
           routes:
             - gateway:
-                string: 192.168.124.1
+                string: 192.168.125.1
               network: 0.0.0.0
               prefix: 0
     services:
       dns:
-        - 192.168.124.1
+        - 192.168.125.1
