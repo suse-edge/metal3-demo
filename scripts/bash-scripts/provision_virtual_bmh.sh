@@ -79,7 +79,7 @@ SUSHY_EMULATOR_VMEDIA_DEVICES = {
 EOF
 
 # Need this line added to /etc/hosts for sushy-tools to work properly
-LINE="192.168.125.100 boot.ironic.suse.baremetal api.ironic.suse.baremetal inspector.ironic.suse.baremetal media.suse.baremetal"
+LINE="192.168.125.100 media.suse.baremetal"
 FILE="/etc/hosts"
 grep -qF "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 
