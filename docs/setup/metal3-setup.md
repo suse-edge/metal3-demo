@@ -50,10 +50,10 @@ Make sure to have python3-pip and python3-lxml installed first:
 git clone https://github.com/suse-edge/metal3-demo.git
 ```
 
-2. Copy the extra_vars.yml.example to extra_vars.yml
+2. Copy the pre-configured_extra_vars.yml to extra_vars.yml
 
 ```shell
-cp extra_vars.yml.example extra_vars.yml
+cp scripts/required-files/pre-configured_extra_vars.yml extra_vars.yml
 ```
 
 3. Follow the instructions within extra_vars.yml to configure it according to your needs. If you would like a
@@ -71,12 +71,6 @@ cp extra_vars.yml.example extra_vars.yml
   <summary>Click here for a pre-configured extra_vars.yml file</summary>
 
 ```yaml
-##
-# Whether to deploy sylva-core
-#
-deploy_sylva_core: false
-sylva_core_repo_url: https://gitlab.com/codefol/sylva-core.git
-sylva_core_branch: metal3_existing_rancher
 baremetal_repo_url: https://github.com/suse-edge/charts.git
 baremetal_branch: main
 
@@ -91,7 +85,7 @@ vm_user_plain_text_password: metal
 # here will be appended to the VM user's authorized_keys file.
 #
 vm_authorized_ssh_keys:
-  - YOUR SSH KEY HERE
+ -YOU CAN REPLACE THIS BUT THE SCRIPT WILL CHANGE THIS AUTOMATICALLY 
 
 # OS image
 opensuse_leap_image_url: https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.5/images/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
@@ -100,29 +94,13 @@ opensuse_leap_image_name: openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
 
 rke2_channel_version: v1.24
 
-dns_domain: suse.baremetal
-
-
-metal3_provisioning_nic: &metal3_provisioning_nic eth1
-
-
-# metal3_vm_libvirt_network_params: '--network bridge=virbr0,model=virtio --network bridge=br-eth3,model=virtio'
-metal3_vm_libvirt_network_params: '--network bridge=m3-egress,model=virtio --network bridge=m3-prov,model=virtio'
-
-#vm_memory: 16384
-
-
-metal3_network_infra_provisioning_ip: 192.168.124.100
-vm_prov_gw: 192.168.124.1
-vm_prov_net: 192.168.124.0/24
-
+metal3_vm_libvirt_network_params: '--network bridge=m3-egress,model=virtio'
 
 metal3_network_infra_public_ip: 192.168.125.100
 vm_egress_gw: 192.168.125.1
 
 
 enable_dhcp: true
-
 
 dhcp_router: 192.168.124.1
 dhcp_range: 192.168.124.150,192.168.124.180
@@ -132,32 +110,18 @@ metal3_network_infra_vm_network:
   ethernets:
     eth0:
       dhcp4: false
-      addresses: [ "{{ metal3_network_infra_public_ip }}/24" ]
+      addresses: ["{{ metal3_network_infra_public_ip }}/24"]
       nameservers:
-        addresses: [ 8.8.8.8 ]
-        search:
-          - "{{ dns_domain }}"
+        addresses: "{{ vm_egress_gw }}"
       routes:
         - to: default
           via: "{{ vm_egress_gw }}"
-    *metal3_provisioning_nic :
-      dhcp4: false
-      addresses: [ "{{ metal3_network_infra_provisioning_ip }}/24" ]
-      nameservers:
-        addresses: [ 8.8.8.8 ]
-        search:
-          - "{{ dns_domain }}"
-      routes:
-        - to: "{{ vm_prov_net }}"
-          via: "{{ vm_prov_gw }}"
-
-
-metal3_core_provisioning_ip: 192.168.124.99
 
 #
-# Public IP
+# Public IPs
 #
 metal3_core_public_ip: 192.168.125.99
+metal3_core_ironic_ip: 192.168.125.10
 
 
 metal3_core_vm_network:
@@ -165,36 +129,22 @@ metal3_core_vm_network:
   ethernets:
     eth0:
       dhcp4: false
-      addresses: [ "{{ metal3_core_public_ip }}/24" ]
+      addresses: ["{{ metal3_core_public_ip }}/24"]
       nameservers:
-        addresses: "{{ metal3_network_infra_provisioning_ip }}"
-        search:
-          - "{{ dns_domain }}"
+        addresses: "{{ vm_egress_gw }}"
       routes:
         - to: default
           via: "{{ vm_egress_gw }}"
-    *metal3_provisioning_nic :
-      dhcp4: false
-      addresses: [ "{{ metal3_core_provisioning_ip }}/24" ]
-      nameservers:
-        addresses: "{{ metal3_network_infra_provisioning_ip }}"
-        search:
-          - "{{ dns_domain }}"
-      routes:
-        - to: "{{ vm_prov_net }}"
-          via: "{{ vm_prov_gw }}"
-
 ```
 
 </details>
 <br>
 
-5. Define virsh egress and provisioning networks (This configuration is specific to step 4)
+5. Define virsh egress network (This configuration is specific to step 4)
     - CD into the libvirt directory within the metal3-demo that was cloned earlier
-    - Define and start the networks
+    - Define and start the network
    ```shell
    virsh net-define egress.xml; virsh net-start egress
-   virsh net-define provisioning.xml; virsh net-start provisioning
    ```
     - If you plan not to use the virsh networks, you will need to set up your own network bridges.
 

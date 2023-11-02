@@ -1,14 +1,5 @@
 #!/bin/bash
 
-# Check if Sylva should be enabled or not
-SYLVA_ENABLED="false"
-
-param1="$1"
-
-if [ "$param1" = "--sylva" ] ; then
-    SYLVA_ENABLED="true"
-fi
-
 # Update package lists
 sudo DEBIAN_FRONTEND=noninteractive apt-get update -y
 
@@ -41,7 +32,7 @@ perl -i -pe "s|$SEARCH_STRING|$REPLACE_STRING|" ~/metal3-demo/extra_vars.yml
 
 
 # Run the playbook with the verbose flag
-ansible-playbook ~/metal3-demo/scripts/playbooks/m3-playbook.yaml -v -e "sylva=$SYLVA_ENABLED"
+ansible-playbook ~/metal3-demo/scripts/playbooks/m3-playbook.yaml -v
 
 cd ~/metal3-demo; ./setup_metal3_network_infra.sh -vvv 
 

@@ -27,7 +27,7 @@
 
     - name: Show metal3-core vm IP
       debug:
-        msg: "Login to the metal3-core vm with 'ssh {{ vm_user }}@{{ metal3_core_provisioning_ip }}' or 'ssh {{ vm_user }}@{{ metal3_core_public_ip }}'"
+        msg: "Login to the metal3-core vm with 'ssh {{ vm_user }}@{{ metal3_core_public_ip }}'"
 
     - name: Define metal3-core node
       ansible.builtin.add_host:
@@ -61,7 +61,7 @@
       import_role:
         name: rancher
       vars:
-        rancher_hostname: metal3-core.{{ dns_domain }}
+        rancher_hostname: metal3-core
         rancher_host_ip: "{{ metal3_core_public_ip }}"
 
     - name: Deploy local-path-provisioner
@@ -77,13 +77,12 @@
     - name: Deploy capi
       import_role:
         name: capi
-      when: not deploy_sylva_core
 
     - name: Install python-ironicclient
       import_role:
         name: ironicclient
       vars:
-        provisioning_ip: "{{ metal3_core_provisioning_ip }}"
+        public_ip: "{{ metal3_core_public_ip }}"
 
     - name: Deploy baremetal
       import_role:

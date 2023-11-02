@@ -28,16 +28,13 @@ OpenStack Ironic, in a typical production Metal3 management cluster.
 For security purposes, network segmentation is expected in production
 environment, which usually consist of an internal provisioning network
 for bare metal provisioning, and public network which is routable to
-the internet. Therefore, the demo environment is designed to closely
-align with a typically production use case. As such, the host where
-the VMs are running is expected to have to networking bridges,
-one for the provisioning network (BMC) and the other for the
+the internet. In the demo environment is used only one network and the host where
+the VMs are running is expected to have a networking bridge for the
 public network (i.e. tagged VLAN).
 
 # Prerequisites <a name="prerequisites" />
 
-* Host is expected to have two network bridges, one for the provisioning
-  network (BMC) and the other for the public network (i.e. tagged VLAN).
+* Host is expected to have one network bridge for the public network (i.e. tagged VLAN).
 * Host with at least 32GB RAM & 200GB free disk space.
 * Github credential (i.e. username/personal access token), for cloning repos
 
