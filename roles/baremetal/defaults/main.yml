@@ -2,9 +2,6 @@
 # charts repo
 baremetal_repo_url: https://github.com/suse-edge/charts.git
 baremetal_branch: main
-# sylva-core repo
-sylva_core_repo_url: https://gitlab.com/sylva-projects/sylva-core.git
-sylva_core_branch: main
 
 # metal3-demo repo
 metal3_demo_repo_url: https://github.com/suse-edge/metal3-demo.git

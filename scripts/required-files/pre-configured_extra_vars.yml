@@ -1,9 +1,3 @@
-##
-# Whether to deploy sylva-core
-#
-deploy_sylva_core: false
-sylva_core_repo_url: https://gitlab.com/codefol/sylva-core.git
-sylva_core_branch: metal3_existing_rancher
 baremetal_repo_url: https://github.com/suse-edge/charts.git
 baremetal_branch: main
 
@@ -27,26 +21,13 @@ opensuse_leap_image_name: openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
 
 rke2_channel_version: v1.24
 
-dns_domain: suse.baremetal
-
-
-metal3_provisioning_nic: &metal3_provisioning_nic eth1
-
-
-metal3_vm_libvirt_network_params: '--network bridge=m3-egress,model=virtio --network bridge=m3-prov,model=virtio'
-
-
-metal3_network_infra_provisioning_ip: 192.168.124.100
-vm_prov_gw: 192.168.124.1
-vm_prov_net: 192.168.124.0/24
-
+metal3_vm_libvirt_network_params: '--network bridge=m3-egress,model=virtio'
 
 metal3_network_infra_public_ip: 192.168.125.100
 vm_egress_gw: 192.168.125.1
 
 
 enable_dhcp: true
-
 
 dhcp_router: 192.168.124.1
 dhcp_range: 192.168.124.150,192.168.124.180
@@ -62,17 +43,6 @@ metal3_network_infra_vm_network:
       routes:
         - to: default
           via: "{{ vm_egress_gw }}"
-    *metal3_provisioning_nic:
-      dhcp4: false
-      addresses: ["{{ metal3_network_infra_provisioning_ip }}/24"]
-      nameservers:
-        addresses: "{{ vm_prov_gw }}"
-      routes:
-        - to: "{{ vm_prov_net }}"
-          via: "{{ vm_prov_gw }}"
-
-
-metal3_core_provisioning_ip: 192.168.124.99
 
 #
 # Public IPs
@@ -92,11 +62,3 @@ metal3_core_vm_network:
       routes:
         - to: default
           via: "{{ vm_egress_gw }}"
-    *metal3_provisioning_nic:
-      dhcp4: false
-      addresses: ["{{ metal3_core_provisioning_ip }}/24"]
-      nameservers:
-        addresses: "{{ vm_prov_gw }}"
-      routes:
-        - to: "{{ vm_prov_net }}"
-          via: "{{ vm_prov_gw }}"

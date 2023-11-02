@@ -44,17 +44,4 @@
     - name: Start egress network
       become: yes
       command: virsh net-start egress
-      
-    - name: Define provisioning network
-      become: yes
-      command: virsh net-define "{{ ansible_env.HOME }}/metal3-demo/libvirt/provisioning.xml"
 
-    - name: Start provisioning network
-      become: yes
-      command: virsh net-start provisioning
-
-    - name: Enable or disable Sylva based on input flags
-      ansible.builtin.lineinfile:
-        path: "{{ ansible_env.HOME }}/metal3-demo/extra_vars.yml"
-        regexp: '^\s*deploy_sylva_core:'
-        line: 'deploy_sylva_core: {{ sylva }}'
