@@ -23,11 +23,16 @@
     name: "{{ metallb_helm_repo_name }}"
 
 - name: Deploy metallb helm chart
-  shell: |
-    env HELM_EXPERIMENTAL_OCI=1 \
-    helm upgrade --install {{ metallb_release }} {{ metallb_helm_chart_ref }} \
-      --create-namespace --namespace {{ metallb_namespace }} \
-      --atomic --timeout 10m
+  kubernetes.core.helm:
+    name: "{{ metallb_release }}"
+    chart_ref: "{{ metallb_helm_chart_ref }}"
+    state: present
+    release_namespace: "{{ metallb_namespace }}"
+    atomic: yes
+    timeout: 10m
+    create_namespace: yes
+  environment:
+    HELM_EXPERIMENTAL_OCI: "1"
 
 - name: Wait for metallb to be rolled out
   shell: >

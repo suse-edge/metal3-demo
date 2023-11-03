@@ -28,10 +28,13 @@
     tasks_from: organize_charts_repo_infra
 
 - name: Deploy media server via helm
-  shell: >-
-    env HELM_EXPERIMENTAL_OCI=1 \
-    helm upgrade --install media media \
-      --create-namespace --namespace metal-cubed \
-      --atomic --timeout 10m
-  args:
-    chdir: ~/charts
+  kubernetes.core.helm:
+    name: "{{ media_release }}"
+    chart_ref: "~/charts/media"
+    state: present
+    release_namespace: metal-cubed
+    atomic: yes
+    timeout: 10m
+    create_namespace: yes
+  environment:
+    HELM_EXPERIMENTAL_OCI: "1"

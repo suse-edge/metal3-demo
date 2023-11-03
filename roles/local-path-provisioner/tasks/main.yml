@@ -28,10 +28,13 @@
     repo_pull_request: "{{ local_path_provisioner_pull_request | default('') }}"
 
 - name: Deploy local-path-provisioner via helm
-  shell: >-
-    env HELM_EXPERIMENTAL_OCI=1 \
-    helm upgrade --install {{ local_path_provisioner_release }} ./deploy/chart/local-path-provisioner \
-      --create-namespace --namespace {{ local_path_provisioner_namespace }} \
-      --atomic --timeout 10m
-  args:
-    chdir: ~/local-path-provisioner
+  kubernetes.core.helm:
+    name: "{{ local_path_provisioner_release }}"
+    chart_ref: "~/local-path-provisioner/deploy/chart/local-path-provisioner"
+    state: present
+    release_namespace: "{{ local_path_provisioner_namespace }}"
+    atomic: yes
+    timeout: 10m
+    create_namespace: yes
+  environment:
+    HELM_EXPERIMENTAL_OCI: "1"
