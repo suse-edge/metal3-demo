@@ -34,12 +34,16 @@
     name: "{{ cert_manager_helm_repo_name }}"
 
 - name: Deploy cert-manager helm chart
-  shell: |
-    {% if dns_provider is defined and dns_provider == 'cloudflare' %}
-    helm upgrade {{ cert_manager_release }} {{ cert_manager_helm_chart_ref }} --install --atomic --create-namespace --namespace {{ cert_manager_namespace }} --set installCRDs=true --set extraArgs='{--dns01-recursive-nameservers-only,--dns01-recursive-nameservers=8.8.8.8:53,1.1.1.1:53}'
-    {% else %}
-    helm upgrade {{ cert_manager_release }} {{ cert_manager_helm_chart_ref }} --install --atomic --create-namespace --namespace {{ cert_manager_namespace }} --set installCRDs=true
-    {% endif %}      
+  kubernetes.core.helm:
+    name: "{{ cert_manager_release }}"
+    chart_ref: "{{ cert_manager_helm_chart_ref }}"
+    state: present
+    release_namespace: "{{ cert_manager_namespace }}"
+    values:
+      installCRDs: true
+      extraArgs: "{{ 'extraArgs={--dns01-recursive-nameservers-only,--dns01-recursive-nameservers=8.8.8.8:53,1.1.1.1:53}' if dns_provider is defined and dns_provider == 'cloudflare' else '' }}"
+    atomic: yes
+    create_namespace: yes
 
 - name: Wait for cert-manager to be rolled out
   shell: >
@@ -48,4 +52,3 @@
   retries: 5
   delay: 10
   until: "'successfully rolled out' in cert_manager_rollout_result.stdout"
-

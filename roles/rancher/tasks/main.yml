@@ -27,11 +27,23 @@
     repo_url: "{{ rancher_helm_repo_url }}"
     name: "{{ rancher_helm_repo_name }}"
 
-- name: Deploy latest rancher helm chart
-  shell: >
-    helm upgrade {{ rancher_release }} {{ rancher_helm_chart_ref }} --install --atomic --create-namespace --namespace {{ rancher_namespace }} --set installCRDs=true --set hostname={{ rancher_hostname }} --set bootstrapPassword={{ rancher_bootstrap_password }} --set replicas={{ rancher_replicas }} --set extraEnv[0].name=CATTLE_SERVER_URL --set extraEnv[0].value=https://{{ rancher_hostname }}
+- name: Deploy latest Rancher Helm chart
+  kubernetes.core.helm:
+    name: "{{ rancher_release }}"
+    chart_ref: "{{ rancher_helm_chart_ref }}"
+    state: present
+    release_namespace: "{{ rancher_namespace }}"
+    values:
+      installCRDs: true
+      hostname: "{{ rancher_hostname }}"
+      bootstrapPassword: "{{ rancher_bootstrap_password }}"
+      replicas: "{{ rancher_replicas }}"
+      extraEnv[0].name: CATTLE_SERVER_URL
+      extraEnv[0].value: "https://{{ rancher_hostname }}"
+    atomic: yes
+    create_namespace: yes
   register: rancher_deploy_result
-  until: rancher_deploy_result.rc == 0
+  until: rancher_deploy_result.failed == false
   retries: 3
   delay: 20
 

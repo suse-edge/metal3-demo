@@ -55,11 +55,13 @@
   register: template_parent_overrides
 
 - name: Deploy helm components using file based overrides
-  shell: >-
-    env HELM_EXPERIMENTAL_OCI=1 \
-    helm upgrade --install heavy-metal metal3 \
-      --create-namespace --namespace metal-cubed \
-      --values ~/parent-chart-overrides.yaml \
-      --atomic --timeout 30m
-  args:
-    chdir: ~/charts
+  kubernetes.core.helm:
+    name: metal3
+    chart_ref: "~/charts/metal3"
+    state: present
+    release_namespace: metal-cubed
+    values_files:
+    - "/home/metal/parent-chart-overrides.yaml"
+    atomic: yes
+    create_namespace: yes
+    timeout: 30m
