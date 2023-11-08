@@ -1,8 +1,5 @@
 metalrc
 
-# settings files
-extra_vars.yml
-
 # venv and associated scripts
 .venv/
 .vscode

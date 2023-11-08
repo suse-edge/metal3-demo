@@ -2,7 +2,7 @@
 
 PROJECT_DIR=$(dirname -- $(readlink -e -- ${BASH_SOURCE[0]}))
 PATH=${PROJECT_DIR}/bin:${PATH}
-EXTRA_VARS_FILE=$PROJECT_DIR/extra_vars.yml
+EXTRA_VARS_FILE=${EXTRA_VARS_FILE:-$PROJECT_DIR/extra_vars.yml}
 export ANSIBLE_ROLES_PATH=$PROJECT_DIR/roles
 : ${LIBVIRT_IMAGES_DIR:=/var/lib/libvirt/images}
 
