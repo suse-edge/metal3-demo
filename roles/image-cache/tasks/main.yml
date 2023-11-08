@@ -1,0 +1,48 @@
+---
+- name: Create image-cache directory
+  become: true
+  file:
+    path: "{{ images_dir }}"
+    state: directory
+
+- name: Check if OS image exists
+  stat:
+    path: "{{ images_dir }}/{{ image_name }}"
+  register: image_path
+
+- name: Download and modify OS image if it doesn't exist
+  when: "not image_path.stat.exists"
+  block:
+  - name: Download OS image
+    become: true
+    get_url:
+      url: "{{ image_url }}"
+      dest: "{{ images_dir }}/{{ image_name }}"
+      checksum: "{{ image_checksum }}"
+
+  # Use "opensuse:root" credentials for the dev user.
+  # Generate another password by running "openssl passwd -6 -salt SalTsaLt PASSWORD"
+  # and replacing the "passwd" entry below (keep in mind some characters must be escaped e.g. "/", "$").
+  - name: Modify OS image cloud-init config
+    become: true
+    shell: |
+      virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e 's/datasource_list.*/datasource_list: [ ConfigDrive, OpenStack, None ]/'
+      virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)lock_passwd.*/\1lock_passwd: False/'
+      virt-edit -a "{{ image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)(name: opensuse)/\1\2\n\1passwd: \$6\$SalTsaLt\$4U6ktRhvpSUKdG2XHWmsxlvykFSJRnMyOLYPcWLoCuj3oHB4NaE9Is0wXf4guihZvmSBTairoUvh6s5.JoJED\//'
+      md5sum "{{ image_name }}" > "{{ image_name }}".md5sum
+    args:
+      chdir: "{{ images_dir }}"
+
+- name: Run image-cache webserver container
+  become: true
+  containers.podman.podman_container:
+    name: image-cache
+    image: docker.io/library/httpd:2.4
+    volumes:
+      - "{{ images_dir }}:/usr/local/apache2/htdocs"
+    detach: true
+    exposed_ports:
+      - 80
+    ports:
+      - 8080:80
+    state: started
