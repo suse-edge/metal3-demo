@@ -3,14 +3,6 @@
   connection: local
   tasks:
 
-    - name: Remind user to setup extra_vars.yml
-      fail:
-        msg: |-
-          Did you remember to copy extra_vars.yml.example to extra_vars.yml
-          and configure it appropriately?
-      when:
-        - metal3_core_public_ip is not defined
-
     - name: Create VM
       include_role:
         name: vm
