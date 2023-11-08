@@ -64,13 +64,6 @@ vm_user: metal
 # VM user plain text password (not hash)
 vm_user_plain_text_password: metal
 
-# NOTE: this should be *your* (local user) SSH public key since *you*
-# will be using it to login to the VMs. The SSH public keys listed
-# here will be appended to the VM user's authorized_keys file.
-#
-vm_authorized_ssh_keys:
- -YOU CAN REPLACE THIS BUT THE SCRIPT WILL CHANGE THIS AUTOMATICALLY 
-
 # OS image
 opensuse_leap_image_url: https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.5/images/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
 opensuse_leap_image_checksum: sha256:https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.5/images/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2.sha256
