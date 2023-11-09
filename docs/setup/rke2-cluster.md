@@ -37,28 +37,12 @@ EOF
 virsh net-update egress add-last ip-dhcp-host host.xml --live
 ```
 
-4. Create an XML file containing the following
-
-```shell
-cat << EOF > ~/vbmc/dns.xml
-<host ip='192.168.125.100'>
-  <hostname>media.suse.baremetal</hostname>
-</host>
-EOF
-```
-
-5. Live update the egress network once again
-
-```shell
-virsh net-update egress add-last dns-host dns.xml --live
-```
-
-6. SSH into the metal3-core VM
+4. SSH into the metal3-core VM
 ```shell
 ssh metal@192.168.125.99
 ```
 
-7. Download the example manifests
+5. Download the example manifests
 
 ```shell
 curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-manifests/dhcp/rke2-control-plane.yaml > rke2-control-plane.yaml
@@ -69,13 +53,13 @@ curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-m
   If you have made your own changes or have differences in your setup, you may need to update the manifests.
 - This configuration assumes DHCP-only network setup.
 
-8. Deploy the control plane
+6. Deploy the control plane
 
 ```shell
 kubectl apply -f rke2-control-plane.yaml
 ```
 
-9. Verify that the control plane is properly provisioned
+7. Verify that the control plane is properly provisioned
 
 ```shell
 $ clusterctl describe cluster sample-cluster
@@ -86,13 +70,13 @@ $ clusterctl describe cluster sample-cluster
   │ └─Machine/sample-cluster-chflc                        True                     23m
 ```
 
-10. Deploy the agent
+8. Deploy the agent
 
 ```shell
 kubectl apply -f rke2-agent.yaml
 ```
 
-11. Verify that the agent is properly provisioned and has successfully joined the cluster
+9. Verify that the agent is properly provisioned and has successfully joined the cluster
 
 ```shell
 $ clusterctl describe cluster sample-cluster

@@ -1,7 +1,6 @@
 # Table Of Contents
 
 - [Overview](#overview)
-  - [Networking](#networking)
 - [Prerequisites](#prerequisites)
 - [How To Setup Metal3 Demo Environment](#how_to_setup_metal3_demo)
 
@@ -14,23 +13,11 @@ of [Kubernetes Cluster API][CAPI], for Kubernetes workload cluster
 life cycle management. The demo environment consist of two VMs,
 Metal3 Network Infra and Metal3 Core respectively.
 ![Metal3 Demo Overview](images/Metal3-Demo-Overview.png)
-As depicted by the diagram above, the Metal3 Network Infra VM is designed
-to emulate the infrastructure pieces, namely DNS, DHCP, and media server,
-which are required by Metal3 and typically expected to be deployed outside
-of the management cluster in a production environment. Metal3 Core VM has
+Metal3 Core VM has
 all the pieces, namely CAPI (Cluster API) controller, RKE2 bootstrap provider
 (CABPR), RKE2 control plane provider (CACPPR),
 Metal3 infrastructure provider (CAPM3), Baremetal Operator, and
 OpenStack Ironic, in a typical production Metal3 management cluster.
-
-## Networking <a name="networking" />
-
-For security purposes, network segmentation is expected in production
-environment, which usually consist of an internal provisioning network
-for bare metal provisioning, and public network which is routable to
-the internet. In the demo environment is used only one network and the host where
-the VMs are running is expected to have a networking bridge for the
-public network (i.e. tagged VLAN).
 
 # Prerequisites <a name="prerequisites" />
 
@@ -46,5 +33,4 @@ public network (i.e. tagged VLAN).
 - For the automation of this deployment, [click here.](./scripts/README.md)
 
 [CAPI]: https://cluster-api.sigs.k8s.io/introduction.html
-[cloud_init_network_config]: https://cloudinit.readthedocs.io/en/latest/reference/network-config.html
 [metal3]: https://github.com/metal3-io
