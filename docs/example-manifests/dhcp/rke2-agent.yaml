@@ -58,10 +58,10 @@ spec:
         matchLabels:
           cluster-role: worker
       image:
-        checksum: http://media.suse.baremetal/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2.md5
-        checksumType: md5
+        checksum: http://imagecache.local:8080/openSUSE-Leap-15.5.x86_64-NoCloud.metal3.qcow2.sha256
+        checksumType: sha256
         format: qcow2
-        url: http://media.suse.baremetal/openSUSE-Leap-15.5.x86_64-NoCloud.qcow2
+        url: http://imagecache.local:8080/openSUSE-Leap-15.5.x86_64-NoCloud.metal3.qcow2
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3DataTemplate
