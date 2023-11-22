@@ -9,16 +9,7 @@ on the SUSE Metal<sup>3</sup> Demo environment using Sushy-Tools Virtual Redfish
 
 - A fully functioning Metal<sup>3</sup> deployment
 
-## Deploying Sushy-Tools and the Virtual Machines
-
-Define and start a default storage pool
-
-```shell
-sudo virsh pool-define-as default dir - - - - "/default"
-sudo virsh pool-build default
-sudo virsh pool-start default
-sudo virsh pool-autostart default
-```
+## Deploying the Virtual Machines
 
 Create storage for virtual machines
 
@@ -30,16 +21,6 @@ sudo qemu-img create -f qcow2 /var/lib/libvirt/images/node2.qcow2 30G
 - This is so that one virtual machine acts as a control plane and another as a worker node.
   You can add as many worker nodes as you wish.
 
-Install Dependencies
-
-```shell
-sudo DEBIAN_FRONTEND=noninteractive apt install apache2-utils -y
-sudo pip install sushy-tools
-sudo DEBIAN_FRONTEND=noninteractive apt install podman -y
-```
-
-- apache2-utils is so that we can use `htpasswd`, podman is so that we can run Sushy-Tools in a container
-
 Create the Virtual Machines
 
 ```shell
@@ -48,80 +29,6 @@ virt-install --name node-2 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/image
 ```
 
 - This assumes you will be running 1 control plane and 1 worker node.
-
-Create a directory to store sushy-tools related files and navigate into it
-
-```shell
-mkdir ~/vbmc; cd ~/vbmc
-```
-
-Create the sushy.config file
-
-```shell
-cat << EOF > ~/vbmc/sushy.config
-SUSHY_EMULATOR_AUTH_FILE = '/root/vbmc/auth.conf'
-SUSHY_EMULATOR_SSL_CERT = '/root/vbmc/cert.pem'
-SUSHY_EMULATOR_SSL_KEY = '/root/vbmc/key.pem'
-SUSHY_EMULATOR_LISTEN_IP = '0.0.0.0'
-SUSHY_EMULATOR_VMEDIA_DEVICES = {
-    "Cd": {
-        "Name": "Virtual CD",
-        "MediaTypes": [
-            "CD",
-            "DVD"
-        ]
-    },
-    "Floppy": {
-        "Name": "Virtual Removable Media",
-        "MediaTypes": [
-            "Floppy",
-            "USBStick"
-        ]
-    }
-}
-EOF
-```
-
-Add this line to /etc/hosts
-
-```text
-192.168.125.1 imagecache.local
-```
-
-- This is necessary for DNS resolutions for Metal3 in the metal3-demo environment.
-
-## The following steps take place within the `~/vbmc` directory.
-
-Create Password Configuration
-
-```shell
-htpasswd -b -B -c auth.conf foo foo
-```
-
-- Defaults are for simplicity, feel free to change.
-- This is the authentication into Redfish running on Sushy tools.
-
-Create SSL Certificates
-
-```shell
-openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 --noenc -subj "/C=/ST=/L=/O=/OU=/CN="
-```
-
-- Metal3 requires SSL when accessing the nodes.
-
-Start the sushy-tools container
-
-```shell
-sudo podman run -d --rm --privileged --name sushy-tools -v ${HOME}/vbmc:/root/vbmc:Z -v /var/run/libvirt:/var/run/libvirt:Z -e SUSHY_EMULATOR_CONFIG=/root/vbmc/sushy.config -p 8000:8000 quay.io/metal3-io/sushy-tools:latest sushy-emulator
-```
-
-- Depending on your environment/directories, you may need to edit the paths within the command.
-
-Save the IP Address of the machine in a variable
-
-```shell
-IP_ADDR=$(ifconfig | grep "bond0: " -A 1 | awk '/inet / {print $2}')
-```
 
 - This grep command is specific to the network configuration typically found on an Equinix server,
   on other environments you will need to manually add your ip address to the `IP_ADDR` variable for future commands.

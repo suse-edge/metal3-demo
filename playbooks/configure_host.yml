@@ -8,3 +8,5 @@
         name: image-cache
     - import_role:
         name: libvirt-setup
+    - import_role:
+        name: sushy-tools

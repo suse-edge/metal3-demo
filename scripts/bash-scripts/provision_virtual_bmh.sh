@@ -21,24 +21,9 @@ fi
 
 cd $VBMCDIR
 
-# Need to define default pool for redfish to work properly
-
-virsh pool-define-as default dir - - - - "/default"
-virsh pool-build default
-virsh pool-start default
-virsh pool-autostart default
-
 qemu-img create -f qcow2 /var/lib/libvirt/images/node1.qcow2 30G
 qemu-img create -f qcow2 /var/lib/libvirt/images/node2.qcow2 30G
 qemu-img create -f qcow2 /var/lib/libvirt/images/node3.qcow2 30G
-
-echo "Installing apache-utils, podman, and sushy-tools"
-
-sudo apt install apache2-utils -y
-pip install sushy-tools
-sudo DEBIAN_FRONTEND=noninteractive apt install podman -y
-
-
 
 # We create 3 VMs that act as bare metal hosts
 
@@ -52,50 +37,6 @@ virt-install --name node-3 --memory 4096 --vcpus 2 --disk /var/lib/libvirt/image
 
 
 echo "Finished creating 3 virtual nodes"
-echo "Starting sushy-tools podman"
-
-
-cat << EOF > $VBMCDIR/sushy.config
-SUSHY_EMULATOR_AUTH_FILE = '$VBMCDIR/auth.conf'
-SUSHY_EMULATOR_SSL_CERT = '$VBMCDIR/cert.pem'
-SUSHY_EMULATOR_SSL_KEY = '$VBMCDIR/key.pem'
-SUSHY_EMULATOR_LISTEN_IP = '0.0.0.0'
-SUSHY_EMULATOR_VMEDIA_DEVICES = {
-    "Cd": {
-        "Name": "Virtual CD",
-        "MediaTypes": [
-            "CD",
-            "DVD"
-        ]
-    },
-    "Floppy": {
-        "Name": "Virtual Removable Media",
-        "MediaTypes": [
-            "Floppy",
-            "USBStick"
-        ]
-    }
-}
-EOF
-
-# Need this line added to /etc/hosts for sushy-tools to work properly
-LINE="192.168.125.1 imagecache.local"
-FILE="/etc/hosts"
-grep -qF "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
-
-
-htpasswd -b -B -c auth.conf foo foo
-
-openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 --noenc -subj "/C=/ST=/L=/O=/OU=/CN="
-
-
-# We run sushy-tools in podman so that it is running in the background
-
-sudo podman run -d --rm --privileged  --name sushy-tools   -v ${HOME}/metal3-demo/vbmc:$VBMCDIR:Z   -v /var/run/libvirt:/var/run/libvirt:Z   -e SUSHY_EMULATOR_CONFIG=$VBMCDIR/sushy.config   -p 8000:8000   quay.io/metal3-io/sushy-tools:latest sushy-emulator
-echo "Finished starting sushy-tools podman"
-
-echo "Sleeping for 10 seconds to make sure the sushy-tools container has started"
-sleep 10s
 
 # We automatically grab the mac address of each vm and the sushy-tools id of each vm
 
