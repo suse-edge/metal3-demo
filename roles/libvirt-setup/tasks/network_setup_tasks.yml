@@ -1,0 +1,27 @@
+---
+- name: Create libvirt networks
+  virt_net:
+    command: define
+    state: present
+    name: "{{ item.name }}"
+    xml: '{{ lookup("template", "network.xml.j2") }}'
+  with_items: "{{ libvirt_networks }}"
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
+
+- name: Start libvirt networks
+  virt_net:
+    command: start
+    name: "{{ item.name }}"
+    state: active
+  with_items: "{{ libvirt_networks }}"
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
+
+- name: Mark  libvirt networks as autostarted
+  virt_net:
+    name: "{{ item.name }}"
+    autostart: "yes"
+  with_items: "{{ libvirt_networks }}"
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"

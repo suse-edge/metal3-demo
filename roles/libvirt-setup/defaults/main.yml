@@ -1,0 +1,18 @@
+libvirt_action: "setup"
+
+egress_network_cidr_v4: 192.168.125.0/24
+egress_network_bridge_ip: "{{ egress_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
+
+libvirt_networks:
+  - name: egress
+    bridge: m3-egress
+    address_v4: "{{ egress_network_bridge_ip }}"
+    netmask_v4: "{{ egress_network_cidr_v4|ansible.utils.ipaddr('netmask') }}"
+    vm_egress_gw:
+      - "{{ egress_network_cidr_v4|ansible.utils.nthhost(110)|default('', true) }}"
+      - "{{ egress_network_cidr_v4|ansible.utils.nthhost(250)|default('', true) }}"
+    dns:
+      hosts:
+        - ip: "{{ egress_network_bridge_ip }}"
+          hostnames:
+            - imagecache.local

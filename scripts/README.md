@@ -15,10 +15,14 @@ cd ~/metal3-demo/scripts/bash-scripts/
 ## Deploy Metal3 Infrastructure
 To deploy Metal3, run:
 ```
-./deploy_m3.sh
+cd ~/metal3-demo/
+./01_prepare_host.sh
+./02_configure_host.sh
+./03_launch_mgmt_cluster.sh
 ```
 
 ## Provision Virtual Bare Metal Hosts
 ```
+cd ~/metal3-demo/scripts/bash-scripts/
 ./provision_virtual_bmh.sh
 ```

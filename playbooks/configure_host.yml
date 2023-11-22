@@ -6,3 +6,5 @@
   tasks:
     - import_role:
         name: image-cache
+    - import_role:
+        name: libvirt-setup

@@ -23,13 +23,9 @@ rke2_channel_version: v1.24
 
 metal3_vm_libvirt_network_params: '--network bridge=m3-egress,model=virtio'
 
-vm_egress_gw: 192.168.125.1
+egress_network_cidr_v4: 192.168.125.0/24
+egress_network_bridge_ip: "{{ egress_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
 
-
-enable_dhcp: true
-
-dhcp_router: 192.168.124.1
-dhcp_range: 192.168.124.150,192.168.124.180
 
 #
 # Public IPs
@@ -45,7 +41,7 @@ metal3_core_vm_network:
       dhcp4: false
       addresses: ["{{ metal3_core_public_ip }}/24"]
       nameservers:
-        addresses: "{{ vm_egress_gw }}"
+        addresses: "{{ egress_network_bridge_ip }}"
       routes:
         - to: default
-          via: "{{ vm_egress_gw }}"
+          via: "{{ egress_network_bridge_ip }}"
