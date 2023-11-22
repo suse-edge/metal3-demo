@@ -16,5 +16,6 @@ packages:
     - podman
     - python3-lxml
     - python3-netaddr
+    - python3-passlib
   pip3:
     - libvirt-python

@@ -1,0 +1,37 @@
+---
+# Facts will be available as 'ansible_libvirt_pools'
+- name: Gather facts about libvirt pools
+  virt_pool:
+    command: facts
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
+
+- debug:
+    msg: "ansible_libvirt_pools={{ansible_libvirt_pools}}"
+
+- name: "Create libvirt default pool when not already defined"
+  when: ansible_libvirt_pools.default is not defined
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
+  block:
+    - name: Create libvirt default pool
+      virt_pool:
+        command: define
+        name: default
+        xml: '{{ lookup("template", "default-pool.xml.j2") }}'
+
+    - name: Build libvirt default pool
+      virt_pool:
+        command: build
+        name: default
+
+    - name: Start libvirt default pool
+      virt_pool:
+        command: start
+        name: default
+        state: active
+
+    - name: Mark libvirt default pool as autostarted
+      virt_pool:
+        name: default
+        autostart: "yes"

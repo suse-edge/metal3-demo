@@ -1,0 +1,55 @@
+---
+- name: Create sushy-tools directory
+  become: true
+  file:
+    path: "{{ sushy_tools_dir }}"
+    state: directory
+
+- name: Create sushy-tools config
+  become: true
+  ansible.builtin.template:
+    src: sushy-emulator.conf.j2
+    dest: "{{ sushy_tools_dir }}/sushy-emulator.conf"
+
+- name: Create a password file for Redfish Virtual BMCs
+  become: true
+  htpasswd:
+    path: "{{ sushy_tools_dir }}/htpasswd"
+    crypt_scheme: bcrypt
+    name: "{{ vbmc_username }}"
+    password: "{{ vbmc_password }}"
+
+- name: Create private key for sushy-tools
+  become: true
+  community.crypto.openssl_privatekey:
+    path: "{{ sushy_tools_dir }}/sushy.key"
+
+- name: Generate a self signed cert for sushy-tools
+  become: true
+  community.crypto.x509_certificate:
+    path: "{{ sushy_tools_dir }}/sushy.crt"
+    privatekey_path: "{{ sushy_tools_dir }}/sushy.key"
+    provider: selfsigned
+
+- name: Run sushy-tools container
+  become: true
+  containers.podman.podman_container:
+    name: sushy-tools
+    image: quay.io/metal3-io/sushy-tools:latest
+    volumes:
+      - "{{ sushy_tools_dir }}:/etc/sushy/:Z"
+      - "/var/run/libvirt:/var/run/libvirt:Z"
+    detach: true
+    net: host
+    privileged: true
+    exposed_ports:
+      - "{{ sushy_tools_port }}"
+    ports:
+      - "{{ sushy_tools_port }}:{{ sushy_tools_port }}"
+    state: started
+    force_restart: true
+    etc_hosts:
+      imagecache.local: "{{ egress_network_bridge_ip }}"
+    env:
+      SUSHY_EMULATOR_CONFIG: "/etc/sushy/sushy-emulator.conf"
+    command: "/usr/local/bin/sushy-emulator"

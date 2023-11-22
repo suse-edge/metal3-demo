@@ -1,5 +1,13 @@
 libvirt_action: "setup"
 
+libvirt_images_dir: /var/lib/libvirt/images
+
+libvirt_uri: qemu:///system
+
+# On Ubuntu /var/lib/libvirt/images is already configured as the
+# images pool so use a different dir for the default pool
+libvirt_default_pool_dir: "{{libvirt_images_dir}}/pool-default"
+
 egress_network_cidr_v4: 192.168.125.0/24
 egress_network_bridge_ip: "{{ egress_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
 
