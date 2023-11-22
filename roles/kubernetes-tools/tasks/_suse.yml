@@ -4,13 +4,13 @@
     name: vm
     tasks_from: install_suse_package
   vars:
-    suse_packages: [git, python310, python310-pip, python310-devel, jq, curl, wget, nmap, lsof]
+    suse_packages: [git, python311, python311-pip, python311-devel, jq, curl, wget, nmap, lsof]
 
 - name: Select python althernative
   become: yes
   community.general.alternatives:
     name: python
-    path: /usr/bin/python3.10
+    path: /usr/bin/python3.11
     priority: 1
     link: /usr/bin/python
 
@@ -18,7 +18,7 @@
   become: yes
   community.general.alternatives:
     name: python3
-    path: /usr/bin/python3.10
+    path: /usr/bin/python3.11
     priority: 1
     link: /usr/bin/python3
 
