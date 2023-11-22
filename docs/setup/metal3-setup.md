@@ -38,15 +38,7 @@ cd metal3-demo
 
 If desired the defaults from `extra_vars.yml` can be customized, copy the file and export `EXTRA_VARS_FILE` to reference the copied file location.
 
-2. Define virsh egress network (This configuration is specific to step 4)
-    - CD into the libvirt directory within the metal3-demo that was cloned earlier
-    - Define and start the network
-   ```shell
-   virsh net-define egress.xml; virsh net-start egress
-   ```
-    - If you plan not to use the virsh networks, you will need to set up your own network bridges.
-
-3. Configure the host
+2. Configure the host
 
 - In the main directory of the repository, execute the script to configure the host:
 
@@ -54,13 +46,13 @@ If desired the defaults from `extra_vars.yml` can be customized, copy the file a
   ./02_configure_host.sh
   ```
 
-4. Create management cluster
+3. Create management cluster
 
   ```shell
   ./03_launch_mgmt_cluster.sh
   ```
 
-5. Assuming you are using the default configuration you can ssh into the management cluster VM as follows:
+4. Assuming you are using the default configuration you can ssh into the management cluster VM as follows:
 
 - Core VM Running Metal3: `ssh metal@192.168.125.99` or `virsh console metal3-core`
 

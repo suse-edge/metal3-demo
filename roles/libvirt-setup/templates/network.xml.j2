@@ -1,0 +1,35 @@
+
+<network>
+  <name>{{ item.name }}</name>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='{{ item.bridge }}' stp='on' delay='0'/>
+
+{# IPv4 Configuration #}
+{% if item.address_v4 is defined and item.address_v4 != '' %}
+  <ip address='{{ item.address_v4 }}' netmask='{{ item.netmask_v4 }}'>
+  {% if item.dhcp_range_v4 is defined and item.dhcp_range_v4|length != 0 %}
+    <dhcp>
+      <range start='{{ item.dhcp_range_v4[0] }}' end='{{ item.dhcp_range_v4[1] }}'/>
+    </dhcp>
+  {% endif %}
+  </ip>
+  {% if item.dns is defined %}
+  <dns>
+    {% for host in item.dns.hosts %}
+    <host ip='{{ host.ip }}'>
+      {% for name in host.hostnames %}
+      <hostname>{{ name }}</hostname>
+      {% endfor %}
+    </host>
+    {% endfor %}
+  </dns>
+  {% endif %}
+{% endif %}
+{# End IPv4 Configuration #}
+
+</network>
+

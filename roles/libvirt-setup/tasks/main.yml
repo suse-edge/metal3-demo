@@ -1,0 +1,4 @@
+- name: libvirt role setup tasks
+  block:
+    - include_tasks: network_setup_tasks.yml
+  when: libvirt_action == "setup"

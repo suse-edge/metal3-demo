@@ -15,5 +15,6 @@ packages:
     - libguestfs-tools
     - podman
     - python3-lxml
+    - python3-netaddr
   pip3:
     - libvirt-python
