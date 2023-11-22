@@ -4,12 +4,12 @@
     name: vm
     tasks_from: install_suse_package
   vars:
-    suse_packages: [python310, python310-pip, python310-devel, gcc, python310-dbm]
+    suse_packages: [python311, python311-pip, python311-devel, gcc, python311-dbm]
 
 - name: Select python althernative
   become: yes
   community.general.alternatives:
     name: python
-    path: /usr/bin/python3.10
+    path: /usr/bin/python3.11
     priority: 1
     link: /usr/bin/python
