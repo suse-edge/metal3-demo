@@ -12,20 +12,31 @@
 {% if item.address_v4 is defined and item.address_v4 != '' %}
   <ip address='{{ item.address_v4 }}' netmask='{{ item.netmask_v4 }}'>
   {% if item.dhcp_range_v4 is defined and item.dhcp_range_v4|length != 0 %}
-    <dhcp>
-      <range start='{{ item.dhcp_range_v4[0] }}' end='{{ item.dhcp_range_v4[1] }}'/>
+  <dhcp>
+    <range start='{{ item.dhcp_range_v4[0] }}' end='{{ item.dhcp_range_v4[1] }}'/>
+    {% set ns = namespace(index=0) -%}
+    {% for flavor in libvirt_flavors -%}
+      {% set numflavor = lookup('vars', 'num_' + flavor + '_hosts')|default(0)|int -%}
+      {% for num in range(0, numflavor) -%}
+        {% set host_name = libvirt_host_prefix + flavor + "_" + num|string -%}
+        {% set hostname_format = lookup('vars', flavor + '_hostname_format', default=flavor + '-%d') -%}
+        {% set hostname = hostname_format % num %}
+      <host mac='{{ node_mac_map.get(host_name).get(item.name)}}' name='{{hostname}}' ip='{{item.dhcp_range_v4[0]|ansible.utils.ipmath(ns.index|int)}}' />
+        {% set ns.index = ns.index + 1 -%}
+      {% endfor %}
+    {% endfor %}
     </dhcp>
   {% endif %}
   </ip>
-  {% if item.dns is defined %}
+  {% if item.dns is defined -%}
   <dns>
-    {% for host in item.dns.hosts %}
+    {% for host in item.dns.hosts -%}
     <host ip='{{ host.ip }}'>
-      {% for name in host.hostnames %}
+      {% for name in host.hostnames -%}
       <hostname>{{ name }}</hostname>
-      {% endfor %}
+      {% endfor -%}
     </host>
-    {% endfor %}
+    {% endfor -%}
   </dns>
   {% endif %}
 {% endif %}

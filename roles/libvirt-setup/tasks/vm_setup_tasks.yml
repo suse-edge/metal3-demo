@@ -1,0 +1,55 @@
+- when: vm_nodes | length > 0
+  environment:
+    LIBVIRT_DEFAULT_URI: "{{ libvirt_uri }}"
+  block:
+    # Create libvirt volumes for the vm hosts.
+    - name: Check if vm volumes exist
+      command: >
+        virsh vol-info --pool '{{ libvirt_volume_pool }}' '{{ item.name }}.qcow2'
+      register: vm_vol_check
+      ignore_errors: true
+      loop: "{{ vm_nodes }}"
+
+    - name: Create vm vm storage
+      command: >
+        virsh vol-create-as '{{ libvirt_volume_pool }}'
+        '{{ item.item.name }}'.qcow2 '{{ libvirt_flavors[item.item.flavor].disk }}'G
+        --format qcow2
+      when:
+        - item is failed
+      loop: "{{ vm_vol_check.results }}"
+
+    # Define (but do not start) the vm nodes.  These will be
+    # booted later by ironic during the provisioning process.
+    - name: Define virtual baremetal vms
+      virt:
+        name: "{{ item.name }}"
+        command: define
+        xml: "{{ lookup('template', 'baremetalvm.xml.j2') }}"
+      loop: "{{ vm_nodes }}"
+
+    # Get the uuid of VMs for setting system-id in redfish URL
+    - name: Get vm uuid
+      command: >
+        virsh domuuid "{{ item.name }}"
+      register: vm_uuid
+      loop: "{{ vm_nodes }}"
+
+    - name: set_fact
+      set_fact:
+        vm_id: "{{ vm_id|default({}) | combine ( {item.item.name: item.stdout} ) }}"
+      loop: "{{ vm_uuid.results }}"
+
+    - debug:
+        msg: "vm_id={{vm_id}}"
+
+- name: "Ensure BareMetalHost manifest output directory exists"
+  file:
+    path: "{{ libvirt_bmh_manifest_dir }}"
+    state: directory
+
+- name: "Generate BareMetalHost manifests"
+  template:
+    src: baremetalhost.yaml.j2
+    dest: "{{ [ libvirt_bmh_manifest_dir, item.name ] | path_join }}.yaml"
+  loop: "{{ vm_nodes }}"

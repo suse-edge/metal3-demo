@@ -52,9 +52,34 @@ If desired the defaults from `extra_vars.yml` can be customized, copy the file a
   ./03_launch_mgmt_cluster.sh
   ```
 
-4. Assuming you are using the default configuration you can ssh into the management cluster VM as follows:
+4. Copy the BareMetalHost manifest files to the metal3-core VM
 
-- Core VM Running Metal3: `ssh metal@192.168.125.99` or `virsh console metal3-core`
+```shell
+scp ~/metal3-demo-hosts/*.yaml metal@192.168.125.99:/home/metal
+```
+
+SSH Into the metal3-core VM
+
+```shell
+ssh metal@192.168.125.99
+```
+
+Apply the bare metal node YAML files
+
+```shell
+kubectl apply -f controlplane_0.yaml
+kubectl apply -f worker_0.yaml
+```
+
+- You can monitor the progress of the provisioning using the following commands:
+    - `watch -n 2 kubectl get bmh`
+    - `watch -n 2 baremetal node list`
+- A `manageable` or `available` state (respective to which command is used) is the desired state.
+  It may take a few minutes for provisioning to complete.
+- Using `baremetal node list` may show `manageable` immediately after creating the nodes,
+  but this is only temporary, we want to wait for it to say `manageable` after it has been inspected.
+- If there is an issue during the provisioning process. Take the UUID of the baremetal node
+  and run `baremetal node show UUID` for a detailed output on what might have gone wrong.
 
 ## Development Notes
 

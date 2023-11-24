@@ -27,10 +27,8 @@ OpenStack Ironic, in a typical production Metal3 management cluster.
 
 # How To Setup Metal3 Demo Environment <a name="how_to_setup_metal3_demo" />
 - Refer to the [Metal3 Setup Doc](./docs/setup/metal3-setup.md) for a walkthrough of the Metal3 Demo environment setup.
-- The [VBMH Setup Doc](./docs/setup/vbmh-setup.md) is a walkthrough of the setup of virtual machines to act as bare metal hosts.
 - The [RKE2 Setup Doc](./docs/setup/rke2-cluster.md) is a walkthrough of the deployment of a sample RKE2 cluster on the virtual bare metal hosts.
 - Example RKE2 deployment manifest exists [here](./docs/example-manifests/).
-- For the automation of this deployment, [click here.](./scripts/README.md)
 
 [CAPI]: https://cluster-api.sigs.k8s.io/introduction.html
 [metal3]: https://github.com/metal3-io

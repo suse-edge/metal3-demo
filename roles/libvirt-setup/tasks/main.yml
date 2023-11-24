@@ -1,5 +1,8 @@
 - name: libvirt role setup tasks
   block:
+    - include_tasks: libvirt_service_tasks.yml
+    - include_tasks: common_setup_tasks.yml
     - include_tasks: network_setup_tasks.yml
     - include_tasks: storage_setup_tasks.yml
+    - include_tasks: vm_setup_tasks.yml
   when: libvirt_action == "setup"

@@ -1,0 +1,37 @@
+---
+- name: Workaround - disable libvirt security_driver
+  become: true
+  block:
+    - ansible.builtin.lineinfile:
+        path: /etc/libvirt/qemu.conf
+        line: 'security_driver = "selinux"'
+        state: absent
+    - ansible.builtin.lineinfile:
+        path: /etc/libvirt/qemu.conf
+        line: 'security_driver = "apparmor"'
+        state: absent
+    - ansible.builtin.lineinfile:
+        path: /etc/libvirt/qemu.conf
+        line: 'security_driver = "none"'
+
+- name: "Add the user {{ lookup('env','USER') }} to libvirt/kvm groups"
+  become: true
+  ansible.builtin.user:
+    name: "{{ lookup('env','USER') }}"
+    groups: libvirt,kvm
+    append: yes
+
+- name: Restart libvirtd
+  become: true
+  ansible.builtin.service:
+    name: libvirtd
+    state: restarted
+
+- name: "Allow {{ lookup('env','USER') }} access to /var/run/libvirt/libvirt-sock"
+  become: true
+  ansible.posix.acl:
+    path: /var/run/libvirt/libvirt-sock
+    entity: "{{ lookup('env','USER') }}"
+    etype: user
+    permissions: rw
+    state: present

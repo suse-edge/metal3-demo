@@ -45,12 +45,6 @@ ANSIBLE_FORCE_COLOR=true ansible-playbook \
   -i ${PROJECT_DIR}/inventories/localhost_inventory.yml \
   $PROJECT_DIR/playbooks/prepare_host.yml $@
 
-# Restart libvirtd service to get the new group membership loaded
-if ! id "${USER}" | grep -q libvirt; then
-  sudo usermod -a -G "libvirt" "${USER}"
-  sudo systemctl restart libvirtd
-fi
-
 # Ensure we have an SSH key, used for access to VMs
 if [ ! -f ~/.ssh/id_ed25519 ]; then
   ssh-keygen -t ed25519 -C "m3-demo" -f ~/.ssh/id_ed25519 -N ""

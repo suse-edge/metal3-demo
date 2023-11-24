@@ -1,0 +1,68 @@
+<domain type='{{ libvirt_domain_type }}'>
+  <name>{{ item.name }}</name>
+  <memory unit='MiB'>{{ libvirt_flavors[item.flavor].memory }}</memory>
+  <vcpu>{{ libvirt_flavors[item.flavor].vcpu }}</vcpu>
+
+  <os firmware='{{libvirt_firmware}}'>
+    <type arch='{{ libvirt_arch }}' machine='q35'>hvm</type>
+    <loader secure='{{ 'yes' if libvirt_secure_boot else 'no' }}'/>
+    <firmware>
+{% if libvirt_secure_boot %}
+      <feature enabled='yes' name='secure-boot'/>
+      <feature enabled='yes' name='enrolled-keys'/>
+{% else %}
+      <feature enabled='no' name='secure-boot'/>
+      <feature enabled='no' name='enrolled-keys'/>
+{% endif %}
+    </firmware>
+    <boot dev='network'/>
+    <bootmenu enable='no'/>
+    <bios useserial='yes' rebootTimeout='10000'/>
+  </os>
+
+  <features>
+    <acpi/>
+    <apic/>
+    <pae/>
+  </features>
+{% if libvirt_domain_type == 'qemu' %}
+  <cpu mode='host-model'/>
+{% else %}
+  <cpu mode='host-passthrough'/>
+{% endif %}
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <devices>
+    <disk type="file" device="cdrom">
+      <target dev='{{ libvirt_cdromdev }}' bus='{{ libvirt_cdrombus }}'/>
+      <readonly/>
+    </disk>
+    <disk type='volume' device='disk'>
+      <driver name='qemu' type='qcow2' cache='unsafe'/>
+      <source pool='{{ libvirt_volume_pool }}' volume='{{ item.name }}.qcow2'/>
+      <target dev='{{ libvirt_diskdev }}' bus='{{ libvirt_diskbus }}'/>
+    </disk>
+{% if libvirt_diskbus == 'scsi' %}
+  <controller type='scsi' model='virtio-scsi' />
+{% endif %}
+{% if libvirt_tpm_emulator|bool %}
+    <tpm model='tpm-tis'>
+      <backend type='emulator' version='2.0'/>
+    </tpm>
+{% endif %}
+{% for network in libvirt_networks %}
+    <interface type='bridge'>
+      <mac address='{{ node_mac_map.get(item.name).get(network.name) }}'/>
+      <source bridge='{{ network.bridge }}'/>
+      <model type='{{ libvirt_nic_model }}'/>
+    </interface>
+{% endfor %}
+    <serial type='pty'>
+      <log file="{{ libvirt_log_path }}/{{ item.name }}-serial0.log" append="on"/>
+    </serial>
+    <console type='pty'/>
+
+  </devices>
+</domain>

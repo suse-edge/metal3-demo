@@ -1,0 +1,23 @@
+{% set resource_name = item.name | replace('_', '-') %}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ resource_name }}-credentials
+type: Opaque
+data:
+  username: {{ vbmc_username | b64encode }}
+  password: {{ vbmc_password | b64encode }}
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: {{ resource_name }}
+  labels:
+    cluster-role: {{ libvirt_flavors[item.flavor].cluster_role  }}
+spec:
+  online: true
+  bootMACAddress: "{{ node_mac_map.get(item.name).get(libvirt_networks[0].name) }}"
+  bmc:
+    address: redfish-virtualmedia://{{ vbmc_ip | ansible.utils.ipwrap }}:{{ vbmc_port }}/redfish/v1/Systems/{{vm_id[item.name]}}
+    disableCertificateVerification: true
+    credentialsName: {{ resource_name }}-credentials
