@@ -9,9 +9,8 @@ cloud_image_os_name: opensuse15.4
 # OS variant for libvirt optimization. See virt-install --os-variant
 vm_os_variant: opensuse15.4
 
-# Directory for libvirt images. Make sure current
-# user write access to this dir.
-libvirt_images_dir: ./libvirt_images
+# Directory for libvirt images
+libvirt_images_dir: /var/lib/libvirt/images
 
 # destination file name for the downloaded cloud image
 cloud_image_file: "{{ libvirt_images_dir }}/{{ cloud_image_os_name }}.img"
