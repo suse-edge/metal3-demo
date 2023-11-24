@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Maintenance
+#############
+sed -i 's/strategy=best-effort/strategy=off/g' /etc/rebootmgr.conf
+
+
+# Registration and Packages
+###########################
+SUSEConnect --email {{ scc_email_account }} --url https://scc.suse.com --regcode {{ scc_registration_code }}
+suseconnect -p PackageHub/15.5/x86_64
+cat > /etc/zypp/repos.d/flexran-dependencies.repo << EOF
+[home_amorgante]
+name=home:amorgante (15.5)
+type=rpm-md
+baseurl=https://download.opensuse.org/repositories/home:/amorgante/15.5/
+gpgcheck=0
+gpgkey=https://download.opensuse.org/repositories/home:/amorgante/15.5/repodata/repomd.xml.key
+enabled=1
+EOF
+zypper -n in pciutils
+rpm -i --nodeps ./libdpdk.rpm ./igbuioueficert55.rpm
+zypper -n --no-gpg-checks in ./*.rpm
+zypper -n --no-gpg-checks in pf-bb-config
+
+
+# cpu performance service to be executed at boot
+mount /usr/local || true
+cat <<- EOF > /etc/systemd/system/cpu-performance.service
+[Unit]
+Description=CPU perfomance
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+User=root
+Type=forking
+TimeoutStartSec=900
+ExecStart=/bin/sh -c "cpupower frequency-set -g performance; cpupower frequency-set -u 2500000; cpupower frequency-set -d 2500000"
+RemainAfterExit=yes
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl enable cpu-performance.service

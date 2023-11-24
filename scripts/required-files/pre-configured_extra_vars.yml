@@ -62,3 +62,11 @@ metal3_core_vm_network:
       routes:
         - to: default
           via: "{{ vm_egress_gw }}"
+
+
+slemicro_telco_image_url: https://download.opensuse.org/repositories/home:/amorgante:/branches:/SUSE:/SLE-15-SP5:/Update:/Products:/Micro55/images/SLE-Micro.x86_64-5.5.0-Default-RT-Build23.1.raw.xz
+slemicro_telco_image_checksum: sha256:https://download.opensuse.org/repositories/home:/amorgante:/branches:/SUSE:/SLE-15-SP5:/Update:/Products:/Micro55/images/SLE-Micro.x86_64-5.5.0-Default-RT-Build23.1.raw.xz.sha256
+slemicro_telco_image_name: SLE-Micro.x86_64-5.5.0-Default-RT-Build23.1.raw.xz
+
+scc_email_account: YOUR_SCC_EMAIL_ACCOUNT
+scc_registration_code: YOUR_SCC_REGISTRATION_CODE

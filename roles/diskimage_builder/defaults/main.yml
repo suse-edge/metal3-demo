@@ -1,10 +1,13 @@
 ---
 build_debug_ipa_images: true
 build_sample_user_images: true
-build_metal3_images: false
+build_metal3_images: true
+build_metal3_telco_images: true
 
 # NOTE(gyee): for Ubuntu IPA images, the ipa_username must be 'devuser'
 ipa_username: devuser
 ipa_password: ipa
 ipa_user_ssh_key_path: $HOME/.ssh/id_rsa.pub
 ipa_image_name: ipa-debian-debug
+
+eib_output_telco_image_name: eib-image-telco-slemicro55.raw

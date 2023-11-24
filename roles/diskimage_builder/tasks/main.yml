@@ -47,3 +47,10 @@
     - build_metal3_images | bool
     - check_media_dir_result.stat.isdir is defined
     - check_media_dir_result.stat.isdir
+
+- name: Build metal3 telco images
+  include_tasks: build_metal3_telco_images.yml
+  when:
+    - build_metal3_telco_images | bool
+    - check_media_dir_result.stat.isdir is defined
+    - check_media_dir_result.stat.isdir

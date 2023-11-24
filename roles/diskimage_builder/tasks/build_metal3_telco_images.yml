@@ -1,0 +1,34 @@
+---
+- name: Extract OS image
+  become: yes
+  unarchive:
+    src: "{{ image_telco_url }}"
+    dest: "{{ ansible_env.HOME }}/metal3-demo/telco/eib/images/"
+    remote_src: yes
+    creates: "{{ ansible_env.HOME }}/metal3-demo/telco/eib/images/{{ image_telco_name | replace('.xz', '') }}"
+
+- name: Copy config eib to folder
+  template:
+    src: config-eib.yaml.j2
+    dest: {{ ansible_env.HOME }}/metal3-demo/telco/eib/config-eib.yaml
+
+- name: Copy telco combustion script to folder
+  template:
+    src: telco-combustion.sh.j2
+    dest: {{ ansible_env.HOME }}/metal3-demo/telco/eib/scripts/telco-combustion.sh
+
+- name: Git checkout
+  ansible.builtin.git:
+    repo: 'https://github.com/alknopfler/edge-image-builder.git'
+    dest: {{ ansible_env.HOME }}/metal3-demo/telco/
+
+- name: Build the image with EIB
+  become: yes
+  shell: |
+    podman build -t eib:dev .
+    podman run --rm -it -v ./eib:/eib localhost/eib:dev /bin/eib -config-file config-eib.yaml -config-dir /eib -build-dir /eib/_build
+    md5sum {{ ansible_env.HOME }}/metal3-demo/telco/eib/{{ eib_output_telco_image_name }} > {{ ansible_env.HOME }}/metal3-demo/telco/eib/{{ eib_output_telco_image_name }}.md5sum
+    mv {{ ansible_env.HOME }}/metal3-demo/telco/eib/{{ eib_output_telco_image_name }} /opt/media/
+    mv {{ ansible_env.HOME }}/metal3-demo/telco/eib/{{ eib_output_telco_image_name }}.md5sum /opt/media/
+  args:
+    chdir: "{{ ansible_env.HOME }}/metal3-demo/telco/"

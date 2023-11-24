@@ -70,9 +70,13 @@
         image_url: "{{ opensuse_leap_image_url }}"
         image_checksum: "{{ opensuse_leap_image_checksum }}"
         image_name: "{{ opensuse_leap_image_name }}"
+        image_telco_url: "{{ slemicro_telco_image_url }}"
+        image_telco_checksum: "{{ slemicro_telco_image_checksum }}"
+        image_telco_name: "{{ slemicro_telco_image_name }}"
         build_debug_ipa_images: false
         build_sample_user_images: false
         build_metal3_images: true
+        build_metal3_telco_images: false
       tags:
         - dib
         - diskimage_builder

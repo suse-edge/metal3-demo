@@ -61,8 +61,8 @@ ssh metal@192.168.125.99
 7. Download the example manifests
 
 ```shell
-curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-manifests/dhcp/rke2-control-plane.yaml > rke2-control-plane.yaml
-curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-manifests/dhcp/rke2-agent.yaml > rke2-agent.yaml
+curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-manifests/dhcp/default/rke2-control-plane.yaml > rke2-control-plane.yaml
+curl https://raw.githubusercontent.com/suse-edge/metal3-demo/main/docs/example-manifests/dhcp/default/rke2-agent.yaml > rke2-agent.yaml
 ```
 
 - This configuration is specific to the [Metal3](./metal3-setup.md) and [VBMH](./vbmh-setup.md) setup docs.
