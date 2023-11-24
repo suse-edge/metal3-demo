@@ -14,7 +14,7 @@
         vm_network: "{{ metal3_core_vm_network }}"
         vm_public_network_ip: "{{ metal3_core_public_ip }}"
         vm_libvirt_network_params: "{{ metal3_vm_libvirt_network_params }}"
-        vm_memory: 32768
+        vm_memory: 16384
         vm_vcpus: 8
 
     - name: Show metal3-core vm IP
