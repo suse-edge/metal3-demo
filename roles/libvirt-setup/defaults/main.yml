@@ -1,6 +1,22 @@
 libvirt_action: "setup"
 
-libvirt_images_dir: /var/lib/libvirt/images
+libvirt_domain_type: "kvm"
+libvirt_volume_pool: "default"
+libvirt_diskdev: sda
+libvirt_cdromdev: sdb
+libvirt_diskbus: scsi
+libvirt_cdrombus: sata
+libvirt_arch: x86_64
+libvirt_firmware: efi # bios or efi
+libvirt_secure_boot: false
+libvirt_tpm_emulator: false
+libvirt_nic_model: virtio
+
+# Where to log serial console output
+libvirt_log_path: "/var/log/libvirt/qemu"
+
+libvirt_images_dir: "/var/lib/libvirt/images"
+libvirt_bmh_manifest_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-hosts"
 
 libvirt_uri: qemu:///system
 
@@ -16,11 +32,36 @@ libvirt_networks:
     bridge: m3-egress
     address_v4: "{{ egress_network_bridge_ip }}"
     netmask_v4: "{{ egress_network_cidr_v4|ansible.utils.ipaddr('netmask') }}"
-    vm_egress_gw:
-      - "{{ egress_network_cidr_v4|ansible.utils.nthhost(110)|default('', true) }}"
+    dhcp_range_v4:
+      - "{{ egress_network_cidr_v4|ansible.utils.nthhost(200)|default('', true) }}"
       - "{{ egress_network_cidr_v4|ansible.utils.nthhost(250)|default('', true) }}"
     dns:
       hosts:
         - ip: "{{ egress_network_bridge_ip }}"
           hostnames:
             - imagecache.local
+
+libvirt_flavors:
+  controlplane:
+    cluster_role: control-plane
+    memory: 4096
+    disk: 30
+    vcpu: 4
+
+  worker:
+    cluster_role: worker
+    memory: 4096
+    disk: 30
+    vcpu: 4
+
+# Optionally specifiy a prefix e.g for each cluster
+libvirt_host_prefix: ""
+
+num_controlplane_hosts: 1
+num_worker_hosts: 1
+
+# BMC credentials
+vbmc_username: "admin"
+vbmc_password: "password"
+vbmc_port: "{{ sushy_tools_port | default(8000) }}"
+vbmc_ip: "{{ egress_network_bridge_ip }}"
