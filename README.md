@@ -6,24 +6,23 @@
 
 # Overview <a name="overview" />
 
-This is the demo environment for
+This is test/demo environment for
 [Metal Kubed - Bare Metal Host Provisioning for Kubernetes][metal3]
 The purpose of this environment is demonstrate the capabilities
 of [Kubernetes Cluster API][CAPI], for Kubernetes workload cluster
-life cycle management. The demo environment consist of two VMs,
-Metal3 Network Infra and Metal3 Core respectively.
+life cycle management.
+
+The demo environment consists of a single "management cluster" VM
+and automation to enable arbitrary numbers of VM hosts to be created
+to emulate baremetal downstream cluster hosts (by default a single
+controlplane and worker host will be created)
+
 ![Metal3 Demo Overview](images/Metal3-Demo-Overview.png)
-Metal3 Core VM has
-all the pieces, namely CAPI (Cluster API) controller, RKE2 bootstrap provider
-(CABPR), RKE2 control plane provider (CACPPR),
-Metal3 infrastructure provider (CAPM3), Baremetal Operator, and
-OpenStack Ironic, in a typical production Metal3 management cluster.
 
 # Prerequisites <a name="prerequisites" />
 
-* Host is expected to have one network bridge for the public network (i.e. tagged VLAN).
-* Host with at least 32GB RAM & 200GB free disk space.
-* Github credential (i.e. username/personal access token), for cloning repos
+* Requires host with at least 32GB RAM & 200GB free disk space.
+* Should be run on a baremetal, nested virt may work but is not tested/supported.
 
 # How To Setup Metal3 Demo Environment <a name="how_to_setup_metal3_demo" />
 - Refer to the [Metal3 Setup Doc](./docs/setup/metal3-setup.md) for a walkthrough of the Metal3 Demo environment setup.
