@@ -79,3 +79,12 @@
     - name: Deploy baremetal
       import_role:
         name: baremetal
+
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Fetch kubeconfig from management cluster
+      fetch:
+        src: /etc/rancher/rke2/rke2.yaml
+        flat: true
+        dest: "{{ lookup('env', 'HOME') }}/management-cluster-kubeconfig.yaml"
