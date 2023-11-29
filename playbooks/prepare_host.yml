@@ -4,5 +4,10 @@
   connection: local
   gather_facts: true
   tasks:
-    - import_role:
+    - name: Install required packages
+      import_role:
         name: packages_installation
+    - name: Install Kubernetes tools and utilities
+      import_role:
+        name: kubernetes-tools
+

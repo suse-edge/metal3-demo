@@ -4,7 +4,7 @@
     name: vm
     tasks_from: install_suse_package
   vars:
-    suse_packages: [python311, python311-pip, python311-devel, gcc]
+    suse_packages: [python311, python311-pip, python311-devel, gcc, python311-dbm]
 
 - name: Select python althernative
   become: yes
