@@ -4,4 +4,21 @@
     name: vm
     tasks_from: install_suse_package
   vars:
-    suse_packages: [docker]
+    suse_packages: [docker, python311, python311-pip, python311-devel, jq, curl, wget, nmap, lsof]
+
+- name: Select python althernative
+  become: yes
+  community.general.alternatives:
+    name: python
+    path: /usr/bin/python3.11
+    priority: 1
+    link: /usr/bin/python
+
+- name: Select python3 althernative
+  become: yes
+  community.general.alternatives:
+    name: python3
+    path: /usr/bin/python3.11
+    priority: 1
+    link: /usr/bin/python3
+

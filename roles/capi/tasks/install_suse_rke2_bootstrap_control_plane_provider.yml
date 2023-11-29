@@ -2,6 +2,11 @@
 #
 # see https://github.com/rancher-sandbox/cluster-api-provider-rke2#setting-up-clusterctl
 #
+- name: Ensure  ~/.cluster-api directory exists
+  file:
+    path:  ~/.cluster-api
+    state: directory
+
 - name: Setup clusterctl.yaml
   template:
     src: clusterctl.yaml.j2
@@ -14,7 +19,7 @@
     {% endif %}
     clusterctl init --bootstrap rke2 --control-plane rke2
 
-- name: Wait for Orange SUSE bootstrap and control plane provider to successfully rolled out
+- name: Wait for RKE2 bootstrap and control plane provider to be successfully rolled out
   shell: >
     kubectl rollout status Deployment/{{ item.deployment }} -n {{ item.namespace }} 2>&1 | grep 'successfully rolled out'
   register: rollout_result
