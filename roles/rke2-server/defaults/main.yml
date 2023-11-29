@@ -6,4 +6,4 @@ rke2_installer_url: https://get.rke2.io
 # see https://update.rke2.io/v1-release/channels for a complete list
 #
 # i.e. 'v1.24'
-rke2_channel_version: v1.24
+rke2_channel_version: v1.26
