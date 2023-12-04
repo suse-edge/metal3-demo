@@ -1,0 +1,25 @@
+---
+- name: Checkout charts repo
+  include_tasks: checkout_repo.yml
+  vars:
+    repo_dir: suse-edge
+    repo_url: "{{ metal3_repo_url }}"
+    repo_branch: "{{ metal3_branch }}"
+    repo_pull_request: "{{ metal3_pull_request | default('') }}"
+
+- name: Create metal3 overrides yaml file
+  template:
+    src: "metal3-values.yaml.j2"
+    dest: "~/metal3-values.yaml"
+
+- name: Deploy helm components using file based overrides
+  kubernetes.core.helm:
+    name: metal3
+    chart_ref: "~/charts/suse-edge/charts/metal3/{{ metal3_chart_version }}"
+    state: present
+    release_namespace: "{{ metal3_namespace }}"
+    values_files:
+    - "{{ lookup('env', 'HOME') }}/metal3-values.yaml"
+    atomic: yes
+    create_namespace: yes
+    timeout: 10m

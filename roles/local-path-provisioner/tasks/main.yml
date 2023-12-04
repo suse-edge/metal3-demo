@@ -1,7 +1,7 @@
 ---
 - name: Checkout local-path-provisioner repo
   include_role:
-    name: baremetal
+    name: metal3
     tasks_from: checkout_repo
   vars:
     repo_dir: local-path-provisioner
@@ -12,7 +12,7 @@
 - name: Deploy local-path-provisioner via helm
   kubernetes.core.helm:
     name: "{{ local_path_provisioner_release }}"
-    chart_ref: "~/local-path-provisioner/deploy/chart/local-path-provisioner"
+    chart_ref: "~/charts/local-path-provisioner/deploy/chart/local-path-provisioner"
     state: present
     release_namespace: "{{ local_path_provisioner_namespace }}"
     atomic: yes
