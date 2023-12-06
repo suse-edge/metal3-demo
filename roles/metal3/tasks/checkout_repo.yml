@@ -1,8 +1,13 @@
 ---
+- name: Create charts dir
+  file:
+    path: "{{ working_dir }}/charts"
+    state: directory
+
 - name: Clone {{ repo_dir }} repo
   git:
     repo: "{{ repo_url }}"
-    dest: ~/charts/{{ repo_dir }}
+    dest: "{{ working_dir }}/charts/{{ repo_dir }}"
     force: yes
     version: "{{ repo_branch | default('main') }}"
 
@@ -12,5 +17,5 @@
     git fetch origin
     git checkout pr/{{ repo_pull_request }}
   args:
-    chdir: ~/{{ repo_dir }}
+    chdir: "{{ working_dir }}/charts/{{ repo_dir }}"
   when: repo_pull_request != ""

@@ -52,35 +52,25 @@ If desired the defaults from `extra_vars.yml` can be customized, copy the file a
   ./03_launch_mgmt_cluster.sh
   ```
 
-4. Copy the BareMetalHost manifest files to the metal3-core VM
+4. Apply the BareMetalHost manifests
 
 ```shell
-scp ~/metal3-demo-hosts/*.yaml metal@192.168.125.99:/home/metal
+kubectl apply -f ~/metal3-demo-files/baremetalhosts
 ```
 
-SSH Into the metal3-core VM
+The host will now be registered and inspected, which will take several minutes,
+you can monitor progress via `kubectl get bmh` until the host reaches `available` state
 
 ```shell
-ssh metal@192.168.125.99
+ kubectl get bmh
+NAME             STATE       CONSUMER   ONLINE   ERROR   AGE
+controlplane-0   available              true             9m44s
+worker-0         available              true             9m44s
 ```
-
-Apply the bare metal node YAML files
-
-```shell
-kubectl apply -f controlplane_0.yaml
-kubectl apply -f worker_0.yaml
-```
-
-- You can monitor the progress of the provisioning using the following commands:
-    - `watch -n 2 kubectl get bmh`
-    - `watch -n 2 baremetal node list`
-- A `manageable` or `available` state (respective to which command is used) is the desired state.
-  It may take a few minutes for provisioning to complete.
-- Using `baremetal node list` may show `manageable` immediately after creating the nodes,
-  but this is only temporary, we want to wait for it to say `manageable` after it has been inspected.
-- If there is an issue during the provisioning process. Take the UUID of the baremetal node
-  and run `baremetal node show UUID` for a detailed output on what might have gone wrong.
 
 ## Development Notes
 
 - You may pass `-vvv` at the end of the scripts to see more verbose output, or to pass arbitrary additional arguments to ansible-playbook
+- You can interact with Ironic directly on the metal3-core VM for debugging e.g `ssh metal@192.168.125.99 baremetal node list`
+- For more information about the BareMetalHost resource states refer to the [Metal3 documentation](https://github.com/metal3-io/baremetal-operator/blob/main/docs/BaremetalHost_ProvisioningState.png)
+- If a BareMetalHost resource is stuck in the inspecting state, `virsh console` can be useful to view the inspection ramdisk output

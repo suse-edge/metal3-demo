@@ -27,9 +27,9 @@
 - name: Create metallb ip-address-pool yaml file
   template:
     src: "ip-address-pool.yaml.j2"
-    dest: "~/ip-address-pool.yaml"
+    dest: "{{ working_dir }}/ip-address-pool.yaml"
   register: template_ip_address_pool
 
 - name: Apply ip-address-pool
   shell: >-
-    kubectl apply -f ~/ip-address-pool.yaml
+    kubectl apply -f "{{ working_dir }}/ip-address-pool.yaml"

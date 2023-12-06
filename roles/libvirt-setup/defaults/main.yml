@@ -16,7 +16,8 @@ libvirt_nic_model: virtio
 libvirt_log_path: "/var/log/libvirt/qemu"
 
 libvirt_images_dir: "/var/lib/libvirt/images"
-libvirt_bmh_manifest_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-hosts"
+working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
+libvirt_bmh_manifest_dir: "{{ working_dir }}/baremetalhosts"
 
 libvirt_uri: qemu:///system
 

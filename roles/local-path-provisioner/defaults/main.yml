@@ -4,3 +4,5 @@ local_path_provisioner_branch: master
 
 local_path_provisioner_namespace: local-path-storage
 local_path_provisioner_release: local-path-provisioner
+
+working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"

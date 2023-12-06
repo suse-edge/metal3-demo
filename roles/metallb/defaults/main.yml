@@ -5,3 +5,5 @@ metallb_helm_chart_ref: edge/metallb
 
 metallb_namespace: metallb-system
 metallb_release: metallb
+
+working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
