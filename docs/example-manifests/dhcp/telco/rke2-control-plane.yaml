@@ -173,7 +173,7 @@ spec:
     kubelet:
       extraArgs:
         - provider-id=metal3://{{ ds.meta_data.uuid }}
-    version: v1.28.3+rke2r2   # Has to be the compatible with the management cluster
+    version: v1.26.11+rke2r1   # Has to be the compatible with the management cluster
     nodeName: "{{ ds.meta_data.local_hostname }}"
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
