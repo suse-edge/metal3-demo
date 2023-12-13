@@ -7,7 +7,10 @@ the Kubernetes native API. (see https://metal3.io/)
 
 ### Pre-requisite Dependencies
 
-Currently requires an Ubuntu (22.04 LTS) host to enable testing on Equinix.
+Currently requires one of the following OS choices:
+
+- [OpenSuse Leap 15.5](https://get.opensuse.org/leap/15.5/)
+- Ubuntu (22.04 LTS) (to enable testing on Equinix)
 
 1. Create a non-root user with sudo access
 
@@ -74,3 +77,4 @@ worker-0         available              true             9m44s
 - You can interact with Ironic directly on the metal3-core VM for debugging e.g `ssh metal@192.168.125.99 baremetal node list`
 - For more information about the BareMetalHost resource states refer to the [Metal3 documentation](https://github.com/metal3-io/baremetal-operator/blob/main/docs/BaremetalHost_ProvisioningState.png)
 - If a BareMetalHost resource is stuck in the inspecting state, `virsh console` can be useful to view the inspection ramdisk output
+- Note that you may need to `export LIBVIRT_DEFAULT_URI="qemu:///system"` to access the VMs via `virsh` as a non-root user
