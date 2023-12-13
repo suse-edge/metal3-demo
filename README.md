@@ -22,7 +22,8 @@ controlplane and worker host will be created)
 # Prerequisites <a name="prerequisites" />
 
 * Requires host with at least 32GB RAM & 200GB free disk space.
-* Should be run on a baremetal, nested virt may work but is not tested/supported.
+* Either [OpenSuse Leap 15.5](https://get.opensuse.org/leap/15.5/) or Ubuntu 22.04
+* Should be run on baremetal, nested virt may also work but is not tested/supported.
 
 # How To Setup Metal3 Demo Environment <a name="how_to_setup_metal3_demo" />
 - Refer to the [Metal3 Setup Doc](./docs/setup/metal3-setup.md) for a walkthrough of the Metal3 Demo environment setup.

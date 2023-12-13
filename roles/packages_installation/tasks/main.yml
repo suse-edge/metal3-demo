@@ -1,13 +1,17 @@
-- name: Install packages
-  block:
-    - name: Install required packages on Ubuntu
-      package:
-        name: "{{ packages.ubuntu}}"
-        state: present
-      become: yes
-  when: ansible_facts['distribution'] == "Ubuntu"
-- name: Install pip packages
-  pip:
-    executable: "pip3"
-    name: "{{ packages.pip3 }}"
-    state: present
+- block:
+  - name: Add a repos on openSUSE
+    community.general.zypper_repository:
+      repo: "{{ item }}"
+      auto_import_keys: true
+    when: ansible_facts['distribution'] == 'openSUSE Leap'
+    loop: "{{ repos.opensuse }}"
+  - name: Install required packages on {{ ansible_facts['distribution'] }}
+    package:
+      name: "{{ packages.ubuntu if ansible_facts['distribution'] == 'Ubuntu' else packages.opensuse }}"
+      state: present
+  - name: Install pip packages
+    pip:
+      executable: "pip3"
+      name: "{{ packages.pip3 }}"
+      state: present
+  become: true

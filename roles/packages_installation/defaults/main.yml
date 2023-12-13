@@ -17,5 +17,28 @@ packages:
     - python3-lxml
     - python3-netaddr
     - python3-passlib
+  opensuse:
+    - git
+    - libvirt-client
+    - qemu-kvm
+    - libvirt
+    - python311-pip
+    - python311-devel
+    - pkg-config
+    - gcc
+    - libvirt-devel
+    - mkisofs
+    - qemu
+    - virt-install
+    - sshpass
+    - libguestfs
+    - podman
+    - python311-lxml
+    - python311-netaddr
+    - python311-passlib
   pip3:
     - libvirt-python
+
+repos:
+  opensuse:
+    - "https://download.opensuse.org/repositories/devel:/languages:/python:/backports/15.5/devel:languages:python:backports.repo"
