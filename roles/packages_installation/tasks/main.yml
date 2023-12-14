@@ -1,5 +1,5 @@
 - block:
-  - name: Add a repos on openSUSE
+  - name: Add repos on openSUSE
     community.general.zypper_repository:
       repo: "{{ item }}"
       auto_import_keys: true
