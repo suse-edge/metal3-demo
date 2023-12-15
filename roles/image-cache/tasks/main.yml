@@ -5,6 +5,20 @@
     path: "{{ images_dir }}"
     state: directory
 
+- name: Check if local path exists and copy to the image-cache directory
+  vars:
+    os_local_image: "{{ lookup('env', 'OS_LOCAL_IMAGE') }}"
+  block:
+  - name: Check if the image exists into the local path
+    when: os_local_image
+    stat:
+      path: "{{ os_local_image }}"
+
+  - name: Create the EIB image to build the image-cache
+    when: os_local_image
+    import_role:
+      name: edge-image-builder
+
 - name: Check if OS image exists
   stat:
     path: "{{ images_dir }}/{{ image_name }}"

@@ -1,0 +1,77 @@
+---
+- name: Create eib images directory
+  file:
+    path: "{{ eib_path }}/images"
+    state: directory
+
+- name: Copy OS image to eib images directory
+  copy:
+    src: "{{ eib_source_image_path }}/{{ eib_source_image_name }}"
+    dest: "{{ eib_path }}/images/{{ eib_source_image_name }}"
+
+- name: Copy config eib to folder
+  template:
+    src: config-eib.yaml.j2
+    dest: "{{ eib_path }}/config-eib.yaml"
+
+- name: Create the eib custom scripts directory
+  file:
+    path: "{{ eib_path }}/custom/scripts"
+    state: directory
+
+- name: Copy file into the eib custom scripts directory (fix growfs issue)
+  copy:
+    dest: "{{ eib_path }}/custom/scripts/fix-growfs.sh"
+    content: |
+      #!/bin/bash
+      growfs() {
+        mnt="$1"
+        dev="$(findmnt --fstab --target ${mnt} --evaluate --real --output SOURCE --noheadings)"
+        # /dev/sda3 -> /dev/sda, /dev/nvme0n1p3 -> /dev/nvme0n1
+        parent_dev="/dev/$(lsblk --nodeps -rno PKNAME "${dev}")"
+        # Last number in the device name: /dev/nvme0n1p42 -> 42
+        partnum="$(echo "${dev}" | sed 's/^.*[^0-9]\([0-9]\+\)$/\1/')"
+        ret=0
+        growpart "$parent_dev" "$partnum" || ret=$?
+        [ $ret -eq 0 ] || [ $ret -eq 1 ] || exit 1
+        /usr/lib/systemd/systemd-growfs "$mnt"
+      }  
+      growfs /
+
+- name: Git checkout
+  ansible.builtin.git:
+    repo: 'https://github.com/suse-edge/edge-image-builder.git'
+    dest: "{{ working_dir }}/edge-image-builder"
+
+- name: build the EIB container image
+  containers.podman.podman_image:
+    name: eib:dev
+    path: "{{ working_dir }}/edge-image-builder"
+
+- name: Run EIB container to generate the custom image
+  containers.podman.podman_container:
+    name: eib
+    rm: true
+    image: localhost/eib:dev
+    volumes:
+      - "{{ eib_path }}:/eib"
+    detach: false
+    state: started
+    force_restart: no
+    command: "/bin/eib -config-file config-eib.yaml -config-dir /eib -build-dir /eib/_build"
+
+- name: Generate sha256sum for EIB image
+  become: true
+  shell: |
+    sha256sum {{ eib_output_image_name }} > {{ eib_output_image_name }}.sha256
+  args:
+    chdir: "{{ eib_path }}"
+
+- name: Copy output EIB custom image to images-cache directory
+  become: true
+  copy:
+    src: "{{ item }}"
+    dest: "{{ images_dir }}/"
+  with_items:
+    - "{{ eib_path }}/{{ eib_output_image_name }}"
+    - "{{ eib_path }}/{{ eib_output_image_name }}.sha256"

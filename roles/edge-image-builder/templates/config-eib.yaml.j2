@@ -1,0 +1,12 @@
+apiVersion: 1.0
+image:
+  imageType: raw
+  arch: x86_64
+  baseImage: {{ eib_source_image_name }}
+  outputImageName: {{ eib_output_image_name }}
+operatingSystem:
+  kernelArgs:
+  - ignition.platform.id=openstack
+  users:
+  - username: root
+    encryptedPassword: "$6$Hq6XnrxLLviHzrkE$Qft13mh082uQZl6Wm09a7pUmf7ULt6vlr9u7koAV60v/LNs1YkseTSuBmr1SJ2yg.Ib2WY06YGldJbDGCC4ry1"

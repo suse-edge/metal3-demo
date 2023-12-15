@@ -46,13 +46,28 @@ If desired the defaults from `extra_vars.yml` can be customized, copy the file a
   ./02_configure_host.sh
   ```
 
-3. Create management cluster
+- If you want to use your custom image (for instance the SLE Micro 5.5), you can export the variable `OS_LOCAL_IMAGE` with the path to your image:
+
+1. Download the SLE Micro image from the [SUSE Customer Center](https://www.suse.com/download/sle-micro/). The current version supported is the 5.5 in raw format. 
+
+**Note** The file downloaded is a xz compressed file. It must be uncompressed before using it as a valid image. 
+
+2. Move the image downloaded into the local directory which will be defined in the environment var `OS_LOCAL_IMAGE`.
+
+3. Execute the script to configure the host using the local image: 
+
+  ```shell
+  export OS_LOCAL_IMAGE=/path/to/image.raw
+  ./02_configure_host.sh
+  ```
+
+4. Create management cluster
 
   ```shell
   ./03_launch_mgmt_cluster.sh
   ```
 
-4. Apply the BareMetalHost manifests
+5. Apply the BareMetalHost manifests
 
 ```shell
 kubectl apply -f ~/metal3-demo-files/baremetalhosts

@@ -20,4 +20,4 @@ capi_rke2_bootstrap_control_plane_provider: suse-rke2
 # SUSE RKE2 bootstrap and control plane provider version
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_suse_rke2_bootstrap_control_plane_provider_version: v0.2.0
+capi_suse_rke2_bootstrap_control_plane_provider_version: v0.2.2
