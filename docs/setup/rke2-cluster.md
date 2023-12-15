@@ -9,12 +9,12 @@ This is a step-by-step guide on deploying RKE2 workload clusters on the SUSE Met
 - A fully functioning Metal<sup>3</sup> deployment
 - Available virtual bare metal hosts
 
-## Deploying the Workload Cluster
+## Deploying the Workload Cluster using OpenSUSE Leap
 
 1. Deploy the control plane
 
 ```shell
-cd docs/example-manifests/dhcp/
+cd docs/example-manifests/OpenSUSE-Leap/dhcp/
 kubectl apply -f rke2-control-plane.yaml
 ```
 
@@ -57,4 +57,44 @@ Cluster/sample-cluster                                  True                    
 └─Workers
   └─MachineDeployment/sample-cluster                    True                     22m
     └─Machine/sample-cluster-56df5b4499-zfljj           True                     23m
+```
+
+## Deploying the Workload Cluster using SLE Micro
+
+1. Deploy the control plane
+
+```shell
+cd docs/example-manifests/SLEMicro/dhcp/
+kubectl apply -f rke2-control-plane.yaml
+```
+
+2. Verify that the control plane is properly provisioned
+
+```shell
+$ clusterctl describe cluster sample-cluster
+NAME                                                    READY  SEVERITY  REASON  SINCE  MESSAGE
+Cluster/sample-cluster                                  True                     12m
+├─ClusterInfrastructure - Metal3Cluster/sample-cluster  True                     17m
+├─ControlPlane - RKE2ControlPlane/sample-cluster        True                     12m
+│ └─Machine/sample-cluster-crwdr                        True                     13m
+```
+
+3. Deploy the agent
+
+```shell
+kubectl apply -f rke2-agent.yaml
+```
+
+4. Verify that the agent is properly provisioned and has successfully joined the cluster
+
+```shell
+$ clusterctl describe cluster sample-cluster
+NAME                                                    READY  SEVERITY  REASON  SINCE  MESSAGE
+Cluster/sample-cluster                                  True                     15m
+├─ClusterInfrastructure - Metal3Cluster/sample-cluster  True                     20m
+├─ControlPlane - RKE2ControlPlane/sample-cluster        True                     15m
+│ └─Machine/sample-cluster-crwdr                        True                     17m
+└─Workers
+└─MachineDeployment/sample-cluster                    True                     12m
+└─Machine/sample-cluster-896dfl5499-wowgr             True                     13m
 ```
