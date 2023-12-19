@@ -62,7 +62,12 @@ The host will now be registered and inspected, which will take several minutes,
 you can monitor progress via `kubectl get bmh` until the host reaches `available` state
 
 ```shell
- kubectl get bmh
+kubectl get bmh
+```
+
+The expected output should resemble the following:
+
+```
 NAME             STATE       CONSUMER   ONLINE   ERROR   AGE
 controlplane-0   available              true             9m44s
 worker-0         available              true             9m44s
