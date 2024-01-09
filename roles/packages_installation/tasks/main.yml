@@ -15,7 +15,7 @@
     package:
       name: "{{ packages.ubuntu }}"
       state: present
-    when: ansible_facts['distribution'] != 'openSUSE Leap'
+    when: ansible_facts['distribution'] == 'Ubuntu'
   - name: Install pip packages
     pip:
       executable: "pip3"
