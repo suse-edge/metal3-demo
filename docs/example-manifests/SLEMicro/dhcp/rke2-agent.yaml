@@ -42,7 +42,29 @@ spec:
         version: v1.25.3+rke2r1
         kubelet:
           extraArgs:
-            - provider-id=metal3://00112233-4455-6677-8899-aabbccddeeff   # this is a default uuid value you can modify it
+            - provider-id=metal3://BAREMETALHOST_UUID
+        additionalUserData:
+          config: |
+            variant: fcos
+            version: 1.4.0
+            systemd:
+              units:
+                - name: rke2-preinstall.service
+                  enabled: true
+                  contents: |
+                    [Unit]
+                    Description=rke2-preinstall
+                    Wants=network-online.target
+                    Before=rke2-install.service
+                    ConditionPathExists=!/run/cluster-api/bootstrap-success.complete
+                    [Service]
+                    Type=oneshot
+                    User=root
+                    ExecStartPre=/bin/sh -c "mount -L config-2 /mnt"
+                    ExecStart=/bin/sh -c "sed -i \"s/BAREMETALHOST_UUID/$(jq -r .uuid /mnt/openstack/latest/meta_data.json)/\" /etc/rancher/rke2/config.yaml"
+                    ExecStartPost=/bin/sh -c "umount /mnt"
+                    [Install]
+                    WantedBy=multi-user.target
         nodeName: "Node-sample2-cluster"  # this is a default NodeName value you can modify it
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
