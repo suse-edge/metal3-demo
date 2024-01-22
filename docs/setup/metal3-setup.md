@@ -35,7 +35,7 @@ cd metal3-demo
 ./01_prepare_host.sh
 ```
 
-## Deploying the SUSE Edge Metal<sup>3</sup> Demo
+## Configure the host environment
 
 1. (optional) customize extra_vars.yml
 
@@ -49,28 +49,37 @@ If desired the defaults from `extra_vars.yml` can be customized, copy the file a
   ./02_configure_host.sh
   ```
 
-- If you want to use your custom image (for instance the SLE Micro 5.5), you can export the variable `OS_LOCAL_IMAGE` with the path to your image:
+Note this configures the environment to deploy downstream clusters with openSUSE Leap, for SLEMicro follow the additional steps below.
 
-1. Download the SLE Micro image from the [SUSE Customer Center](https://www.suse.com/download/sle-micro/). The current version supported is the 5.5 in raw format. 
+### Enable deploying with SLEMicro
 
-**Note** The file downloaded is a xz compressed file. It must be uncompressed before using it as a valid image. 
+If you want to use SLEMicro for downstream clusters then a few additional steps are required:
 
-2. Move the image downloaded into the local directory which will be defined in the environment var `OS_LOCAL_IMAGE`.
+1. Download the SLE Micro image from the [SUSE Customer Center](https://www.suse.com/download/sle-micro/). The version must be 5.5 in raw format.
 
-3. Execute the script to configure the host using the local image: 
+**Note** The file downloaded is a xz compressed file. It must be uncompressed before using it as a valid image.
+
+2. Move the image downloaded into the local directory which will be defined in the environment variable `OS_LOCAL_IMAGE`.
+
+3. Generate a registration code so we can install additional packages when customizing the downloaded image, this is defined in the environment variable `EIB_REGISTRATION_CODE`.
+
+4. Execute the script to configure the host using the local image:
 
   ```shell
   export OS_LOCAL_IMAGE=/path/to/image.raw
+  export EIB_REGISTRATION_CODE=<generated registration code>
   ./02_configure_host.sh
   ```
 
-4. Create management cluster
+## Deploy the management cluster and prepare hosts
+
+1. Create management cluster
 
   ```shell
   ./03_launch_mgmt_cluster.sh
   ```
 
-5. Apply the BareMetalHost manifests
+2. Apply the BareMetalHost manifests
 
 ```shell
 kubectl apply -f ~/metal3-demo-files/baremetalhosts
