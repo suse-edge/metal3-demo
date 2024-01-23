@@ -32,7 +32,7 @@
     get_url:
       url: "{{ image_url }}"
       dest: "{{ images_dir }}/{{ image_name }}"
-      checksum: "{{ image_checksum }}"
+#      checksum: "{{ image_checksum }}"
 
   - name: Generate OS image checksum file
     shell: |
