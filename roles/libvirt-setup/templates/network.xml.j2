@@ -11,7 +11,7 @@
 {# IPv4 Configuration #}
 {% if item.address_v4 is defined and item.address_v4 != '' %}
   <ip address='{{ item.address_v4 }}' netmask='{{ item.netmask_v4 }}'>
-  {% if item.dhcp_range_v4 is defined and item.dhcp_range_v4|length != 0 %}
+  {% if item.dhcp_range_v4 is defined and item.dhcp_range_v4|length != 0 and libvirt_network_dhcp|bool != false %}
   <dhcp>
     <range start='{{ item.dhcp_range_v4[0] }}' end='{{ item.dhcp_range_v4[1] }}'/>
     {% set ns = namespace(index=0) -%}

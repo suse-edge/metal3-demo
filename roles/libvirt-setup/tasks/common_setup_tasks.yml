@@ -26,3 +26,21 @@
 
 - debug:
     msg: "node_mac_map={{node_mac_map}}"
+
+- set_fact:
+    generate_node_ip_map: "{{node_ip_map is not defined}}"
+
+- name: Set an empty default for node_ip_map if not already defined
+  set_fact:
+    node_ip_map: {}
+  when: generate_node_ip_map
+
+- name: Populate node_ip_map if not already defined
+  when: generate_node_ip_map
+  include_tasks: node_ip_tasks.yml
+  loop: "{{ libvirt_networks }}"
+  loop_control:
+    loop_var: network
+
+- debug:
+    msg: "node_ip_map={{node_ip_map}}"

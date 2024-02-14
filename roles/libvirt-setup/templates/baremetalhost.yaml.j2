@@ -1,4 +1,5 @@
 {% set resource_name = item.name | replace('_', '-') %}
+{% set net_cidr = libvirt_networks[0].address_v4 + "/" + libvirt_networks[0].netmask_v4 %}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -21,3 +22,34 @@ spec:
     address: redfish-virtualmedia://{{ vbmc_ip | ansible.utils.ipwrap }}:{{ vbmc_port }}/redfish/v1/Systems/{{vm_id[item.name]}}
     disableCertificateVerification: true
     credentialsName: {{ resource_name }}-credentials
+{% if libvirt_network_dhcp|bool == false %}
+  preprovisioningNetworkDataName: {{ resource_name }}-networkdata
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ resource_name }}-networkdata
+type: Opaque
+stringData:
+  networkData: |
+    interfaces:
+    - name: enp1s0
+      type: ethernet
+      state: up
+      mac-address: "{{ node_mac_map.get(item.name).get(libvirt_networks[0].name) }}"
+      ipv4:
+        address:
+        - ip:  "{{ node_ip_map.get(item.name).get(libvirt_networks[0].name) }}"
+          prefix-length: "{{ net_cidr | ansible.utils.ipaddr('prefix') }}"
+        enabled: true
+        dhcp: false
+    dns-resolver:
+      config:
+        server:
+        - "{{egress_network_bridge_ip}}"
+    routes:
+      config:
+      - destination: 0.0.0.0/0
+        next-hop-address: "{{egress_network_bridge_ip}}"
+        next-hop-interface: enp1s0
+{% endif %}
