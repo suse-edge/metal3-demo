@@ -5,3 +5,4 @@ eib_output_image_name: SLE-Micro-eib-output.raw
 working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
 eib_path: "{{ working_dir }}/eib"
 eib_registration_code: "{{ lookup('env', 'EIB_REGISTRATION_CODE') }}"
+eib_version: "v1.0.0-rc0"
