@@ -1,13 +1,13 @@
 ---
-- name: Create eib images directory
+- name: Create eib base-images directory
   file:
-    path: "{{ eib_path }}/images"
+    path: "{{ eib_path }}/base-images"
     state: directory
 
-- name: Copy OS image to eib images directory
+- name: Copy OS image to eib base-images directory
   copy:
     src: "{{ eib_source_image_path }}/{{ eib_source_image_name }}"
-    dest: "{{ eib_path }}/images/{{ eib_source_image_name }}"
+    dest: "{{ eib_path }}/base-images/{{ eib_source_image_name }}"
 
 - name: Copy config eib to folder
   template:
@@ -42,6 +42,7 @@
   ansible.builtin.git:
     repo: 'https://github.com/suse-edge/edge-image-builder.git'
     dest: "{{ working_dir }}/edge-image-builder"
+    version: "{{ eib_version }}"
 
 - name: build the EIB container image
   become: true
@@ -61,7 +62,7 @@
     state: started
     force_restart: no
     privileged: true
-    command: "/bin/eib -config-file config-eib.yaml -config-dir /eib -build-dir /eib/_build"
+    command: "/bin/eib build -config-file config-eib.yaml -config-dir /eib -build-dir /eib/_build"
 
 - name: Generate sha256sum for EIB image
   become: true
