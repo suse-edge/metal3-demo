@@ -106,7 +106,7 @@ spec:
       ethernets:
         - id: eth0
           macAddress:
-            fromHostInterface: eth0
+            fromHostInterface: enp1s0
           type: phy
     networks:
       ipv4DHCP:
