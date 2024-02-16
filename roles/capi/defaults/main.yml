@@ -4,14 +4,14 @@
 # See https://github.com/kubernetes-sigs/cluster-api/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_core_version: v1.5.3
+capi_core_version: v1.6.0
 
 # CAPI API provider Metal3 release version
 #
 # See https://github.com/metal3-io/cluster-api-provider-metal3/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_metal3_version: v1.5.2
+capi_metal3_version: v1.6.0
 
 # infrastructure provider
 # acceptable values are: "orange" or "suse-rke2"
@@ -20,4 +20,4 @@ capi_rke2_bootstrap_control_plane_provider: suse-rke2
 # SUSE RKE2 bootstrap and control plane provider version
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_suse_rke2_bootstrap_control_plane_provider_version: v0.2.2
+capi_suse_rke2_bootstrap_control_plane_provider_version: v0.2.4
