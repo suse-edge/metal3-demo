@@ -34,17 +34,29 @@
       dest: "{{ images_dir }}/{{ image_name }}"
 #      checksum: "{{ image_checksum }}"
 
-  - name: Generate OS image checksum file
-    shell: |
-      sha256sum "{{ image_name }}" > "{{ image_name }}.sha256"
-    args:
+  - name: Generate OS image checksum
+    command:
+      cmd: sha256sum "{{ image_name }}"
       chdir: "{{ images_dir }}"
+    register: image_checksum
 
-  - ansible.builtin.debug:
+  - name: Write OS image checksum file
+    copy:
+      content: "{{ image_checksum.stdout }}"
+      dest: "{{ images_dir }}/{{ image_name }}.sha256"
 
   - ansible.builtin.debug:
       msg: "Downloaded {{ images_dir }}/{{ image_name }}"
 
+- name: Check if modified OS image exists
+  stat:
+    path: "{{ images_dir }}/{{ metal3_image_name }}"
+  register: metal3_image_path
+
+- name: Modify OS image if it doesn't exist
+  when: "not metal3_image_path.stat.exists"
+  become: true
+  block:
   - name: Copy file OS image file
     ansible.builtin.copy:
       src: "{{ images_dir }}/{{ image_name }}"
@@ -53,14 +65,34 @@
   # Use "opensuse:root" credentials for the dev user.
   # Generate another password by running "openssl passwd -6 -salt SalTsaLt PASSWORD"
   # and replacing the "passwd" entry below (keep in mind some characters must be escaped e.g. "/", "$").
-  - name: Modify OS image cloud-init config
-    shell: |
-      virt-edit -a "{{ metal3_image_name }}" /etc/cloud/cloud.cfg -e 's/datasource_list.*/datasource_list: [ ConfigDrive, OpenStack, None ]/'
-      virt-edit -a "{{ metal3_image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)lock_passwd.*/\1lock_passwd: False/'
-      virt-edit -a "{{ metal3_image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)(name: opensuse)/\1\2\n\1passwd: \$6\$SalTsaLt\$4U6ktRhvpSUKdG2XHWmsxlvykFSJRnMyOLYPcWLoCuj3oHB4NaE9Is0wXf4guihZvmSBTairoUvh6s5.JoJED\//'
-      sha256sum "{{ metal3_image_name }}" > "{{ metal3_image_name }}".sha256
-    args:
+  - name: Modify cloud.cfg datasource
+    command:
+      cmd: |
+        virt-edit -a "{{ metal3_image_name }}" /etc/cloud/cloud.cfg -e 's/datasource_list.*/datasource_list: [ ConfigDrive, OpenStack, None ]/'
       chdir: "{{ images_dir }}"
+
+  - name: Modify cloud.cfg lock_passwd
+    command:
+      cmd: |
+        virt-edit -a "{{ metal3_image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)lock_passwd.*/\1lock_passwd: False/'
+      chdir: "{{ images_dir }}"
+
+  - name: Modify cloud.cfg user
+    command:
+      cmd: |
+        virt-edit -a "{{ metal3_image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)(name: opensuse)/\1\2\n\1passwd: \$6\$SalTsaLt\$4U6ktRhvpSUKdG2XHWmsxlvykFSJRnMyOLYPcWLoCuj3oHB4NaE9Is0wXf4guihZvmSBTairoUvh6s5.JoJED\//'
+      chdir: "{{ images_dir }}"
+
+  - name: Generate checksum for modified image
+    command:
+      cmd: sha256sum "{{ metal3_image_name }}"
+      chdir: "{{ images_dir }}"
+    register: metal3_image_checksum
+
+  - name: Write modified OS image checksum file
+    copy:
+      content: "{{ metal3_image_checksum.stdout }}"
+      dest: "{{ images_dir }}/{{ metal3_image_name }}.sha256"
 
   - ansible.builtin.debug:
       msg: "Modified {{ images_dir }}/{{ metal3_image_name }}"
