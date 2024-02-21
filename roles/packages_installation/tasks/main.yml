@@ -10,6 +10,7 @@
       name: "{{ packages.opensuse }}"
       state: present
       force_resolution: true
+      replacefiles: true
     when: ansible_facts['distribution'] == 'openSUSE Leap'
   - name: Install required packages on {{ ansible_facts['distribution'] }}
     package:
