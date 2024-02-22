@@ -32,6 +32,7 @@ packages:
     - virt-install
     - sshpass
     - libguestfs
+    - guestfs-tools
     - podman
     - python311-lxml
     - python311-netaddr
