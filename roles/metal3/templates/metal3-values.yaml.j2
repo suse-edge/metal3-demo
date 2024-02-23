@@ -1,5 +1,5 @@
 global:
-  ironicIP: {{ metal3_core_ironic_ip | default('192.168.125.10') }}
+  ironicIP: {{ management_cluster_ironic_ip | default('192.168.125.10') }}
 
 metal3-mariadb:
   persistence:

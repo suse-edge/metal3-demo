@@ -14,4 +14,4 @@ export ANSIBLE_ROLES_PATH=$PROJECT_DIR/roles
 ANSIBLE_FORCE_COLOR=true ansible-playbook \
   -i ${PROJECT_DIR}/inventories/localhost_inventory.yml \
   -e "@${EXTRA_VARS_FILE}" \
-  $PROJECT_DIR/playbooks/setup_metal3_core.yml $@
+  $PROJECT_DIR/playbooks/setup_management_cluster.yml $@

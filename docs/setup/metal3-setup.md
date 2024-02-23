@@ -103,7 +103,7 @@ worker-0         available              true             9m44s
 ## Development Notes
 
 - You may pass `-vvv` at the end of the scripts to see more verbose output, or to pass arbitrary additional arguments to ansible-playbook
-- You can interact with Ironic directly on the metal3-core VM for debugging e.g `ssh metal@192.168.125.99 baremetal node list`
+- You can interact with Ironic directly on the management-cluster VM for debugging e.g `ssh metal@192.168.125.99 baremetal node list`
 - For more information about the BareMetalHost resource states refer to the [Metal3 documentation](https://github.com/metal3-io/baremetal-operator/blob/main/docs/BaremetalHost_ProvisioningState.png)
 - If a BareMetalHost resource is stuck in the inspecting state, `virsh console` can be useful to view the inspection ramdisk output
 - Note that you may need to `export LIBVIRT_DEFAULT_URI="qemu:///system"` to access the VMs via `virsh` as a non-root user

@@ -28,16 +28,16 @@ egress_network_bridge_ip: "{{ egress_network_cidr_v4|ansible.utils.nthhost(1)|de
 #
 # Public IPs
 #
-metal3_core_public_ip: 192.168.125.99
-metal3_core_ironic_ip: 192.168.125.10
+management_cluster_public_ip: 192.168.125.99
+management_cluster_ironic_ip: 192.168.125.10
 
 
-metal3_core_vm_network:
+management_cluster_vm_network:
   version: 2
   ethernets:
     eth0:
       dhcp4: false
-      addresses: ["{{ metal3_core_public_ip }}/24"]
+      addresses: ["{{ management_cluster_public_ip }}/24"]
       nameservers:
         addresses: "{{ egress_network_bridge_ip }}"
       routes:
