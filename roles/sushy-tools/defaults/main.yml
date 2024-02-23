@@ -1,7 +1,7 @@
 libvirt_images_dir: /var/lib/libvirt/images
 sushy_tools_dir: "{{ libvirt_images_dir }}/sushy-tools"
 sushy_tools_port: 8000
-sushy_ignore_boot_device: True
+sushy_ignore_boot_device: False
 # This matches how real hardware behaves
 sushy_vmedia_verify_ssl: False
 
