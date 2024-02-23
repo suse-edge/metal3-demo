@@ -98,3 +98,31 @@ Cluster/sample-cluster                                  True                    
 └─MachineDeployment/sample-cluster                    True                     12m
 └─Machine/sample-cluster-896dfl5499-wowgr             True                     13m
 ```
+
+
+## Workload Cluster Deprovisioning
+
+The workload cluster may be deprovisioned by deleting the resources applied in the creation steps above, e.g:
+
+```shell
+kubectl delete -f rke2-agent.yaml
+kubectl delete -f rke2-control-plane.yaml
+```
+
+This triggers deprovisioning of the BareMetalHost resources, which may take several minutes, after which they should be in available state again:
+
+
+```shell
+> kubectl get bmh
+NAME             STATE            CONSUMER                            ONLINE   ERROR   AGE
+controlplane-0   deprovisioning   sample-cluster-controlplane-vlrt6   false            10m
+worker-0         deprovisioning   sample-cluster-workers-785x5        false            10m
+
+...
+
+> kubectl get bmh
+NAME             STATE       CONSUMER   ONLINE   ERROR   AGE
+controlplane-0   available              false            15m
+worker-0         available              false            15m
+```
+
