@@ -9,29 +9,29 @@
       when:
         - (not do_not_install_vm | default(False)) | bool
       vars:
-        vm_hostname: metal3-core
-        vm_instance_name: metal3-core
-        vm_network: "{{ metal3_core_vm_network }}"
-        vm_public_network_ip: "{{ metal3_core_public_ip }}"
+        vm_hostname: management-cluster
+        vm_instance_name: management-cluster
+        vm_network: "{{ management_cluster_vm_network }}"
+        vm_public_network_ip: "{{ management_cluster_public_ip }}"
         vm_libvirt_network_params: "{{ metal3_vm_libvirt_network_params }}"
         vm_memory: 16384
         vm_vcpus: 8
 
-    - name: Show metal3-core vm IP
+    - name: Show management-cluster vm IP
       debug:
-        msg: "Login to the metal3-core vm with 'ssh {{ vm_user }}@{{ metal3_core_public_ip }}'"
+        msg: "Login to the management-cluster vm with 'ssh {{ vm_user }}@{{ management_cluster_public_ip }}'"
 
-    - name: Define metal3-core node
+    - name: Define management-cluster node
       ansible.builtin.add_host:
         ansible_python_interpreter: "{{ vm_python_interpreter | default('/usr/bin/python3') }}"
-        name: metal3-core
-        hostname: metal3-core
+        name: management-cluster
+        hostname: management-cluster
         ansible_user: "{{ vm_user }}"
-        ansible_host: "{{ metal3_core_public_ip }}"
+        ansible_host: "{{ management_cluster_public_ip }}"
         groups:
-          - "{{ metal3_corehost_group | default('metal3_core_group') }}"
+          - "{{ management_clusterhost_group | default('management_cluster_group') }}"
 
-- hosts: metal3-core
+- hosts: management-cluster
   tasks:
     - name: Deploy docker
       import_role:
@@ -56,7 +56,7 @@
       import_role:
         name: ironicclient
       vars:
-        public_ip: "{{ metal3_core_public_ip }}"
+        public_ip: "{{ management_cluster_public_ip }}"
 
 - hosts: localhost
   connection: local
@@ -65,7 +65,7 @@
       replace:
         path: ~/.kube/config
         regexp: '127\.0\.0\.1'
-        replace: "{{ metal3_core_public_ip }}"
+        replace: "{{ management_cluster_public_ip }}"
 
     - name: Deploy cert-manager
       import_role:
@@ -75,8 +75,8 @@
       import_role:
         name: rancher
       vars:
-        rancher_hostname: metal3-core
-        rancher_host_ip: "{{ metal3_core_public_ip }}"
+        rancher_hostname: management-cluster
+        rancher_host_ip: "{{ management_cluster_public_ip }}"
 
     - name: Deploy local-path-provisioner
       import_role:
@@ -86,7 +86,7 @@
       import_role:
         name: metallb
       vars:
-        metal3_core_ironic_ip: "{{ metal3_core_ironic_ip }}"
+        management_cluster_ironic_ip: "{{ management_cluster_ironic_ip }}"
 
     - name: Deploy capi
       import_role:
