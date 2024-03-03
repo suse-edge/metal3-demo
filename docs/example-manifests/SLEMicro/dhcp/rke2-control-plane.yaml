@@ -109,11 +109,11 @@ spec:
   networkData:
     links:
       ethernets:
-        - id: eth0
+        - id: enp1s0
           macAddress:
             fromHostInterface: enp1s0
           type: phy
     networks:
       ipv4DHCP:
-        - id: eth0
-          link: eth0
+        - id: enp1s0
+          link: enp1s0
