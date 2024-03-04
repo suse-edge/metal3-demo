@@ -1,0 +1,19 @@
+- name: Determine templates type for example-manifests
+  when: os_local_image
+  set_fact:
+    cluster_template_type: micro
+
+- name: "Create {{ example_manifest_dir }}"
+  file:
+    path: "{{ example_manifest_dir }}"
+    state: directory
+
+- name: Generate cluster controlplane manifest
+  template:
+    src: "{{ cluster_template_type }}/rke2-control-plane.yaml.j2"
+    dest: "{{ example_manifest_dir }}/rke2-control-plane.yaml"
+
+- name: Generate cluster agent manifest
+  template:
+    src: "{{ cluster_template_type }}/rke2-agent.yaml.j2"
+    dest: "{{ example_manifest_dir }}/rke2-agent.yaml"
