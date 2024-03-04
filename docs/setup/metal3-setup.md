@@ -49,6 +49,12 @@ If desired the defaults from `extra_vars.yml` can be customized, copy the file a
   ./02_configure_host.sh
   ```
 
+Command-line flags may be passed to Ansible via the script, for example to disable DHCP for testing with static-ips you can do:
+
+  ```shell
+  ./02_configure_host.sh -vvv -e "libvirt_network_dhcp=false"
+  ```
+
 Note this configures the environment to deploy downstream clusters with openSUSE Leap, for SLEMicro follow the additional steps below.
 
 ### Enable deploying with SLEMicro
@@ -99,6 +105,66 @@ NAME             STATE       CONSUMER   ONLINE   ERROR   AGE
 controlplane-0   available              true             9m44s
 worker-0         available              true             9m44s
 ```
+
+## Testing with Static IPs
+
+It is possible to disable the libvirt DHCP server via the `libvirt_network_dhcp` ansible variable, for example when configuring the host:
+
+  ```shell
+  ./02_configure_host.sh -vvv -e "libvirt_network_dhcp=false"
+  ```
+
+This disables the `<dhcp>` stanza in the `egress` network (check with `virsh net-dumpxml egress`), and configures the BareMetalHost resources with a static IP via a secret containing nmstate syntax, e.g:
+
+```yaml
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: controlplane-0
+  labels:
+    cluster-role: control-plane
+spec:
+  online: true
+  bootMACAddress: "00:bc:1f:c3:8f:f0"
+  bmc:
+    address: redfish-virtualmedia://192.168.125.1:8000/redfish/v1/Systems/112815c5-b60f-4753-86d9-b25063c7bfc3
+    disableCertificateVerification: true
+    credentialsName: controlplane-0-credentials
+  preprovisioningNetworkDataName: controlplane-0-networkdata
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: controlplane-0-networkdata
+type: Opaque
+stringData:
+  networkData: |
+    interfaces:
+    - name: enp1s0
+      type: ethernet
+      state: up
+      mac-address: "00:bc:1f:c3:8f:f0"
+      ipv4:
+        address:
+        - ip:  "192.168.125.200"
+          prefix-length: "24"
+        enabled: true
+        dhcp: false
+    dns-resolver:
+      config:
+        server:
+        - "192.168.125.1"
+    routes:
+      config:
+      - destination: 0.0.0.0/0
+        next-hop-address: "192.168.125.1"
+        next-hop-interface: enp1s0
+```
+
+This networkData is consumed by [nm-configurator](https://github.com/suse-edge/nm-configurator) at two stages during deployment:
+
+- During inspection the IPA ramdisk image runs nmc to configure networking so it can connect back to the ironic/inspector APIs
+- During first-boot the EIB-prepared image contains a script which runs nmc via combustion during the prepare phase
 
 ## Development Notes
 
