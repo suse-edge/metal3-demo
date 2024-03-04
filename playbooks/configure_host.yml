@@ -10,3 +10,5 @@
         name: libvirt-setup
     - import_role:
         name: sushy-tools
+    - import_role:
+        name: example-manifests

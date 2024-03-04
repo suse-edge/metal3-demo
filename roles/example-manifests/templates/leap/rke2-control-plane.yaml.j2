@@ -1,64 +1,66 @@
 apiVersion: cluster.x-k8s.io/v1beta1
 kind: Cluster
 metadata:
-  name: sample-cluster
+  name: {{ cluster_name }}
   namespace: default
 spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-        - 192.168.0.0/18
+        - {{ cluster_network_cidr }}
     services:
       cidrBlocks:
-        - 10.96.0.0/12 # Doesn't matter because they are an internal network
+        - {{ service_network_cidr}}
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1alpha1
     kind: RKE2ControlPlane
-    name: sample-cluster
+    name: {{ cluster_name }}
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: Metal3Cluster
-    name: sample-cluster
+    name: {{ cluster_name }}
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3Cluster
 metadata:
-  name: sample-cluster
+  name: {{ cluster_name }}
   namespace: default
 spec:
   controlPlaneEndpoint:
-    host: 192.168.125.200 # Has to match the IP of the control plane node
+    host: {{ controlplane_endpoint }}
     port: 6443
   noCloudProvider: true
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1alpha1
 kind: RKE2ControlPlane
 metadata:
-  name: sample-cluster
+  name: {{ cluster_name }}
   namespace: default
 spec:
   infrastructureRef:
     apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
     kind: Metal3MachineTemplate
-    name: sample-cluster-controlplane
-  replicas: 1
+    name: {{ cluster_name }}-controlplane
+  replicas: {{ num_controlplane_hosts }}
   agentConfig:
+    version: {{ cluster_rke2_version }}
     kubelet:
       extraArgs:
+{%-raw%}
         - provider-id=metal3://{{ ds.meta_data.uuid }}
-    version: v1.25.3+rke2r1 # Has to be the compatible with the management cluster
     nodeName: '{{ ds.meta_data.local_hostname }}'
+{%endraw%}
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3MachineTemplate
 metadata:
-  name: sample-cluster-controlplane
+  name: {{ cluster_name }}-controlplane
   namespace: default
 spec:
   template:
     spec:
       dataTemplate:
-        name: sample-cluster-controlplane-template
+        name: {{ cluster_name }}-controlplane-template
       hostSelector:
         matchLabels:
           cluster-role: control-plane
@@ -71,10 +73,10 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3DataTemplate
 metadata:
-  name: sample-cluster-controlplane-template
+  name: {{ cluster_name }}-controlplane-template
   namespace: default
 spec:
-  clusterName: sample-cluster
+  clusterName: {{ cluster_name }}
   metaData:
     objectNames:
       - key: name
@@ -96,9 +98,9 @@ spec:
           link: eth0
           routes:
             - gateway:
-                string: 192.168.125.1
+                string: {{ egress_network_bridge_ip }}
               network: 0.0.0.0
               prefix: 0
     services:
       dns:
-        - 192.168.125.1
+        - {{ egress_network_bridge_ip }}

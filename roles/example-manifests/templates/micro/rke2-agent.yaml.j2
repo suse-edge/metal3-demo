@@ -2,44 +2,44 @@ apiVersion: cluster.x-k8s.io/v1beta1
 kind: MachineDeployment
 metadata:
   labels:
-    cluster.x-k8s.io/cluster-name: sample-cluster
-  name: sample-cluster
-  namespace: default
+    cluster.x-k8s.io/cluster-name: {{ cluster_name }}
+  name: {{ cluster_name }}
+  namespace: {{ cluster_namespace }}
 spec:
-  clusterName: sample-cluster
+  clusterName: {{ cluster_name }}
   replicas: 1
   selector:
     matchLabels:
-      cluster.x-k8s.io/cluster-name: sample-cluster
+      cluster.x-k8s.io/cluster-name: {{ cluster_name }}
   template:
     metadata:
       labels:
-        cluster.x-k8s.io/cluster-name: sample-cluster
+        cluster.x-k8s.io/cluster-name: {{ cluster_name }}
     spec:
       bootstrap:
         configRef:
           apiVersion: bootstrap.cluster.x-k8s.io/v1alpha1
           kind: RKE2ConfigTemplate
-          name: sample-cluster-workers
-      clusterName: sample-cluster
+          name: {{ cluster_name }}-workers
+      clusterName: {{ cluster_name }}
       infrastructureRef:
         apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
         kind: Metal3MachineTemplate
-        name: sample-cluster-workers
+        name: {{ cluster_name }}-workers
       nodeDrainTimeout: 0s
-      version: v1.25.3+rke2r1
+      version: {{ cluster_rke2_version }}
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha1
 kind: RKE2ConfigTemplate
 metadata:
-  name: sample-cluster-workers
-  namespace: default
+  name: {{ cluster_name }}-workers
+  namespace: {{ cluster_namespace }}
 spec:
   template:
     spec:
       agentConfig:
         format: ignition
-        version: v1.25.3+rke2r1
+        version: {{ cluster_rke2_version }}
         kubelet:
           extraArgs:
             - provider-id=metal3://BAREMETALHOST_UUID
@@ -62,21 +62,21 @@ spec:
                     User=root
                     ExecStartPre=/bin/sh -c "mount -L config-2 /mnt"
                     ExecStart=/bin/sh -c "sed -i \"s/BAREMETALHOST_UUID/$(jq -r .uuid /mnt/openstack/latest/meta_data.json)/\" /etc/rancher/rke2/config.yaml"
+                    ExecStart=/bin/sh -c "echo \"node-name: $(jq -r .name /mnt/openstack/latest/meta_data.json)\" >> /etc/rancher/rke2/config.yaml"
                     ExecStartPost=/bin/sh -c "umount /mnt"
                     [Install]
                     WantedBy=multi-user.target
-        nodeName: "Node-sample2-cluster"  # this is a default NodeName value you can modify it
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3MachineTemplate
 metadata:
-  name: sample-cluster-workers
-  namespace: default
+  name: {{ cluster_name }}-workers
+  namespace: {{ cluster_namespace }}
 spec:
   template:
     spec:
       dataTemplate:
-        name: sample-cluster-workers-template
+        name: {{ cluster_name }}-workers-template
       hostSelector:
         matchLabels:
           cluster-role: worker
@@ -89,10 +89,10 @@ spec:
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3DataTemplate
 metadata:
-  name: sample-cluster-workers-template
-  namespace: default
+  name: {{ cluster_name }}-workers-template
+  namespace: {{ cluster_namespace }}
 spec:
-  clusterName: sample-cluster
+  clusterName: {{ cluster_name }}
   metaData:
     objectNames:
       - key: name
@@ -101,6 +101,7 @@ spec:
         object: machine
       - key: local_hostname
         object: machine
+{% if libvirt_network_dhcp|bool != false %}
   networkData:
     links:
       ethernets:
@@ -112,3 +113,4 @@ spec:
       ipv4DHCP:
         - id: enp1s0
           link: enp1s0
+{% endif %}

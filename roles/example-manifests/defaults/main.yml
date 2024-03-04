@@ -1,0 +1,25 @@
+# Set to false for DHCP-less testing with static-ips
+libvirt_network_dhcp: true
+
+# Currently this is only set for SLEMicro
+os_local_image: "{{ lookup('env', 'OS_LOCAL_IMAGE') }}"
+
+# This is set to micro when os_local_image is specified
+cluster_template_type: "leap"
+
+working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
+example_manifest_dir: "{{ working_dir }}/example-manifests"
+
+num_controlplane_hosts: 1
+num_worker_hosts: 1
+
+cluster_network_cidr: "192.168.0.0/18"
+service_network_cidr: "10.96.0.0/12"
+controlplane_endpoint: "192.168.125.200"
+egress_network_cidr_v4: "192.168.125.0/24"
+egress_network_bridge_ip: "{{ egress_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
+
+cluster_name: "sample-cluster"
+cluster_namespace: "default"
+
+cluster_rke2_version: "v1.28.3+rke2r1"
