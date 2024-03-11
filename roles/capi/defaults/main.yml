@@ -6,18 +6,16 @@
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
 capi_core_version: v1.6.0
 
-# CAPI API provider Metal3 release version
+# CAPM3 release version
 #
 # See https://github.com/metal3-io/cluster-api-provider-metal3/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
 capi_metal3_version: v1.6.0
 
-# infrastructure provider
-# acceptable values are: "orange" or "suse-rke2"
-capi_rke2_bootstrap_control_plane_provider: suse-rke2
-
-# SUSE RKE2 bootstrap and control plane provider version
+# RKE2 bootstrap and control plane provider version
+#
+# See https://github.com/rancher-sandbox/cluster-api-provider-rke2/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_suse_rke2_bootstrap_control_plane_provider_version: v0.2.4
+capi_rke2_version: v0.2.6

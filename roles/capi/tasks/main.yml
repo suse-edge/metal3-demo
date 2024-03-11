@@ -9,12 +9,23 @@
     owner: root
     group: root
 
+# see https://github.com/rancher-sandbox/cluster-api-provider-rke2#setting-up-clusterctl
+- name: Ensure  ~/.cluster-api directory exists
+  file:
+    path:  ~/.cluster-api
+    state: directory
+
+- name: Setup clusterctl.yaml
+  template:
+    src: clusterctl.yaml.j2
+    dest: ~/.cluster-api/clusterctl.yaml
+
 - name: Install CAPI core and metal3 infrastructure
   shell: |
     {% if github_token is defined %}
     export GITHUB_TOKEN={{ github_token }}
     {% endif %}
-    clusterctl init --core "cluster-api:{{ capi_core_version }}" --infrastructure "metal3:{{ capi_metal3_version }}"
+    clusterctl init --core "cluster-api:{{ capi_core_version }}" --infrastructure "metal3:{{ capi_metal3_version }}" --bootstrap "rke2:{{ capi_rke2_version }}" --control-plane "rke2:{{ capi_rke2_version }}"
 
 - name: Wait for CAPI to successfully rolled out
   shell: >
@@ -26,18 +37,5 @@
   with_items:
     - {'deployment': 'capi-controller-manager', 'namespace': 'capi-system'}
     - {'deployment': 'capm3-controller-manager', 'namespace': 'capm3-system'}
-
-- name: Check RKE2 bootstrap and control plane provider setting
-  fail:
-    msg: "ERROR: invalid capi_rke2_bootstrap_control_plane_provider: {{ capi_rke2_bootstrap_control_plane_provider }}. The acceptable values are 'orange' or 'suse-rke2'."
-  when:
-    - "capi_rke2_bootstrap_control_plane_provider | lower  != 'orange'"
-    - "capi_rke2_bootstrap_control_plane_provider | lower  != 'suse-rke2'"
-
-- name: Install bootstrap and control plane provider from Orange
-  include_tasks: install_orange_rke2_bootstrap_control_plane_provider.yml
-  when: "capi_rke2_bootstrap_control_plane_provider | lower == 'orange'"
-
-- name: Install bootstrap and control plane provider from SUSE
-  include_tasks: install_suse_rke2_bootstrap_control_plane_provider.yml
-  when: "capi_rke2_bootstrap_control_plane_provider | lower == 'suse-rke2'"
+    - {'deployment': 'rke2-bootstrap-controller-manager', 'namespace': 'rke2-bootstrap-system'}
+    - {'deployment': 'rke2-control-plane-controller-manager', 'namespace': 'rke2-control-plane-system'}
