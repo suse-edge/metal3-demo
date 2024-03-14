@@ -88,10 +88,10 @@
       vars:
         management_cluster_ironic_ip: "{{ management_cluster_ironic_ip }}"
 
-    - name: Deploy capi
-      import_role:
-        name: capi
-
     - name: Deploy Metal3
       import_role:
         name: metal3
+
+    - name: Deploy capi
+      import_role:
+        name: capi
