@@ -19,3 +19,5 @@ capi_metal3_version: v1.6.0
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
 capi_rke2_version: v0.2.6
+
+working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"

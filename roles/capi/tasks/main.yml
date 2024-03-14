@@ -1,4 +1,31 @@
 ---
+- name: "Ensure {{working_dir}} exists"
+  file:
+    path: "{{ working_dir }}"
+    state: directory
+
+# see https://www.suse.com/c/capi-fleet-and-gitops-a-new-way-for-orchestrating-kubernetes-clusters-with-rancher/
+- name: Copy manifest to disable embedded CAPI
+  copy:
+    src: disable_embedded_capi.yaml
+    dest: "{{ working_dir }}"
+
+- name: Apply manifest to disable embedded CAPI
+  command:
+    cmd: kubectl apply -f "{{ working_dir }}/disable_embedded_capi.yaml"
+
+- name: Disable embedded CAPI mutating-webhook
+  command:
+    cmd: kubectl delete mutatingwebhookconfiguration.admissionregistration.k8s.io mutating-webhook-configuration
+
+- name: Disable embedded CAPI validating-webhook
+  command:
+    cmd: kubectl delete validatingwebhookconfigurations.admissionregistration.k8s.io validating-webhook-configuration
+
+- name: Wait for embedded CAPI to be deleted
+  command:
+    cmd: kubectl wait --for=delete namespace/cattle-provisioning-capi-system --timeout=300s
+
 # see https://cluster-api.sigs.k8s.io/user/quick-start.html#install-clusterctl
 - name: Install clusterctl
   become: yes
