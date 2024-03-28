@@ -18,21 +18,19 @@
     state: destroyed
   when: vm_instance_name in list_vms_result.list_vms
 
-- name: Undefine VM {{ vm_instance_name }}
-  become: yes
-  community.libvirt.virt:
-    name: "{{ vm_instance_name }}"
-    command: undefine
-  when: vm_instance_name in list_vms_result.list_vms
+- name: Ensure virsh is installed
+  command:
+   cmd: which virsh
 
-- name: Wait till VM {{ vm_instance_name }} is deleted
+- name: Detach OS disk from VM
   become: yes
-  community.libvirt.virt:
-    command: list_vms
-  register: list_vms_result
-  until: vm_instance_name not in list_vms_result.list_vms
-  retries: 10
-  delay: 10
+  command:
+    cmd: virsh detach-disk {{ vm_instance_name }} --target sda --config
+
+- name: Detach Config disk from VM
+  become: yes
+  command:
+    cmd: virsh detach-disk {{ vm_instance_name }} --target sdb --config
 
 - name: Download latest {{ cloud_image_os_name }} cloud image
   become: yes
@@ -91,16 +89,36 @@
     - /tmp/user-data
   when: remove_cloud_init_data | default(false)
 
-- name: Ensure virt-install is installed
+- name: Ensure virsh is installed
   shell:
-    which virt-install
+    which virsh
 
-- name: Create VM
-  become: yes 
-  shell: >
-    virt-install --connect qemu:///system --virt-type kvm --os-variant {{ vm_os_variant }} --name {{ vm_instance_name }} --ram {{ vm_memory }} --vcpus={{ vm_vcpus }} --disk path={{ disk_image_file }},format=qcow2 --disk {{ cloud_init_image_file }},device=cdrom --import {{ vm_libvirt_network_params }} --graphics none --noautoconsole
+- name: Attach OS disk to VM
+  become: yes
+  command:
+    cmd: virsh attach-disk {{ vm_instance_name }} --source {{ disk_image_file }} --targetbus scsi --target sda --type disk --subdriver qcow2 --config
   register: shell_result
 
-- name: Print create VM result
+- name: Print attach OS disk result
   debug:
     msg: "{{ shell_result }}"
+
+- name: Attach Config disk to VM
+  become: yes
+  command:
+    cmd: virsh attach-disk {{ vm_instance_name }} --source {{ cloud_init_image_file }} --targetbus sata --target sdb --type cdrom --mode readonly --config
+  register: shell_result
+
+- name: Print attach Config disk result
+  debug:
+    msg: "{{ shell_result }}"
+
+- name: Set boot to hd
+  become: yes
+  command:
+    cmd: virt-xml {{ vm_instance_name }} --edit  --boot hd
+
+- name: Start the VM
+  community.libvirt.virt:
+    name: "{{ vm_instance_name }}"
+    state: running
