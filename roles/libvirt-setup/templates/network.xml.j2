@@ -15,7 +15,7 @@
   <dhcp>
     <range start='{{ item.dhcp_range_v4[0] }}' end='{{ item.dhcp_range_v4[1] }}'/>
     {% set ns = namespace(index=0) -%}
-    {% for flavor in libvirt_flavors -%}
+    {% for flavor in libvirt_flavors if flavor != "management" -%}
       {% set numflavor = lookup('vars', 'num_' + flavor + '_hosts')|default(0)|int -%}
       {% for num in range(0, numflavor) -%}
         {% set host_name = libvirt_host_prefix + flavor + "_" + num|string -%}

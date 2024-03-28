@@ -51,6 +51,12 @@ libvirt_networks:
             - imagecache.local
 
 libvirt_flavors:
+  management:
+    cluster_role: management-cluster
+    memory: 8192
+    disk: 0
+    vcpu: 4
+
   controlplane:
     cluster_role: control-plane
     memory: 4096
@@ -66,6 +72,7 @@ libvirt_flavors:
 # Optionally specifiy a prefix e.g for each cluster
 libvirt_host_prefix: ""
 
+num_management_hosts: 1
 num_controlplane_hosts: 1
 num_worker_hosts: 1
 
