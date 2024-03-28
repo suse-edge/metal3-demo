@@ -30,10 +30,6 @@
 
 - hosts: management-cluster
   tasks:
-    - name: Deploy docker
-      import_role:
-        name: docker
-
     - name: Deploy RKE2
       import_role:
         name: rke2-server
