@@ -1,27 +1,54 @@
 ---
-- name: Create eib base-images directory
+
+############################################
+# Optionally build the EIB image from source
+############################################
+- name: Build EIB container image from git checkout
+  when: eib_git_version != ""
+  block:
+  - name: Git checkout
+    ansible.builtin.git:
+      repo: 'https://github.com/suse-edge/edge-image-builder.git'
+      dest: "{{ working_dir }}/edge-image-builder"
+      version: "{{ eib_git_version }}"
+
+  - name: build the EIB container image
+    become: true
+    containers.podman.podman_image:
+      name: eib:dev
+      path: "{{ working_dir }}/edge-image-builder"
+
+  - name: set fact to use the local eib:dev image
+    set_fact:
+      eib_container_image: "localhost/eib:dev"
+
+###########################################
+# Build the metal3 downstream-cluster image
+###########################################
+- name: Create metal3 eib base-images directory
   file:
-    path: "{{ eib_path }}/base-images"
+    path: "{{ eib_path }}/metal3/base-images"
     state: directory
 
-- name: Copy OS image to eib base-images directory
+- name: Copy OS to metal3 eib base-images directory
   copy:
     src: "{{ eib_source_image_path }}/{{ eib_source_image_name }}"
-    dest: "{{ eib_path }}/base-images/{{ eib_source_image_name }}"
+    dest: "{{ eib_path }}/metal3/base-images/{{ eib_source_image_name }}"
 
-- name: Copy config eib to folder
+- name: Copy metal3 config eib to folder
   template:
-    src: config-eib.yaml.j2
-    dest: "{{ eib_path }}/config-eib.yaml"
+    src: eib-config-metal3.yaml.j2
+    dest: "{{ eib_path }}/metal3/config-eib.yaml"
 
 - name: Create the eib custom scripts directory
   file:
-    path: "{{ eib_path }}/custom/scripts"
+    path: "{{ eib_path }}/metal3/custom/scripts"
     state: directory
 
 - name: Copy file into the eib custom scripts directory (fix growfs issue)
   copy:
-    dest: "{{ eib_path }}/custom/scripts/fix-growfs.sh"
+    mode: 0755
+    dest: "{{ eib_path }}/metal3/custom/scripts/fix-growfs.sh"
     mode: 0755
     content: |
       #!/bin/bash
@@ -44,40 +71,22 @@
   block:
   - name: Create network directory
     file:
-      path: "{{ eib_path }}/network"
+      path: "{{ eib_path }}/metal3/network"
       state: directory
   - name: Copy configure-network.sh
     copy:
+      mode: 0755
       src: "configure-network.sh"
-      dest: "{{ eib_path }}/network"
+      dest: "{{ eib_path }}/metal3/network"
 
-- name: Build EIB container image from git checkout
-  when: eib_git_version != ""
-  block:
-  - name: Git checkout
-    ansible.builtin.git:
-      repo: 'https://github.com/suse-edge/edge-image-builder.git'
-      dest: "{{ working_dir }}/edge-image-builder"
-      version: "{{ eib_git_version }}"
-
-  - name: build the EIB container image
-    become: true
-    containers.podman.podman_image:
-      name: eib:dev
-      path: "{{ working_dir }}/edge-image-builder"
-
-  - name: set fact to use the local eib:dev image
-    set_fact:
-      eib_container_image: "localhost/eib:dev"
-
-- name: Run EIB container to generate the custom image
+- name: Run EIB container to generate the metal3 image
   become: true
   containers.podman.podman_container:
     name: eib
     rm: true
     image: "{{ eib_container_image }}"
     volumes:
-      - "{{ eib_path }}:/eib"
+      - "{{ eib_path }}/metal3:/eib"
     detach: false
     state: started
     force_restart: no
@@ -87,15 +96,119 @@
 - name: Generate sha256sum for EIB image
   become: true
   shell: |
-    sha256sum {{ eib_output_image_name }} > {{ eib_output_image_name }}.sha256
+    sha256sum {{ eib_metal3_output_image_name }} > {{ eib_metal3_output_image_name }}.sha256
   args:
-    chdir: "{{ eib_path }}"
+    chdir: "{{ eib_path }}/metal3"
 
-- name: Copy output EIB custom image to images-cache directory
+- name: "Ensure {{ image_cache_dir }} exists"
+  become: true
+  file:
+    path: "{{ image_cache_dir }}"
+    state: directory
+
+- name: "Copy output EIB metal3 image to {{ image_cache_dir }} directory"
   become: true
   copy:
     src: "{{ item }}"
-    dest: "{{ images_dir }}/"
+    dest: "{{ image_cache_dir }}/"
   with_items:
-    - "{{ eib_path }}/{{ eib_output_image_name }}"
-    - "{{ eib_path }}/{{ eib_output_image_name }}.sha256"
+    - "{{ eib_path }}/metal3/{{ eib_metal3_output_image_name }}"
+    - "{{ eib_path }}/metal3/{{ eib_metal3_output_image_name }}.sha256"
+
+####################################
+# Build the management cluster image
+####################################
+- name: Create mgmt eib base-images directory
+  file:
+    path: "{{ eib_path }}/mgmt/base-images"
+    state: directory
+
+- name: Copy OS to mgmt eib base-images directory
+  copy:
+    src: "{{ eib_source_image_path }}/{{ eib_source_image_name }}"
+    dest: "{{ eib_path }}/mgmt/base-images/{{ eib_source_image_name }}"
+
+- name: Copy mgmt config eib to folder
+  template:
+    src: eib-config-mgmt.yaml.j2
+    dest: "{{ eib_path }}/mgmt/config-eib.yaml"
+
+- name: Create the eib custom scripts directory
+  file:
+    path: "{{ eib_path }}/mgmt/custom/scripts"
+    state: directory
+
+- name: Copy file into the eib custom scripts directory (fix growfs issue)
+  copy:
+    dest: "{{ eib_path }}/mgmt/custom/scripts/fix-growfs.sh"
+    mode: 0755
+    content: |
+      #!/bin/bash
+      growfs() {
+        mnt="$1"
+        dev="$(findmnt --fstab --target ${mnt} --evaluate --real --output SOURCE --noheadings)"
+        # /dev/sda3 -> /dev/sda, /dev/nvme0n1p3 -> /dev/nvme0n1
+        parent_dev="/dev/$(lsblk --nodeps -rno PKNAME "${dev}")"
+        # Last number in the device name: /dev/nvme0n1p42 -> 42
+        partnum="$(echo "${dev}" | sed 's/^.*[^0-9]\([0-9]\+\)$/\1/')"
+        ret=0
+        growpart "$parent_dev" "$partnum" || ret=$?
+        [ $ret -eq 0 ] || [ $ret -eq 1 ] || exit 1
+        /usr/lib/systemd/systemd-growfs "$mnt"
+      }
+      growfs /
+
+- name: Copy sudoers file into eib custom scripts directory
+  copy:
+    dest: "{{ eib_path }}/mgmt/custom/scripts/sudoers.sh"
+    mode: 0755
+    content: |
+      #!/bin/bash
+      echo "{{ vm_user }} ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/eib
+
+- name: Create network directory
+  file:
+    path: "{{ eib_path }}/mgmt/network"
+    state: directory
+
+- name: Copy network config to network directory
+  template:
+    src: network-config-mgmt.yaml.j2
+    dest: "{{ eib_path }}/mgmt/network/management-cluster.yaml"
+
+- name: Run EIB container to generate the mgmt image
+  become: true
+  containers.podman.podman_container:
+    name: eib
+    rm: true
+    image: "{{ eib_container_image }}"
+    volumes:
+      - "{{ eib_path }}/mgmt:/eib"
+    detach: false
+    state: started
+    force_restart: no
+    privileged: true
+    command: "build --definition-file config-eib.yaml"
+
+- name: Convert management-cluster raw image to qcow2
+  become: true
+  command:
+    cmd: qemu-img convert -O qcow2 {{ eib_mgmt_output_image_name }} {{ eib_mgmt_output_image_name }}.qcow2
+  args:
+    chdir: "{{ eib_path }}/mgmt"
+
+- name: Generate sha256sum for EIB image
+  become: true
+  shell: |
+    sha256sum {{ eib_mgmt_output_image_name }}.qcow2 > {{ eib_mgmt_output_image_name }}.qcow2.sha256
+  args:
+    chdir: "{{ eib_path }}/mgmt"
+
+- name: "Copy output EIB management cluster image to {{ libvirt_images_dir }} directory"
+  become: true
+  copy:
+    src: "{{ item }}"
+    dest: "{{ libvirt_images_dir }}/"
+  with_items:
+    - "{{ eib_path }}/mgmt/{{ eib_mgmt_output_image_name }}.qcow2"
+    - "{{ eib_path }}/mgmt/{{ eib_mgmt_output_image_name }}.qcow2.sha256"

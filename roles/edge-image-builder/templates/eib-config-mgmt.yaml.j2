@@ -1,0 +1,22 @@
+apiVersion: 1.0
+image:
+  imageType: raw
+  arch: x86_64
+  baseImage: {{ eib_source_image_name }}
+  outputImageName: {{ eib_mgmt_output_image_name }}
+operatingSystem:
+  rawConfiguration:
+    diskSize: {{ eib_image_size }}
+  kernelArgs:
+  - net.ifnames=1
+  users:
+  - username: {{ vm_user }}
+    sshKeys: {{ vm_authorized_ssh_keys | to_yaml }}
+    encryptedPassword: "{{ vm_user_plain_text_password | password_hash }}"
+    createHomeDir: true
+  packages:
+    packageList:
+      - git
+    sccRegistrationCode: "{{ eib_registration_code }}"
+kubernetes:
+  version: {{ cluster_rke2_version }}
