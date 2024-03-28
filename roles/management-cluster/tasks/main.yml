@@ -1,11 +1,21 @@
 ---
-- name: Create VM, destroying existing one, if requested
+- name: Create Leap VM, destroying existing one, if requested
   include_tasks: create_leap_vm.yml
-  when:
-    - (do_create_vm | default('true')) | bool
+  when: not os_local_image
+
+- name: Create Micro VM, destroying existing one, if requested
+  include_tasks: create_micro_vm.yml
+  when: os_local_image
 
 - name: Wait for VM to be up and running SSH
   wait_for:
     host: "{{ vm_public_network_ip }}"
     port: 22
+    delay: 60
+
+- name: Wait for VM to be up and running Kubernetes
+  when: os_local_image
+  wait_for:
+    host: "{{ vm_public_network_ip }}"
+    port: 6443
     delay: 60

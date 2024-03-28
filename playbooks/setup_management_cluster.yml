@@ -29,8 +29,11 @@
           - "{{ management_clusterhost_group | default('management_cluster_group') }}"
 
 - hosts: management-cluster
+  vars:
+    os_local_image: "{{ lookup('env', 'OS_LOCAL_IMAGE') }}"
   tasks:
     - name: Deploy RKE2
+      when: not os_local_image
       import_role:
         name: rke2-server
 
@@ -40,12 +43,14 @@
         state: directory
 
     - name: Fetch kubeconfig from management cluster
+      become: true
       fetch:
-        src: /home/{{ vm_user }}/.kube/config
+        src: /etc/rancher/rke2/rke2.yaml
         flat: true
         dest: ~/.kube/config
 
     - name: Install python-ironicclient
+      when: not os_local_image
       import_role:
         name: ironicclient
       vars:
