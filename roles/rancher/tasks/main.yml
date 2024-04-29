@@ -9,10 +9,11 @@
     repo_url: "{{ rancher_helm_repo_url }}"
     name: "{{ rancher_helm_repo_name }}"
 
-- name: Deploy latest Rancher Helm chart
+- name: Deploy Rancher Helm chart
   kubernetes.core.helm:
     name: "{{ rancher_release }}"
     chart_ref: "{{ rancher_helm_chart_ref }}"
+    chart_version: "{{ rancher_version }}"
     state: present
     release_namespace: "{{ rancher_namespace }}"
     values:
