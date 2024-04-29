@@ -26,7 +26,7 @@
 
 - name: Install RKE2
   shell: >
-    sudo INSTALL_RKE2_CHANNEL={{ rke2_channel_version }} /tmp/rke2_installer.sh
+    sudo INSTALL_RKE2_VERSION={{ cluster_rke2_version }} /tmp/rke2_installer.sh
 
 - name: Enable and start rke2-server.service
   become: yes
