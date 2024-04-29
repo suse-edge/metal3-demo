@@ -16,4 +16,4 @@ kubectl_download_url: https://cdn.dl.k8s.io/release/{{ kubectl_version }}/bin/li
 # See https://github.com/kubernetes-sigs/cluster-api/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_core_version: v1.6.0
+capi_core_version: v1.6.2
