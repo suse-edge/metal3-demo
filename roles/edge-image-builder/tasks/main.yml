@@ -81,7 +81,7 @@
     state: started
     force_restart: no
     privileged: true
-    command: "build -config-file config-eib.yaml -config-dir /eib -build-dir /eib/_build"
+    command: "build --definition-file config-eib.yaml"
 
 - name: Generate sha256sum for EIB image
   become: true

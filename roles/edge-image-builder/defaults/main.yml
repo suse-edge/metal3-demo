@@ -7,7 +7,7 @@ eib_path: "{{ working_dir }}/eib"
 eib_registration_code: "{{ lookup('env', 'EIB_REGISTRATION_CODE') }}"
 
 # If eib_git_version is specified we build a local image
-eib_container_image: "registry.opensuse.org/isv/suse/edge/edgeimagebuilder/containerfile/suse/edge-image-builder:1.0.0.rc1"
+eib_container_image: "registry.opensuse.org/isv/suse/edge/edgeimagebuilder/containerfile/suse/edge-image-builder:1.0.1"
 eib_git_version: ""
 
 libvirt_network_dhcp: true
