@@ -22,4 +22,4 @@ egress_network_bridge_ip: "{{ egress_network_cidr_v4|ansible.utils.nthhost(1)|de
 cluster_name: "sample-cluster"
 cluster_namespace: "default"
 
-cluster_rke2_version: "v1.28.3+rke2r1"
+cluster_rke2_version: "v1.28.8+rke2r1"
