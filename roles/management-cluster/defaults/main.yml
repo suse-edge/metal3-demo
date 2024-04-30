@@ -23,7 +23,7 @@ force_cloud_image_download: false
 disk_image_file: "{{ libvirt_images_dir }}/{{ cloud_image_os_name }}-{{ vm_instance_name }}.qcow2"
 
 # size of the disk image
-disk_image_size: 30G
+disk_image_size: 40G
 
 # cloud-init image file name
 cloud_init_image_file: "{{ libvirt_images_dir }}/{{ cloud_image_os_name }}-{{ vm_instance_name }}-cidata.iso"
