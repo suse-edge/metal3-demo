@@ -23,3 +23,6 @@ cluster_name: "sample-cluster"
 cluster_namespace: "default"
 
 cluster_rke2_version: "v1.28.8+rke2r1"
+
+# This is overridden via set_fact in the edge-image-builder role
+downstream_cluster_image: cluster-image.raw

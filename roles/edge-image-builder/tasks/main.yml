@@ -100,6 +100,10 @@
   args:
     chdir: "{{ eib_path }}/metal3"
 
+- name: set fact for use in the example-manifests role
+  set_fact:
+    downstream_cluster_image: "{{ eib_metal3_output_image_name }}"
+
 - name: "Ensure {{ image_cache_dir }} exists"
   become: true
   file:

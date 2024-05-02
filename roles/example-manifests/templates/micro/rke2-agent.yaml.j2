@@ -81,10 +81,10 @@ spec:
         matchLabels:
           cluster-role: worker
       image:
-        checksum: http://imagecache.local:8080/SLE-Micro-eib-output.raw.sha256
+        checksum: http://imagecache.local:8080/{{ downstream_cluster_image }}.sha256
         checksumType: sha256
         format: raw
-        url: http://imagecache.local:8080/SLE-Micro-eib-output.raw
+        url: http://imagecache.local:8080/{{ downstream_cluster_image }}
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3DataTemplate
