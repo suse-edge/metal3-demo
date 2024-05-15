@@ -17,6 +17,8 @@ operatingSystem:
   packages:
     packageList:
       - git
+{% if eib_source_image_slemicro | bool %}
     sccRegistrationCode: "{{ eib_registration_code }}"
+{% endif %}
 kubernetes:
   version: {{ cluster_rke2_version }}

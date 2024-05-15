@@ -6,96 +6,85 @@
     state: directory
 
 - name: Check if local path exists and copy to the image-cache directory
-  vars:
-    os_local_image: "{{ lookup('env', 'OS_LOCAL_IMAGE') }}"
+  when: os_local_image
   block:
-  - name: Check if the image exists into the local path
-    when: os_local_image
+  - name: Check if the local image exists
     stat:
       path: "{{ os_local_image }}"
+    register: local_image
 
-  - name: Create the EIB image to build the image-cache
-    when: os_local_image
-    import_role:
-      name: edge-image-builder
+  - name: Fail if os_local_image is defined but file does not exist
+    fail:
+      msg: "File {{ os_local_image }} does not exist"
+    when: not local_image.stat.exists
+
+  - name: "Set os_image_name to {{ os_local_image | basename }} via os_local_image"
+    set_fact:
+      os_image_name: "{{ os_local_image | basename }}"
+
+  - name: Copy local image to image-cache directory
+    become: true
+    ansible.builtin.copy:
+      src: "{{ os_local_image }}"
+      dest: "{{ images_dir }}/{{ os_image_name }}"
+
+- name: "Set os_image_name to {{ os_image_url | basename | splitext | first }} when not defined via os_local_image"
+  when: os_image_name is undefined
+  set_fact:
+    os_image_name: "{{ os_image_url | basename | splitext | first }}"
 
 - name: Check if OS image exists
   stat:
-    path: "{{ images_dir }}/{{ image_name }}"
+    path: "{{ images_dir }}/{{ os_image_name }}"
   register: image_path
 
-- name: Download and modify OS image if it doesn't exist
+- name: Download and OS image if it doesn't exist
   when: "not image_path.stat.exists"
   become: true
   block:
   - name: Download OS image
     get_url:
-      url: "{{ image_url }}"
-      dest: "{{ images_dir }}/{{ image_name }}"
+      url: "{{ os_image_url }}"
+      dest: "{{ images_dir }}/{{ os_image_url | basename }}"
 #      checksum: "{{ image_checksum }}"
+
+  - name: Uncompress downloaded OS image
+    command:
+      cmd: unxz "{{ os_image_url | basename }}"
+      chdir: "{{ images_dir }}"
+
+  - name: Confirm expected image exists
+    stat:
+      path: "{{ images_dir }}/{{ os_image_name }}"
+    register: downloaded_image_path
+
+  - name: Fail if expected os_image_name does not exist
+    fail:
+      msg: "File {{ images_dir }}/{{ os_image_name }} does not exist"
+    when: not downloaded_image_path.stat.exists
 
   - name: Generate OS image checksum
     command:
-      cmd: sha256sum "{{ image_name }}"
+      cmd: sha256sum "{{ os_image_name }}"
       chdir: "{{ images_dir }}"
     register: image_checksum
 
   - name: Write OS image checksum file
     copy:
       content: "{{ image_checksum.stdout }}"
-      dest: "{{ images_dir }}/{{ image_name }}.sha256"
+      dest: "{{ images_dir }}/{{ os_image_name }}.sha256"
 
   - ansible.builtin.debug:
-      msg: "Downloaded {{ images_dir }}/{{ image_name }}"
+      msg: "Downloaded {{ images_dir }}/{{ os_image_name }}"
 
-- name: Check if modified OS image exists
-  stat:
-    path: "{{ images_dir }}/{{ metal3_image_name }}"
-  register: metal3_image_path
+- ansible.builtin.debug:
+    msg: "Creating images with base-image {{ images_dir }}/{{ os_image_name }}"
 
-- name: Modify OS image if it doesn't exist
-  when: "not metal3_image_path.stat.exists"
-  become: true
-  block:
-  - name: Copy file OS image file
-    ansible.builtin.copy:
-      src: "{{ images_dir }}/{{ image_name }}"
-      dest: "{{ images_dir }}/{{ metal3_image_name }}"
-
-  # Use "opensuse:root" credentials for the dev user.
-  # Generate another password by running "openssl passwd -6 -salt SalTsaLt PASSWORD"
-  # and replacing the "passwd" entry below (keep in mind some characters must be escaped e.g. "/", "$").
-  - name: Modify cloud.cfg datasource
-    command:
-      cmd: |
-        virt-edit -a "{{ metal3_image_name }}" /etc/cloud/cloud.cfg -e 's/datasource_list.*/datasource_list: [ ConfigDrive, OpenStack, None ]/'
-      chdir: "{{ images_dir }}"
-
-  - name: Modify cloud.cfg lock_passwd
-    command:
-      cmd: |
-        virt-edit -a "{{ metal3_image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)lock_passwd.*/\1lock_passwd: False/'
-      chdir: "{{ images_dir }}"
-
-  - name: Modify cloud.cfg user
-    command:
-      cmd: |
-        virt-edit -a "{{ metal3_image_name }}" /etc/cloud/cloud.cfg -e 's/(\s*)(name: opensuse)/\1\2\n\1passwd: \$6\$SalTsaLt\$4U6ktRhvpSUKdG2XHWmsxlvykFSJRnMyOLYPcWLoCuj3oHB4NaE9Is0wXf4guihZvmSBTairoUvh6s5.JoJED\//'
-      chdir: "{{ images_dir }}"
-
-  - name: Generate checksum for modified image
-    command:
-      cmd: sha256sum "{{ metal3_image_name }}"
-      chdir: "{{ images_dir }}"
-    register: metal3_image_checksum
-
-  - name: Write modified OS image checksum file
-    copy:
-      content: "{{ metal3_image_checksum.stdout }}"
-      dest: "{{ images_dir }}/{{ metal3_image_name }}.sha256"
-
-  - ansible.builtin.debug:
-      msg: "Modified {{ images_dir }}/{{ metal3_image_name }}"
+- name: Create management and metal3 images with EIB
+  import_role:
+    name: edge-image-builder
+  vars:
+    eib_source_image: "{{ images_dir }}/{{ os_image_name }}"
 
 - name: Run image-cache webserver container
   become: true
