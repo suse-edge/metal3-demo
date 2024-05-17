@@ -1,32 +1,14 @@
 ---
-# When OS_LOCAL_IMAGE is set we use SLEMicro
-os_local_image: "{{ lookup('env', 'OS_LOCAL_IMAGE') }}"
-eib_source_image_name: "{{ os_local_image | basename }}"
-eib_mgmt_output_image_name: "{{ eib_source_image_name | splitext | join('.mgmt') }}.qcow2"
+eib_mgmt_output_image_name: "{{ os_image_name | splitext | join('.mgmt') }}.qcow2"
 
-cloud_image_os_name: "{{ eib_mgmt_output_image_name if os_local_image else os_image_name }}"
-
-# URL to download the base image
-cloud_image_download_url: "http://localhost:8080/{{ cloud_image_os_name }}"
-cloud_image_checksum_url: "sha256:http://localhost:8080/{{ cloud_image_os_name }}.sha256"
+image_os_name: "{{ eib_mgmt_output_image_name }}"
 
 # Directory for libvirt images
 libvirt_images_dir: /var/lib/libvirt/images
 
-# destination file name for the downloaded cloud image
-cloud_image_file: "{{ libvirt_images_dir }}/{{ cloud_image_os_name }}"
-
-# determine whether to force re-download cloud image
-force_cloud_image_download: false
-
 # VM disk image file name for the VM instance
-disk_image_file: "{{ libvirt_images_dir }}/{{ cloud_image_os_name }}-{{ vm_instance_name }}.qcow2"
+source_image_file: "{{ libvirt_images_dir }}/{{ eib_mgmt_output_image_name }}"
+disk_image_file: "{{ libvirt_images_dir }}/{{ image_os_name }}-{{ vm_instance_name }}.qcow2"
 
 # size of the disk image
 disk_image_size: 40G
-
-# cloud-init image file name
-cloud_init_image_file: "{{ libvirt_images_dir }}/{{ cloud_image_os_name }}-{{ vm_instance_name }}-cidata.iso"
-
-# root user password (in plain text, not the hash)
-vm_root_user_plain_text_passwd: linux

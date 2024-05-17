@@ -18,20 +18,11 @@
       msg: "File {{ os_local_image }} does not exist"
     when: not local_image.stat.exists
 
-  - name: "Set os_image_name to {{ os_local_image | basename }} via os_local_image"
-    set_fact:
-      os_image_name: "{{ os_local_image | basename }}"
-
   - name: Copy local image to image-cache directory
     become: true
     ansible.builtin.copy:
       src: "{{ os_local_image }}"
       dest: "{{ images_dir }}/{{ os_image_name }}"
-
-- name: "Set os_image_name to {{ os_image_url | basename | splitext | first }} when not defined via os_local_image"
-  when: os_image_name is undefined
-  set_fact:
-    os_image_name: "{{ os_image_url | basename | splitext | first }}"
 
 - name: Check if OS image exists
   stat:

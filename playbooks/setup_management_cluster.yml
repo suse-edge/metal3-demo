@@ -29,14 +29,7 @@
           - "{{ management_clusterhost_group | default('management_cluster_group') }}"
 
 - hosts: management-cluster
-  vars:
-    os_local_image: "{{ lookup('env', 'OS_LOCAL_IMAGE') }}"
   tasks:
-    - name: Deploy RKE2
-      when: not os_local_image
-      import_role:
-        name: rke2-server
-
     - name: Create .kube
       file:
         path: ~/.kube
@@ -48,13 +41,6 @@
         src: /etc/rancher/rke2/rke2.yaml
         flat: true
         dest: ~/.kube/config
-
-    - name: Install python-ironicclient
-      when: not os_local_image
-      import_role:
-        name: ironicclient
-      vars:
-        public_ip: "{{ management_cluster_public_ip }}"
 
 - hosts: localhost
   connection: local
