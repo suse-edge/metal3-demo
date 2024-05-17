@@ -1,6 +1,0 @@
----
-# see https://docs.rke2.io/install/quickstart/
-rke2_installer_url: https://get.rke2.io
-
-# rke2 version to install
-cluster_rke2_version: "v1.28.8+rke2r1"
