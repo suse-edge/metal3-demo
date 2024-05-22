@@ -94,7 +94,6 @@
     command: "build --definition-file config-eib.yaml"
 
 - name: Generate sha256sum for EIB image
-  become: true
   shell: |
     sha256sum {{ eib_metal3_output_image_name }} > {{ eib_metal3_output_image_name }}.sha256
   args:
@@ -104,14 +103,7 @@
   set_fact:
     downstream_cluster_image: "{{ eib_metal3_output_image_name }}"
 
-- name: "Ensure {{ image_cache_dir }} exists"
-  become: true
-  file:
-    path: "{{ image_cache_dir }}"
-    state: directory
-
 - name: "Copy output EIB metal3 image to {{ image_cache_dir }} directory"
-  become: true
   copy:
     src: "{{ item }}"
     dest: "{{ image_cache_dir }}/"
@@ -195,14 +187,12 @@
     command: "build --definition-file config-eib.yaml"
 
 - name: Convert management-cluster raw image to qcow2
-  become: true
   command:
     cmd: qemu-img convert -O qcow2 {{ eib_mgmt_output_image_name }} {{ eib_mgmt_output_image_name }}.qcow2
   args:
     chdir: "{{ eib_path }}/mgmt"
 
 - name: Generate sha256sum for EIB image
-  become: true
   shell: |
     sha256sum {{ eib_mgmt_output_image_name }}.qcow2 > {{ eib_mgmt_output_image_name }}.qcow2.sha256
   args:

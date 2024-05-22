@@ -1,2 +1,2 @@
-libvirt_images_dir: /var/lib/libvirt/images
-images_dir: "{{ libvirt_images_dir }}/image-cache"
+working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
+image_cache_dir: "{{ working_dir }}/image-cache"

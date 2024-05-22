@@ -1,8 +1,7 @@
 ---
 - name: Create image-cache directory
-  become: true
   file:
-    path: "{{ images_dir }}"
+    path: "{{ image_cache_dir }}"
     state: directory
 
 - name: Check if local path exists and copy to the image-cache directory
@@ -19,63 +18,61 @@
     when: not local_image.stat.exists
 
   - name: Copy local image to image-cache directory
-    become: true
     ansible.builtin.copy:
       src: "{{ os_local_image }}"
-      dest: "{{ images_dir }}/{{ os_image_name }}"
+      dest: "{{ image_cache_dir }}/{{ os_image_name }}"
 
 - name: Check if OS image exists
   stat:
-    path: "{{ images_dir }}/{{ os_image_name }}"
+    path: "{{ image_cache_dir }}/{{ os_image_name }}"
   register: image_path
 
 - name: Download and OS image if it doesn't exist
   when: "not image_path.stat.exists"
-  become: true
   block:
   - name: Download OS image
     get_url:
       url: "{{ os_image_url }}"
-      dest: "{{ images_dir }}/{{ os_image_url | basename }}"
+      dest: "{{ image_cache_dir }}/{{ os_image_url | basename }}"
 #      checksum: "{{ image_checksum }}"
 
   - name: Uncompress downloaded OS image
     command:
       cmd: unxz "{{ os_image_url | basename }}"
-      chdir: "{{ images_dir }}"
+      chdir: "{{ image_cache_dir }}"
 
   - name: Confirm expected image exists
     stat:
-      path: "{{ images_dir }}/{{ os_image_name }}"
+      path: "{{ image_cache_dir }}/{{ os_image_name }}"
     register: downloaded_image_path
 
   - name: Fail if expected os_image_name does not exist
     fail:
-      msg: "File {{ images_dir }}/{{ os_image_name }} does not exist"
+      msg: "File {{ image_cache_dir }}/{{ os_image_name }} does not exist"
     when: not downloaded_image_path.stat.exists
 
   - name: Generate OS image checksum
     command:
       cmd: sha256sum "{{ os_image_name }}"
-      chdir: "{{ images_dir }}"
+      chdir: "{{ image_cache_dir }}"
     register: image_checksum
 
   - name: Write OS image checksum file
     copy:
       content: "{{ image_checksum.stdout }}"
-      dest: "{{ images_dir }}/{{ os_image_name }}.sha256"
+      dest: "{{ image_cache_dir }}/{{ os_image_name }}.sha256"
 
   - ansible.builtin.debug:
-      msg: "Downloaded {{ images_dir }}/{{ os_image_name }}"
+      msg: "Downloaded {{ image_cache_dir }}/{{ os_image_name }}"
 
 - ansible.builtin.debug:
-    msg: "Creating images with base-image {{ images_dir }}/{{ os_image_name }}"
+    msg: "Creating images with base-image {{ image_cache_dir }}/{{ os_image_name }}"
 
 - name: Create management and metal3 images with EIB
   import_role:
     name: edge-image-builder
   vars:
-    eib_source_image: "{{ images_dir }}/{{ os_image_name }}"
+    eib_source_image: "{{ image_cache_dir }}/{{ os_image_name }}"
 
 - name: Run image-cache webserver container
   become: true
@@ -83,7 +80,7 @@
     name: image-cache
     image: docker.io/library/httpd:2.4
     volumes:
-      - "{{ images_dir }}:/usr/local/apache2/htdocs"
+      - "{{ image_cache_dir }}:/usr/local/apache2/htdocs"
     detach: true
     exposed_ports:
       - 80

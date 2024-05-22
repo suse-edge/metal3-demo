@@ -19,8 +19,7 @@ eib_git_version: ""
 
 libvirt_network_dhcp: true
 
-libvirt_images_dir: /var/lib/libvirt/images
-image_cache_dir: "{{ libvirt_images_dir }}/image-cache"
+image_cache_dir: "{{ working_dir }}/image-cache"
 
 cluster_rke2_version: "v1.28.8+rke2r1"
 
