@@ -1,9 +1,16 @@
-os_local_image: "{{ lookup('env', 'OS_LOCAL_IMAGE') }}"
-eib_source_image_name: "{{ os_local_image | basename }}"
-eib_source_image_path: "{{ os_local_image | dirname }}"
-eib_output_image_name: SLE-Micro-eib-output.raw
+# eib_source_image is provided via image-cache role
+eib_source_image: ""
+eib_source_image_name: "{{ eib_source_image | basename }}"
+eib_source_image_path: "{{ eib_source_image | dirname }}"
+eib_metal3_output_image_name: "{{ eib_source_image_name | splitext | join('.metal3') }}"
+eib_mgmt_output_image_name: "{{ eib_source_image_name | splitext | join('.mgmt') }}"
 working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
 eib_path: "{{ working_dir }}/eib"
+
+# We add a registration code for image names which start with SLE-Micro e.g
+# SLE-Micro.x86_64-5.5.0-Default-GM.raw - for test images with a different name it will be
+# necessary to override the eib_source_image_slemicro flag (or align with SLE-Micro* naming)
+eib_source_image_slemicro: "{{ True if eib_source_image_name.startswith('SLE-Micro') else False }}"
 eib_registration_code: "{{ lookup('env', 'EIB_REGISTRATION_CODE') }}"
 
 # If eib_git_version is specified we build a local image
@@ -11,3 +18,11 @@ eib_container_image: "registry.opensuse.org/isv/suse/edge/edgeimagebuilder/conta
 eib_git_version: ""
 
 libvirt_network_dhcp: true
+
+image_cache_dir: "{{ working_dir }}/image-cache"
+
+cluster_rke2_version: "v1.28.8+rke2r1"
+
+# Only used for the management-cluster image currently, to ensure we have
+# enough space for RKE2 and other dependencies
+eib_image_size: 5G

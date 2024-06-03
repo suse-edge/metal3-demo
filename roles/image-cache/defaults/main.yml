@@ -1,6 +1,2 @@
-libvirt_images_dir: /var/lib/libvirt/images
-images_dir: "{{ libvirt_images_dir }}/image-cache"
-image_url: "{{ os_image_url }}"
-image_checksum: "{{ os_image_checksum }}"
-image_name: "{{ os_image_name }}"
-metal3_image_name: "{{ image_name | splitext | join('.metal3') }}"
+working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
+image_cache_dir: "{{ working_dir }}/image-cache"

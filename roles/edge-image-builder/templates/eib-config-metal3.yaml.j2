@@ -3,7 +3,7 @@ image:
   imageType: raw
   arch: x86_64
   baseImage: {{ eib_source_image_name }}
-  outputImageName: {{ eib_output_image_name }}
+  outputImageName: {{ eib_metal3_output_image_name }}
 operatingSystem:
   kernelArgs:
   - ignition.platform.id=openstack
@@ -14,4 +14,6 @@ operatingSystem:
   packages:
     packageList:
       - jq
+{% if eib_source_image_slemicro | bool %}
     sccRegistrationCode: "{{ eib_registration_code }}"
+{% endif %}

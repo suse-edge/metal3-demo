@@ -1,12 +1,6 @@
 # Set to false for DHCP-less testing with static-ips
 libvirt_network_dhcp: true
 
-# Currently this is only set for SLEMicro
-os_local_image: "{{ lookup('env', 'OS_LOCAL_IMAGE') }}"
-
-# This is set to micro when os_local_image is specified
-cluster_template_type: "leap"
-
 working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
 example_manifest_dir: "{{ working_dir }}/example-manifests"
 
@@ -23,3 +17,6 @@ cluster_name: "sample-cluster"
 cluster_namespace: "default"
 
 cluster_rke2_version: "v1.28.8+rke2r1"
+
+# This is overridden via set_fact in the edge-image-builder role
+downstream_cluster_image: cluster-image.raw

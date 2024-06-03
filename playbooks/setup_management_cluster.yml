@@ -3,19 +3,16 @@
   connection: local
   tasks:
 
-    - name: Create VM
+    - name: Start Management Cluster VM
       include_role:
-        name: vm
+        name: management-cluster
       when:
         - (not do_not_install_vm | default(False)) | bool
       vars:
         vm_hostname: management-cluster
-        vm_instance_name: management-cluster
+        vm_instance_name: management_0
         vm_network: "{{ management_cluster_vm_network }}"
         vm_public_network_ip: "{{ management_cluster_public_ip }}"
-        vm_libvirt_network_params: "{{ metal3_vm_libvirt_network_params }}"
-        vm_memory: 16384
-        vm_vcpus: 8
 
     - name: Show management-cluster vm IP
       debug:
@@ -33,30 +30,17 @@
 
 - hosts: management-cluster
   tasks:
-    - name: Deploy docker
-      import_role:
-        name: docker
-
-    - name: Deploy RKE2
-      import_role:
-        name: rke2-server
-
     - name: Create .kube
       file:
         path: ~/.kube
         state: directory
 
     - name: Fetch kubeconfig from management cluster
+      become: true
       fetch:
-        src: /home/{{ vm_user }}/.kube/config
+        src: /etc/rancher/rke2/rke2.yaml
         flat: true
         dest: ~/.kube/config
-
-    - name: Install python-ironicclient
-      import_role:
-        name: ironicclient
-      vars:
-        public_ip: "{{ management_cluster_public_ip }}"
 
 - hosts: localhost
   connection: local

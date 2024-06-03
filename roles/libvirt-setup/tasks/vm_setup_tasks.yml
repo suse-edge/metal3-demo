@@ -16,7 +16,7 @@
         '{{ item.item.name }}'.qcow2 '{{ libvirt_flavors[item.item.flavor].disk }}'G
         --format qcow2
       when:
-        - item is failed
+        - item is failed and libvirt_flavors[item.item.flavor].disk != 0
       loop: "{{ vm_vol_check.results }}"
 
     # Define (but do not start) the vm nodes.  These will be
@@ -52,4 +52,4 @@
   template:
     src: baremetalhost.yaml.j2
     dest: "{{ [ libvirt_bmh_manifest_dir, item.name ] | path_join }}.yaml"
-  loop: "{{ vm_nodes }}"
+  loop: "{{ vm_nodes | selectattr('flavor', 'ne', 'management') }}"

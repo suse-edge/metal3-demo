@@ -1,2 +1,0 @@
----
-rke2_server_user: "{{ vm_user }}"

@@ -5,9 +5,9 @@
   gather_facts: true
   tasks:
     - import_role:
-        name: image-cache
-    - import_role:
         name: libvirt-setup
+    - import_role:
+        name: image-cache
     - import_role:
         name: sushy-tools
     - import_role:

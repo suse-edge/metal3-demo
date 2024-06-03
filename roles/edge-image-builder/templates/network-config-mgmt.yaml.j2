@@ -1,0 +1,24 @@
+routes:
+  config:
+  - destination: 0.0.0.0/0
+    metric: 100
+    next-hop-address: "{{ egress_network_bridge_ip }}"
+    next-hop-interface: enp1s0
+    table-id: 254
+dns-resolver:
+  config:
+    server:
+    - "{{ egress_network_bridge_ip }}"
+interfaces:
+- name: enp1s0
+  type: ethernet
+  state: up
+  mac-address: "{{ node_mac_map.get('management_0').get('egress') }}"
+  ipv4:
+    address:
+    - ip: "{{ management_cluster_public_ip }}"
+      prefix-length: 24
+    dhcp: false
+    enabled: true
+  ipv6:
+    enabled: false

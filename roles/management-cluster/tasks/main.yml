@@ -1,0 +1,77 @@
+---
+- name: See if VM {{ vm_instance_name }} exists
+  become: yes
+  community.libvirt.virt:
+    command: list_vms
+  register: list_vms_result
+
+- name: Print VMs
+  debug:
+    msg: "Current defined VMs: {{ list_vms_result.list_vms }}"
+
+- name: Shutdown VM {{ vm_instance_name }}
+  become: yes
+  community.libvirt.virt:
+    name: "{{ vm_instance_name }}"
+    state: destroyed
+  when: vm_instance_name in list_vms_result.list_vms
+
+- name: Ensure virsh is installed
+  command:
+   cmd: which virsh
+
+- name: Detach OS disk from VM
+  become: yes
+  command:
+    cmd: virsh detach-disk {{ vm_instance_name }} --target sda --config
+  ignore_errors: true
+
+- name: Detach Config disk from VM
+  become: yes
+  command:
+    cmd: virsh detach-disk {{ vm_instance_name }} --target sdb --config
+  ignore_errors: true
+
+- name: Remove old disk image
+  become: yes
+  file:
+    path: "{{ disk_image_file }}"
+    state: absent
+
+- name: Create a disk image from cloud image
+  become: yes
+  shell: |
+    qemu-img create -f qcow2 -F qcow2 -o backing_file={{ source_image_file }} {{ disk_image_file }}
+    qemu-img resize {{ disk_image_file }} {{ disk_image_size }}
+
+- name: Attach OS disk to VM
+  become: yes
+  command:
+    cmd: virsh attach-disk {{ vm_instance_name }} --source {{ disk_image_file }} --targetbus scsi --target sda --type disk --subdriver qcow2 --config
+  register: shell_result
+
+- name: Print attach OS disk result
+  debug:
+    msg: "{{ shell_result }}"
+
+- name: Set boot to hd
+  become: yes
+  command:
+    cmd: virt-xml {{ vm_instance_name }} --edit  --boot hd
+
+- name: Start the VM
+  community.libvirt.virt:
+    name: "{{ vm_instance_name }}"
+    state: running
+
+- name: Wait for VM to be up and running SSH
+  wait_for:
+    host: "{{ vm_public_network_ip }}"
+    port: 22
+    delay: 60
+
+- name: Wait for VM to be up and running Kubernetes
+  wait_for:
+    host: "{{ vm_public_network_ip }}"
+    port: 6443
+    delay: 60
