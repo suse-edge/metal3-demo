@@ -1,7 +1,9 @@
 ---
 metal3_repo_url: https://github.com/suse-edge/charts.git
 metal3_branch: main
-metal3_chart_version: 0.6.5
+
+metal3_chart_version: 0.7.2
 metal3_namespace: metal3-system
 
 working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
+image_cache_conf_dir: "{{ working_dir }}/image-cache-conf"
