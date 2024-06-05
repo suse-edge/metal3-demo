@@ -74,6 +74,62 @@
   vars:
     eib_source_image: "{{ image_cache_dir }}/{{ os_image_name }}"
 
+### Set up the image-cache webserver ###
+
+- name: Create image-cache conf directory
+  file:
+    path: "{{ image_cache_conf_dir }}"
+    state: directory
+    mode: '0700'
+
+- name: Create config file for image-cache server
+  copy:
+    src: httpd.conf
+    dest: "{{ image_cache_conf_dir }}/httpd.conf"
+
+- name: Create CA private key for image-cache server
+  community.crypto.openssl_privatekey:
+    path: "{{ image_cache_conf_dir }}/ca-certificate.key"
+
+- name: Create certificate signing request (CSR) for CA certificate
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ image_cache_conf_dir }}/ca-certificate.key"
+    common_name: metal3-demo CA
+    use_common_name_for_san: false  # since we do not specify SANs, don't use CN as a SAN
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+    key_usage_critical: true
+  register: ca_csr
+
+- name: Create self-signed CA certificate from CSR
+  community.crypto.x509_certificate:
+    path: "{{ image_cache_conf_dir }}/ca-certificate.pem"
+    csr_content: "{{ ca_csr.csr }}"
+    privatekey_path: "{{ image_cache_conf_dir }}/ca-certificate.key"
+    provider: selfsigned
+
+- name: Create private key for image-cache server certificate
+  community.crypto.openssl_privatekey:
+    path: "{{ image_cache_conf_dir }}/server.key"
+
+- name: Create certificate signing request (CSR) for image-cache server certificate
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{ image_cache_conf_dir }}/server.key"
+    subject_alt_name:
+      - "DNS:imagecache.local"
+  register: csr
+
+- name: Generate cert for image-cache server
+  community.crypto.x509_certificate:
+    path: "{{ image_cache_conf_dir }}/server.crt"
+    csr_content:  "{{ csr.csr }}"
+    ownca_path: "{{ image_cache_conf_dir }}/ca-certificate.pem"
+    ownca_privatekey_path: "{{ image_cache_conf_dir }}/ca-certificate.key"
+    provider: ownca
+
 - name: Run image-cache webserver container
   become: true
   containers.podman.podman_container:
@@ -81,10 +137,15 @@
     image: docker.io/library/httpd:2.4
     volumes:
       - "{{ image_cache_dir }}:/usr/local/apache2/htdocs"
+      - "{{ image_cache_conf_dir }}/httpd.conf:/usr/local/apache2/conf/httpd.conf"
+      - "{{ image_cache_conf_dir }}/server.key:/usr/local/apache2/conf/server.key"
+      - "{{ image_cache_conf_dir }}/server.crt:/usr/local/apache2/conf/server.crt"
     detach: true
     exposed_ports:
       - 80
+      - 443
     ports:
       - 8080:80
+      - 8443:443
     state: started
-    force_restart: true
+    recreate: true

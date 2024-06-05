@@ -7,6 +7,17 @@
     repo_branch: "{{ metal3_branch }}"
     repo_pull_request: "{{ metal3_pull_request | default('') }}"
 
+- name: Template manifest for additional CA cert
+  template:
+    src: tls-ca-additional.yaml.j2
+    dest: "{{ working_dir }}/tls-ca-additional.yaml"
+  vars:
+    additional_ca_cert: "{{ lookup('ansible.builtin.file', image_cache_conf_dir + '/ca-certificate.pem') }}"
+
+- name: Apply manifest for additional CA cert
+  command:
+    cmd: kubectl apply -f "{{ working_dir }}/tls-ca-additional.yaml"
+
 - name: Create metal3 overrides yaml file
   template:
     src: "metal3-values.yaml.j2"

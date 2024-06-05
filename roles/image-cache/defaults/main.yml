@@ -1,2 +1,4 @@
 working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
 image_cache_dir: "{{ working_dir }}/image-cache"
+image_cache_conf_dir: "{{ working_dir }}/image-cache-conf"
+image_cache_https: true
