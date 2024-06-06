@@ -18,33 +18,22 @@
       debug:
         msg: "Login to the management-cluster vm with 'ssh {{ vm_user }}@{{ management_cluster_public_ip }}'"
 
-    - name: Define management-cluster node
-      ansible.builtin.add_host:
-        ansible_python_interpreter: "{{ vm_python_interpreter | default('/usr/bin/python3') }}"
-        name: management-cluster
-        hostname: management-cluster
-        ansible_user: "{{ vm_user }}"
-        ansible_host: "{{ management_cluster_public_ip }}"
-        groups:
-          - "{{ management_clusterhost_group | default('management_cluster_group') }}"
-
-- hosts: management-cluster
-  tasks:
     - name: Create .kube
       file:
         path: ~/.kube
         state: directory
 
+    # TODO - there's likely a better way to do this...
     - name: Fetch kubeconfig from management cluster
-      become: true
-      fetch:
-        src: /etc/rancher/rke2/rke2.yaml
-        flat: true
+      command:
+        cmd: "ssh -o StrictHostKeyChecking=no {{ vm_user }}@{{ management_cluster_public_ip }} sudo cat /etc/rancher/rke2/rke2.yaml"
+      register: kubeconfig
+
+    - name: Write ~/.kube/config locally
+      copy:
+        content: "{{ kubeconfig.stdout }}"
         dest: ~/.kube/config
 
-- hosts: localhost
-  connection: local
-  tasks:
     - name: Update IP in kubeconfig
       replace:
         path: ~/.kube/config
