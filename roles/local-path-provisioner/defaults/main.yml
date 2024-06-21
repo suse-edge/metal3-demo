@@ -1,6 +1,6 @@
 ---
 local_path_provisioner_repo_url: https://github.com/rancher/local-path-provisioner.git
-local_path_provisioner_branch: master
+local_path_provisioner_version: "v0.0.28"
 
 local_path_provisioner_namespace: local-path-storage
 local_path_provisioner_release: local-path-provisioner

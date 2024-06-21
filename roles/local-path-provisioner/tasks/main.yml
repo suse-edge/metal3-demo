@@ -6,7 +6,7 @@
   vars:
     repo_dir: local-path-provisioner
     repo_url: "{{ local_path_provisioner_repo_url }}"
-    repo_branch: "{{ local_path_provisioner_branch }}"
+    repo_branch: "{{ local_path_provisioner_version }}"
     repo_pull_request: "{{ local_path_provisioner_pull_request | default('') }}"
 
 - name: Deploy local-path-provisioner via helm
