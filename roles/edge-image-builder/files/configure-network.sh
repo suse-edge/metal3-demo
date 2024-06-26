@@ -23,9 +23,10 @@ fi
 
 # FIXME: we can probably improve this, but there's no jq in the ramdisk
 DESIRED_HOSTNAME=$(cat /mnt/openstack/latest/meta_data.json | tr ',{}' '\n' | grep '\"metal3-name\"' | sed 's/.*\"metal3-name\": \"\(.*\)\"/\1/')
+echo "${DESIRED_HOSTNAME}" > /etc/hostname
 
 mkdir -p /tmp/nmc/{desired,generated}
-cp ${NETWORK_DATA_FILE} /tmp/nmc/desired/${DESIRED_HOSTNAME}.yaml
+cp ${NETWORK_DATA_FILE} /tmp/nmc/desired/_all.yaml
 umount /mnt
 
 ./nmc generate --config-dir /tmp/nmc/desired --output-dir /tmp/nmc/generated

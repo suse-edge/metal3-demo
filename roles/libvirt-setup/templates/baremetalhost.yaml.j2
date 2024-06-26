@@ -36,7 +36,6 @@ stringData:
     - name: enp1s0
       type: ethernet
       state: up
-      mac-address: "{{ node_mac_map.get(item.name).get(libvirt_networks[0].name) }}"
       ipv4:
         address:
         - ip:  "{{ node_ip_map.get(item.name).get(libvirt_networks[0].name) }}"
