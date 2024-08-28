@@ -1,8 +1,8 @@
 ---
-rancher_helm_repo_url: https://releases.rancher.com/server-charts/stable
-rancher_helm_repo_name: rancher-stable
-rancher_helm_chart_ref: rancher-stable/rancher
-rancher_version: 2.8.3
+rancher_helm_repo_url: https://releases.rancher.com/server-charts/latest
+rancher_helm_repo_name: rancher-latest
+rancher_helm_chart_ref: rancher-latest/rancher
+rancher_version: 2.9.1
 
 rancher_release: rancher
 rancher_replicas: 3
