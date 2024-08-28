@@ -4,20 +4,20 @@
 # See https://github.com/kubernetes-sigs/cluster-api/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_core_version: v1.6.2
+capi_core_version: v1.7.5
 
 # CAPM3 release version
 #
 # See https://github.com/metal3-io/cluster-api-provider-metal3/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_metal3_version: v1.6.0
+capi_metal3_version: v1.7.1
 
 # RKE2 bootstrap and control plane provider version
 #
 # See https://github.com/rancher-sandbox/cluster-api-provider-rke2/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_rke2_version: v0.2.6
+capi_rke2_version: v0.6.0
 
 working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"

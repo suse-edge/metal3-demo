@@ -14,14 +14,14 @@ eib_source_image_slemicro: "{{ True if eib_source_image_name.startswith('SLE-Mic
 eib_registration_code: "{{ lookup('env', 'EIB_REGISTRATION_CODE') }}"
 
 # If eib_git_version is specified we build a local image
-eib_container_image: "registry.opensuse.org/isv/suse/edge/edgeimagebuilder/containerfile/suse/edge-image-builder:1.0.2"
+eib_container_image: "registry.opensuse.org/isv/suse/edge/edgeimagebuilder/containerfile-sp6/suse/edge-image-builder:1.1.0.rc1"
 eib_git_version: ""
 
 libvirt_network_dhcp: true
 
 image_cache_dir: "{{ working_dir }}/image-cache"
 
-cluster_rke2_version: "v1.28.8+rke2r1"
+cluster_rke2_version: "v1.30.3+rke2r1"
 
 # Only used for the management-cluster image currently, to ensure we have
 # enough space for RKE2 and other dependencies
