@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: metal3-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tls-ca-additional
+  namespace: metal3-system
+type: Opaque
+data:
+  ca-additional.crt: {{ additional_ca_cert | b64encode }}
+

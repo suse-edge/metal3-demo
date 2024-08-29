@@ -47,7 +47,6 @@
 
 - name: Copy file into the eib custom scripts directory (fix growfs issue)
   copy:
-    mode: 0755
     dest: "{{ eib_path }}/metal3/custom/scripts/fix-growfs.sh"
     mode: 0755
     content: |
@@ -162,15 +161,38 @@
       #!/bin/bash
       echo "{{ vm_user }} ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/eib
 
-- name: Create network directory
+- name: Create EIB config directories
   file:
-    path: "{{ eib_path }}/mgmt/network"
+    path: "{{ item }}"
     state: directory
+  loop:
+    - "{{ eib_path }}/mgmt/network"
+    - "{{ eib_path }}/mgmt/kubernetes/manifests"
+    - "{{ eib_path }}/mgmt/kubernetes/helm/values"
 
-- name: Copy network config to network directory
-  template:
-    src: network-config-mgmt.yaml.j2
-    dest: "{{ eib_path }}/mgmt/network/management-cluster.yaml"
+- name: Copy/Template files to EIB config directories
+  block:
+    - template:
+        src: certmanager-values.yaml.j2
+        dest: "{{ eib_path }}/mgmt/kubernetes/helm/values/certmanager.yaml"
+    - template:
+        src: rancher-values.yaml.j2
+        dest: "{{ eib_path }}/mgmt/kubernetes/helm/values/rancher.yaml"
+    - template:
+        src: metal3-values.yaml.j2
+        dest: "{{ eib_path }}/mgmt/kubernetes/helm/values/metal3.yaml"
+    - copy:
+        src: turtles-values.yaml
+        dest: "{{ eib_path }}/mgmt/kubernetes/helm/values/turtles.yaml"
+    - template:
+        src: tls-ca-additional.yaml.j2
+        dest: "{{ eib_path }}/mgmt/kubernetes/manifests/tls-ca-additional.yaml"
+    - copy:
+        src: rancher-disable-capi.yaml
+        dest: "{{ eib_path }}/mgmt/kubernetes/manifests/rancher-disable-capi.yaml"
+    - template:
+        src: network-config-mgmt.yaml.j2
+        dest: "{{ eib_path }}/mgmt/network/management-cluster.yaml"
 
 - name: Run EIB container to generate the mgmt image
   become: true

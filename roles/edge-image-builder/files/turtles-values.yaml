@@ -1,0 +1,5 @@
+# Workaround for https://github.com/rancher/turtles/issues/627
+rancherTurtles:
+  features:
+    embedded-capi:
+      disabled: false
