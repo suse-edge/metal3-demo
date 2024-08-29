@@ -16,9 +16,51 @@ operatingSystem:
     createHomeDir: true
   packages:
     packageList:
-      - git
+      - jq
 {% if eib_source_image_slemicro | bool %}
     sccRegistrationCode: "{{ eib_registration_code }}"
 {% endif %}
 kubernetes:
   version: {{ cluster_rke2_version }}
+  manifests:
+    urls:
+      - "{{ local_path_provisioner_url }}"
+  helm:
+    charts:
+      - name: cert-manager
+        repositoryName: jetstack
+        version: {{ cert_manager_version }}
+        targetNamespace: cert-manager
+        valuesFile: certmanager.yaml
+        createNamespace: true
+        installationNamespace: kube-system
+      - name: metal3
+        version: {{ metal3_version }}
+        repositoryName: suse-edge-charts
+        targetNamespace: metal3-system
+        createNamespace: true
+        installationNamespace: kube-system
+        valuesFile: metal3.yaml
+      - name: rancher
+        version: {{ rancher_version }}
+        repositoryName: rancher-charts
+        targetNamespace: cattle-system
+        createNamespace: true
+        installationNamespace: kube-system
+        valuesFile: rancher.yaml
+      - name: rancher-turtles
+        version: {{ rancher_turtles_version }}
+        repositoryName: hardys-charts
+        targetNamespace: rancher-turtles-system
+        createNamespace: true
+        installationNamespace: kube-system
+        valuesFile: turtles.yaml
+    repositories:
+      - name: jetstack
+        url: https://charts.jetstack.io
+      - name: rancher-charts
+        url: {{ rancher_helm_repo }}
+      - name: suse-edge-charts
+        url: {{ suse_edge_helm_repo }}
+      - name: hardys-charts
+        url: https://hardys.github.io/charts/

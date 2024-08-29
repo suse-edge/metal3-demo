@@ -39,32 +39,3 @@
         path: ~/.kube/config
         regexp: '127\.0\.0\.1'
         replace: "{{ management_cluster_public_ip }}"
-
-    - name: Deploy cert-manager
-      import_role:
-        name: cert-manager
-
-    - name: Deploy rancher
-      import_role:
-        name: rancher
-      vars:
-        rancher_hostname: management-cluster
-        rancher_host_ip: "{{ management_cluster_public_ip }}"
-
-    - name: Deploy local-path-provisioner
-      import_role:
-        name: local-path-provisioner
-
-    - name: Deploy metallb
-      import_role:
-        name: metallb
-      vars:
-        management_cluster_ironic_ip: "{{ management_cluster_ironic_ip }}"
-
-    - name: Deploy Metal3
-      import_role:
-        name: metal3
-
-    - name: Deploy capi
-      import_role:
-        name: capi

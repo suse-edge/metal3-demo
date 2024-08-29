@@ -33,4 +33,4 @@
     - "{{ working_dir }}/charts/metal3-values.yaml"
     atomic: yes
     create_namespace: yes
-    timeout: 10m
+    timeout: 12m

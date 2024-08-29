@@ -14,7 +14,7 @@ eib_source_image_slemicro: "{{ True if eib_source_image_name.startswith('SLE-Mic
 eib_registration_code: "{{ lookup('env', 'EIB_REGISTRATION_CODE') }}"
 
 # If eib_git_version is specified we build a local image
-eib_container_image: "registry.opensuse.org/isv/suse/edge/edgeimagebuilder/containerfile-sp6/suse/edge-image-builder:1.1.0.rc1"
+eib_container_image: "registry.opensuse.org/isv/suse/edge/edgeimagebuilder/containerfile-sp6/suse/edge-image-builder:1.1.0"
 eib_git_version: ""
 
 libvirt_network_dhcp: true
@@ -23,6 +23,19 @@ image_cache_dir: "{{ working_dir }}/image-cache"
 
 cluster_rke2_version: "v1.30.3+rke2r1"
 
+rancher_helm_repo: https://releases.rancher.com/server-charts/latest
+suse_edge_helm_repo: https://suse-edge.github.io/charts
+local_path_provisioner_url: "https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.28/deploy/local-path-storage.yaml"
+rancher_version: 2.9.1
+rancher_turtles_version: "0.2.0+up0.11.0"
+cert_manager_version: 1.14.2
+metal3_version: 0.8.0
+
+rancher_bootstrap_password: rancher
+
+image_cache_conf_dir: "{{ working_dir }}/image-cache-conf"
+additional_ca_cert: "{{ lookup('ansible.builtin.file', image_cache_conf_dir + '/ca-certificate.pem') }}"
+
 # Only used for the management-cluster image currently, to ensure we have
 # enough space for RKE2 and other dependencies
-eib_image_size: 5G
+eib_image_size: 10G

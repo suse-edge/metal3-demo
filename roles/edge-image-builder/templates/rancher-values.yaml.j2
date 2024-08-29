@@ -1,0 +1,4 @@
+hostname: "rancher-{{ management_cluster_public_ip }}.sslip.io"
+bootstrapPassword: "{{ rancher_bootstrap_password }}"
+replicas: 1
+global.cattle.psp.enabled: "false"
