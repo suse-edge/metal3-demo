@@ -6,6 +6,8 @@ eib_metal3_output_image_name: "{{ eib_source_image_name | splitext | join('.meta
 eib_mgmt_output_image_name: "{{ eib_source_image_name | splitext | join('.mgmt') }}"
 working_dir: "{{ lookup('env', 'HOME') }}/metal3-demo-files"
 eib_path: "{{ working_dir }}/eib"
+image_cache_dir: "{{ working_dir }}/image-cache"
+libvirt_images_dir: "/var/lib/libvirt/images"
 
 # We add a registration code for image names which start with SLE-Micro e.g
 # SLE-Micro.x86_64-5.5.0-Default-GM.raw - for test images with a different name it will be
@@ -19,17 +21,15 @@ eib_git_version: ""
 
 libvirt_network_dhcp: true
 
-image_cache_dir: "{{ working_dir }}/image-cache"
-
 cluster_rke2_version: "v1.30.3+rke2r1"
 
 rancher_helm_repo: https://releases.rancher.com/server-charts/latest
 suse_edge_helm_repo: https://suse-edge.github.io/charts
 local_path_provisioner_url: "https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.28/deploy/local-path-storage.yaml"
 rancher_version: 2.9.1
-rancher_turtles_version: "0.2.0+up0.11.0"
+rancher_turtles_version: "0.3.2+up0.11.0"
 cert_manager_version: 1.14.2
-metal3_version: 0.8.0
+metal3_version: 0.8.1
 
 rancher_bootstrap_password: rancher
 

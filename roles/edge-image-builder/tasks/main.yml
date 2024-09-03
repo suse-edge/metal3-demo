@@ -169,30 +169,47 @@
     - "{{ eib_path }}/mgmt/network"
     - "{{ eib_path }}/mgmt/kubernetes/manifests"
     - "{{ eib_path }}/mgmt/kubernetes/helm/values"
+    - "{{ eib_path }}/mgmt/custom/files"
+    - "{{ eib_path }}/mgmt/custom/scripts"
 
-- name: Copy/Template files to EIB config directories
-  block:
-    - template:
-        src: certmanager-values.yaml.j2
-        dest: "{{ eib_path }}/mgmt/kubernetes/helm/values/certmanager.yaml"
-    - template:
-        src: rancher-values.yaml.j2
-        dest: "{{ eib_path }}/mgmt/kubernetes/helm/values/rancher.yaml"
-    - template:
-        src: metal3-values.yaml.j2
-        dest: "{{ eib_path }}/mgmt/kubernetes/helm/values/metal3.yaml"
-    - copy:
-        src: turtles-values.yaml
-        dest: "{{ eib_path }}/mgmt/kubernetes/helm/values/turtles.yaml"
-    - template:
-        src: tls-ca-additional.yaml.j2
-        dest: "{{ eib_path }}/mgmt/kubernetes/manifests/tls-ca-additional.yaml"
-    - copy:
-        src: rancher-disable-capi.yaml
-        dest: "{{ eib_path }}/mgmt/kubernetes/manifests/rancher-disable-capi.yaml"
-    - template:
-        src: network-config-mgmt.yaml.j2
-        dest: "{{ eib_path }}/mgmt/network/management-cluster.yaml"
+- name: Template helm values files to EIB config directories
+  template:
+    src: "{{ item }}"
+    dest: "{{ eib_path }}/mgmt/kubernetes/helm/values/{{ item | splitext | first }}"
+  loop:
+    - certmanager-values.yaml.j2
+    - rancher-values.yaml.j2
+    - metal3-values.yaml.j2
+    - turtles-values.yaml.j2
+
+- name: Template tls-ca-additional.yaml.j2
+  template:
+    src: tls-ca-additional.yaml.j2
+    dest: "{{ eib_path }}/mgmt/kubernetes/manifests/tls-ca-additional.yaml"
+
+- name: Template network-config-mgmt.yaml.j2
+  template:
+    src: network-config-mgmt.yaml.j2
+    dest: "{{ eib_path }}/mgmt/network/management-cluster.yaml"
+
+# See https://github.com/suse-edge/atip/tree/main/telco-examples/mgmt-cluster/single-node/eib/custom/scripts
+- name: Copy custom files to EIB config directories
+  copy:
+    src: "{{ item }}"
+    dest: "{{ eib_path }}/mgmt/custom/files/"
+  loop:
+    - basic-setup.sh
+    - metal3.sh
+    - mgmt-stack-setup.service
+    - rancher.sh
+
+- name: Copy custom scripts to EIB config directories
+  copy:
+    src: "{{ item }}"
+    dest: "{{ eib_path }}/mgmt/custom/scripts/"
+  loop:
+    - 99-alias.sh
+    - 99-mgmt-setup.sh
 
 - name: Run EIB container to generate the mgmt image
   become: true
