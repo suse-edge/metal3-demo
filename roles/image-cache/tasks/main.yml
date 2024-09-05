@@ -68,12 +68,6 @@
 - ansible.builtin.debug:
     msg: "Creating images with base-image {{ image_cache_dir }}/{{ os_image_name }}"
 
-- name: Create management and metal3 images with EIB
-  import_role:
-    name: edge-image-builder
-  vars:
-    eib_source_image: "{{ image_cache_dir }}/{{ os_image_name }}"
-
 ### Set up the image-cache webserver ###
 
 - name: Create image-cache conf directory

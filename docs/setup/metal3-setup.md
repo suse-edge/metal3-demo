@@ -55,6 +55,12 @@ Command-line flags may be passed to Ansible via the script, for example to disab
   ./02_configure_host.sh -vvv -e "libvirt_network_dhcp=false"
   ```
 
+## Build images
+
+  ```shell
+  ./03_build_images.sh
+  ```
+
 Note this configures the environment to deploy management and downstream clusters with [openSUSE Leap Micro 5.5](https://get.opensuse.org/leapmicro/5.5/),
 for [SLEMicro 5.5](https://documentation.suse.com/sle-micro/5.5/) follow the additional steps below.
 
@@ -75,7 +81,7 @@ If you want to use SLEMicro then a few additional steps are required:
   ```shell
   export OS_LOCAL_IMAGE=/path/to/image.raw
   export EIB_REGISTRATION_CODE=<generated registration code>
-  ./02_configure_host.sh
+  ./03_build_images.sh
   ```
 
 ## Deploy the management cluster and prepare hosts
@@ -83,7 +89,7 @@ If you want to use SLEMicro then a few additional steps are required:
 1. Create management cluster
 
   ```shell
-  ./03_launch_mgmt_cluster.sh
+  ./04_launch_mgmt_cluster.sh
   ```
 
 2. Apply the BareMetalHost manifests
