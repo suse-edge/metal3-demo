@@ -187,6 +187,14 @@
     src: tls-ca-additional.yaml.j2
     dest: "{{ eib_path }}/mgmt/kubernetes/manifests/tls-ca-additional.yaml"
 
+# Load node_mac_map data, needed by network-config-mgmt.yaml.j2
+- set_fact:
+    node_mac_map_path: "{{ working_dir }}/node_mac_map.json"
+
+- name: Load data from existing node_mac_map file
+  set_fact:
+    node_mac_map: "{{ lookup('file', node_mac_map_path) | from_json }}" 
+
 - name: Template network-config-mgmt.yaml.j2
   template:
     src: network-config-mgmt.yaml.j2

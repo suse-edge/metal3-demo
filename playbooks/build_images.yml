@@ -1,0 +1,13 @@
+---
+- name: Configure host
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  tasks:
+    - name: Create management and metal3 images with EIB
+      import_role:
+        name: edge-image-builder
+      vars:
+        eib_source_image: "{{ image_cache_dir }}/{{ os_image_name }}"
+    - import_role:
+        name: example-manifests

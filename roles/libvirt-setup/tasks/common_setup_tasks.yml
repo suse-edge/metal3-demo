@@ -17,15 +17,42 @@
 - debug:
     msg: "vm_nodes={{vm_nodes}}"
 
+- name: Create working directory
+  file:
+    path: "{{ working_dir }}"
+    state: directory
+
+- set_fact:
+    node_mac_map_path: "{{ working_dir }}/node_mac_map.json"
+
+- name: check for existing node_mac_map file
+  stat:
+    path: "{{ node_mac_map_path }}"
+  register: node_mac_map_file
+
+- name: Load data from existing node_mac_map file
+  set_fact:
+    file_node_mac_map: "{{ lookup('file', node_mac_map_path) | from_json }}" 
+  when: node_mac_map_file.stat.exists
+
 - name: get a list of MACs to use
   generate_macs:
     nodes: "{{ vm_nodes }}"
     networks: "{{ libvirt_networks }}"
-  register: node_mac_map
-  when: vm_nodes | length > 0
+  register: gen_node_mac_map
+  when: not node_mac_map_file.stat.exists
+
+- set_fact:
+    node_mac_map: "{{file_node_mac_map if file_node_mac_map is defined else gen_node_mac_map}}"
 
 - debug:
     msg: "node_mac_map={{node_mac_map}}"
+
+- name: Create node_mac_map file"
+  copy:
+    dest: "{{ node_mac_map_path }}"
+    content: "{{ node_mac_map | to_nice_json }}"
+  when: not node_mac_map_file.stat.exists
 
 - set_fact:
     generate_node_ip_map: "{{node_ip_map is not defined}}"
