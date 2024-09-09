@@ -39,3 +39,24 @@
         path: ~/.kube/config
         regexp: '127\.0\.0\.1'
         replace: "{{ management_cluster_public_ip }}"
+
+    - name: Wait for expected deployments to be rolled out
+      shell: >
+        kubectl rollout status Deployment/{{ item.deployment }} -n {{ item.namespace }} 2>&1 | grep 'successfully rolled out'
+      register: rollout_result
+      until: rollout_result.rc == 0
+      retries: 12
+      delay: 10
+      with_items:
+        - {'deployment': 'capi-controller-manager', 'namespace': 'capi-system'}
+        - {'deployment': 'capm3-controller-manager', 'namespace': 'capm3-system'}
+        - {'deployment': 'ipam-controller-manager', 'namespace': 'capm3-system'}
+        - {'deployment': 'rke2-bootstrap-controller-manager', 'namespace': 'rke2-bootstrap-system'}
+        - {'deployment': 'rke2-control-plane-controller-manager', 'namespace': 'rke2-control-plane-system'}
+        - {'deployment': 'cert-manager', 'namespace': 'cert-manager'}
+        - {'deployment': 'local-path-provisioner', 'namespace': 'local-path-storage'}
+        - {'deployment': 'baremetal-operator-controller-manager', 'namespace': 'metal3-system'}
+        - {'deployment': 'metal3-metal3-ironic', 'namespace': 'metal3-system'}
+        - {'deployment': 'metal3-metal3-mariadb', 'namespace': 'metal3-system'}
+        - {'deployment': 'rancher-turtles-cluster-api-operator', 'namespace': 'rancher-turtles-system'}
+        - {'deployment': 'rancher-turtles-controller-manager', 'namespace': 'rancher-turtles-system'}
