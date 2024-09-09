@@ -205,6 +205,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ eib_path }}/mgmt/custom/files/"
+    mode: preserve
   loop:
     - basic-setup.sh
     - metal3.sh
@@ -215,6 +216,7 @@
   copy:
     src: "{{ item }}"
     dest: "{{ eib_path }}/mgmt/custom/scripts/"
+    mode: preserve
   loop:
     - 99-alias.sh
     - 99-mgmt-setup.sh
