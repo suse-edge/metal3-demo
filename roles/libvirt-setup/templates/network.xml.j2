@@ -42,5 +42,28 @@
 {% endif %}
 {# End IPv4 Configuration #}
 
+{# IPv6 Configuration #}
+{% if item.address_v6 is defined and item.address_v6 != '' %}
+  <ip family="ipv6" address='{{ item.address_v6 }}' prefix='{{ item.prefix_v6 }}'>
+  {% if item.dhcp_range_v6 is defined and item.dhcp_range_v6|length != 0 and libvirt_network_dhcp|bool != false %}
+    <dhcp>
+      <range start='{{ item.dhcp_range_v6[0] }}' end='{{ item.dhcp_range_v6[1] }}'/>
+    {% set ns = namespace(index=0) %}
+    {% for flavor in  libvirt_flavors if flavor != "management" -%}
+      {% set numflavor = lookup('vars', 'num_' + flavor + '_hosts')|default(0)|int %}
+      {% for num in range(0, numflavor) %}
+        {% set host_name = libvirt_host_prefix + flavor + "_" + num|string -%}
+        {% set hostname_format = lookup('vars', flavor + '_hostname_format', default=flavor + '-%d') %}
+        {% set hostname = hostname_format % num %}
+        <host id='00:03:00:01:{{ node_mac_map.get(host_name).get(item.name)}}' name='{{hostname}}' ip='{{item.dhcp_range_v6[0]|ipmath(ns.index|int)}}' />
+        {% set ns.index = ns.index + 1 %}
+      {% endfor %}
+    {% endfor %}
+    </dhcp>
+  {% endif %}
+  </ip>
+{% endif %}
+{# End IPv6 Configuration #}
+
 </network>
 
