@@ -17,8 +17,17 @@ interfaces:
   ipv4:
     address:
     - ip: "{{ management_cluster_public_ip }}"
-      prefix-length: 24
+      prefix-length: "{{ external_network_cidr_v4|ansible.utils.ipaddr('prefix') }}"
     dhcp: false
     enabled: true
+{% if libvirt_network_ipv6|bool == false %}
   ipv6:
     enabled: false
+{% else %}
+  ipv6:
+    address:
+    - ip: "{{ management_cluster_public_ip_v6 }}"
+      prefix-length: "{{ external_network_cidr_v6|ansible.utils.ipaddr('prefix') }}"
+    dhcp: false
+    enabled: true
+{% endif %}
