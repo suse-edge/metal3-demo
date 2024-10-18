@@ -28,25 +28,25 @@ libvirt_uri: qemu:///system
 # images pool so use a different dir for the default pool
 libvirt_default_pool_dir: "{{libvirt_images_dir}}/pool-default"
 
-egress_network_cidr_v4: 192.168.125.0/24
-egress_network_bridge_ip: "{{ egress_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
+external_network_cidr_v4: 192.168.125.0/24
+external_network_bridge_ip: "{{ external_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
 
-egress_network_dhcp_range_v4:
-  - "{{ egress_network_cidr_v4|ansible.utils.nthhost(200)|default('', true) }}"
-  - "{{ egress_network_cidr_v4|ansible.utils.nthhost(250)|default('', true) }}"
+external_network_dhcp_range_v4:
+  - "{{ external_network_cidr_v4|ansible.utils.nthhost(200)|default('', true) }}"
+  - "{{ external_network_cidr_v4|ansible.utils.nthhost(250)|default('', true) }}"
 
-egress_network_static_ip_start_v4: "{{ egress_network_cidr_v4|ansible.utils.nthhost(200)|default('', true) }}"
+external_network_static_ip_start_v4: "{{ external_network_cidr_v4|ansible.utils.nthhost(200)|default('', true) }}"
 
 libvirt_networks:
-  - name: egress
-    bridge: m3-egress
-    address_v4: "{{ egress_network_bridge_ip }}"
-    netmask_v4: "{{ egress_network_cidr_v4|ansible.utils.ipaddr('netmask') }}"
-    dhcp_range_v4: "{{ egress_network_dhcp_range_v4 if libvirt_network_dhcp else [] }}"
-    static_ip_start_v4: "{{ '' if libvirt_network_dhcp|bool else egress_network_static_ip_start_v4 }}"
+  - name: external
+    bridge: m3-external
+    address_v4: "{{ external_network_bridge_ip }}"
+    netmask_v4: "{{ external_network_cidr_v4|ansible.utils.ipaddr('netmask') }}"
+    dhcp_range_v4: "{{ external_network_dhcp_range_v4 if libvirt_network_dhcp else [] }}"
+    static_ip_start_v4: "{{ '' if libvirt_network_dhcp|bool else external_network_static_ip_start_v4 }}"
     dns:
       hosts:
-        - ip: "{{ egress_network_bridge_ip }}"
+        - ip: "{{ external_network_bridge_ip }}"
           hostnames:
             - imagecache.local
 
@@ -80,4 +80,4 @@ num_worker_hosts: 1
 vbmc_username: "admin"
 vbmc_password: "password"
 vbmc_port: "{{ sushy_tools_port | default(8000) }}"
-vbmc_ip: "{{ egress_network_bridge_ip }}"
+vbmc_ip: "{{ external_network_bridge_ip }}"

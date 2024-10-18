@@ -121,7 +121,7 @@ It is possible to disable the libvirt DHCP server via the `libvirt_network_dhcp`
   ./02_configure_host.sh -vvv -e "libvirt_network_dhcp=false"
   ```
 
-This disables the `<dhcp>` stanza in the `egress` network (check with `virsh net-dumpxml egress`), and configures the BareMetalHost resources with a static IP via a secret containing nmstate syntax, e.g:
+This disables the `<dhcp>` stanza in the `external` network (check with `virsh net-dumpxml external`), and configures the BareMetalHost resources with a static IP via a secret containing nmstate syntax, e.g:
 
 ```yaml
 apiVersion: metal3.io/v1alpha1

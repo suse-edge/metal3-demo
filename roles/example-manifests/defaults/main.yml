@@ -10,8 +10,8 @@ num_worker_hosts: 1
 cluster_network_cidr: "192.168.0.0/18"
 service_network_cidr: "10.96.0.0/12"
 controlplane_endpoint: "192.168.125.200"
-egress_network_cidr_v4: "192.168.125.0/24"
-egress_network_bridge_ip: "{{ egress_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
+external_network_cidr_v4: "192.168.125.0/24"
+external_network_bridge_ip: "{{ external_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
 
 cluster_name: "sample-cluster"
 cluster_namespace: "default"

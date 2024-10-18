@@ -24,9 +24,9 @@ os_local_image: "{{ lookup('env', 'OS_LOCAL_IMAGE') }}"
 
 os_image_name: "{{ os_local_image | basename if os_local_image else os_image_url | basename | splitext | first }}"
 
-metal3_vm_libvirt_network_params: '--network bridge=m3-egress,model=virtio'
+metal3_vm_libvirt_network_params: '--network bridge=m3-external,model=virtio'
 
-egress_network_cidr_v4: 192.168.125.0/24
-egress_network_bridge_ip: "{{ egress_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
+external_network_cidr_v4: 192.168.125.0/24
+external_network_bridge_ip: "{{ external_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
 management_cluster_public_ip: 192.168.125.99
 management_cluster_ironic_ip: 192.168.125.10
