@@ -20,6 +20,7 @@ eib_container_image: "registry.opensuse.org/isv/suse/edge/edgeimagebuilder/conta
 eib_git_version: ""
 
 libvirt_network_dhcp: true
+libvirt_network_ipv6: false
 
 cluster_rke2_version: "v1.31.2+rke2r1"
 
