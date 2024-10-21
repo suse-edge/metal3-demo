@@ -168,6 +168,7 @@
   loop:
     - "{{ eib_path }}/mgmt/network"
     - "{{ eib_path }}/mgmt/kubernetes/manifests"
+    - "{{ eib_path }}/mgmt/kubernetes/config"
     - "{{ eib_path }}/mgmt/kubernetes/helm/values"
     - "{{ eib_path }}/mgmt/custom/files"
     - "{{ eib_path }}/mgmt/custom/scripts"
@@ -181,6 +182,11 @@
     - rancher-values.yaml.j2
     - metal3-values.yaml.j2
     - turtles-values.yaml.j2
+
+- name: Template RKE2 configuration to EIB config directories
+  template:
+    src: "rke2-config-mgmt.yaml.j2"
+    dest: "{{ eib_path }}/mgmt/kubernetes/config/server.yaml"
 
 - name: Template tls-ca-additional.yaml.j2
   template:
