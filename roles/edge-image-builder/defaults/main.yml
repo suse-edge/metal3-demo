@@ -23,6 +23,7 @@ libvirt_network_dhcp: true
 libvirt_network_ipv6: false
 
 cluster_rke2_version: "v1.31.2+rke2r1"
+cluster_cni: cilium
 
 rancher_helm_repo: https://releases.rancher.com/server-charts/latest
 suse_edge_helm_repo: https://suse-edge.github.io/charts
