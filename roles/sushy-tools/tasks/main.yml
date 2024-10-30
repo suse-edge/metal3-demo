@@ -49,7 +49,7 @@
     state: started
     force_restart: true
     etc_hosts:
-      imagecache.local: "{{ egress_network_bridge_ip }}"
+      imagecache.local: "{{ external_network_bridge_ip }}"
     env:
       SUSHY_EMULATOR_CONFIG: "/etc/sushy/sushy-emulator.conf"
     command: "/usr/local/bin/sushy-emulator"

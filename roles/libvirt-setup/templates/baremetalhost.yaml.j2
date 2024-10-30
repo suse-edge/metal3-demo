@@ -45,10 +45,10 @@ stringData:
     dns-resolver:
       config:
         server:
-        - "{{egress_network_bridge_ip}}"
+        - "{{external_network_bridge_ip}}"
     routes:
       config:
       - destination: 0.0.0.0/0
-        next-hop-address: "{{egress_network_bridge_ip}}"
+        next-hop-address: "{{external_network_bridge_ip}}"
         next-hop-interface: enp1s0
 {% endif %}
