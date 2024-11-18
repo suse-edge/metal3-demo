@@ -45,10 +45,10 @@ stringData:
     dns-resolver:
       config:
         server:
-        - "{{external_network_bridge_ip}}"
+        - "{{ external_network_bridge_ip_v4 if libvirt_network_ipv4|bool else external_network_bridge_ip_v6 }}"
     routes:
       config:
       - destination: 0.0.0.0/0
-        next-hop-address: "{{external_network_bridge_ip}}"
+        next-hop-address: "{{ external_network_bridge_ip_v4 if libvirt_network_ipv4|bool else external_network_bridge_ip_v6 }}"
         next-hop-interface: enp1s0
 {% endif %}

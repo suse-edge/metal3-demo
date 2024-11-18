@@ -1,14 +1,23 @@
 routes:
   config:
+{% if libvirt_network_ipv4|bool %}
   - destination: 0.0.0.0/0
     metric: 100
-    next-hop-address: "{{ external_network_bridge_ip }}"
+    next-hop-address: "{{ external_network_bridge_ip_v4}}"
     next-hop-interface: enp1s0
     table-id: 254
+{% endif %}
+{% if libvirt_network_ipv6|bool %}
+  - destination: "::/0"
+    metric: 100
+    next-hop-address: "{{ external_network_bridge_ip_v6 }}"
+    next-hop-interface: enp1s0
+    table-id: 254
+{% endif %}
 dns-resolver:
   config:
     server:
-    - "{{ external_network_bridge_ip }}"
+    - "{{ external_network_bridge_ip_v4 if libvirt_network_ipv4|bool else external_network_bridge_ip_v6 }}"
 interfaces:
 - name: enp1s0
   type: ethernet
