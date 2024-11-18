@@ -8,6 +8,18 @@
   </forward>
   <bridge name='{{ item.bridge }}' stp='on' delay='0'/>
 
+  {% if item.dns is defined -%}
+  <dns>
+    {% for host in item.dns.hosts -%}
+    <host ip='{{ host.ip }}'>
+      {% for name in host.hostnames -%}
+      <hostname>{{ name }}</hostname>
+      {% endfor -%}
+    </host>
+    {% endfor -%}
+  </dns>
+  {% endif %}
+
 {# IPv4 Configuration #}
 {% if item.address_v4 is defined and item.address_v4 != '' %}
   <ip address='{{ item.address_v4 }}' netmask='{{ item.netmask_v4 }}'>
@@ -28,17 +40,6 @@
     </dhcp>
   {% endif %}
   </ip>
-  {% if item.dns is defined -%}
-  <dns>
-    {% for host in item.dns.hosts -%}
-    <host ip='{{ host.ip }}'>
-      {% for name in host.hostnames -%}
-      <hostname>{{ name }}</hostname>
-      {% endfor -%}
-    </host>
-    {% endfor -%}
-  </dns>
-  {% endif %}
 {% endif %}
 {# End IPv4 Configuration #}
 
