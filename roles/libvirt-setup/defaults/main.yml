@@ -18,6 +18,9 @@ libvirt_network_dhcp: true
 # Set to true for dual-stack testing with ipv6
 libvirt_network_ipv6: false
 
+# Can be set to false for single-stack testing with ipv6
+libvirt_network_ipv4: true
+
 # Where to log serial console output
 libvirt_log_path: "/var/log/libvirt/qemu"
 
@@ -32,7 +35,7 @@ libvirt_uri: qemu:///system
 libvirt_default_pool_dir: "{{libvirt_images_dir}}/pool-default"
 
 external_network_cidr_v4: 192.168.125.0/24
-external_network_bridge_ip: "{{ external_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
+external_network_bridge_ip_v4: "{{ external_network_cidr_v4|ansible.utils.nthhost(1)|default('', true) }}"
 external_network_dhcp_range_v4:
   - "{{ external_network_cidr_v4|ansible.utils.nthhost(200)|default('', true) }}"
   - "{{ external_network_cidr_v4|ansible.utils.nthhost(250)|default('', true) }}"
@@ -48,7 +51,7 @@ external_network_static_ip_start_v6: "{{ external_network_cidr_v6|ansible.utils.
 libvirt_networks:
   - name: external
     bridge: m3-external
-    address_v4: "{{ external_network_bridge_ip }}"
+    address_v4: "{{ external_network_bridge_ip_v4 if libvirt_network_ipv4|bool else '' }}"
     netmask_v4: "{{ external_network_cidr_v4|ansible.utils.ipaddr('netmask') }}"
     dhcp_range_v4: "{{ external_network_dhcp_range_v4 if libvirt_network_dhcp else [] }}"
     static_ip_start_v4: "{{ '' if libvirt_network_dhcp|bool else external_network_static_ip_start_v4 }}"
@@ -58,7 +61,7 @@ libvirt_networks:
     static_ip_start_v6: "{{ '' if libvirt_network_dhcp|bool else external_network_static_ip_start_v6 }}"
     dns:
       hosts:
-        - ip: "{{ external_network_bridge_ip }}"
+        - ip: "{{ external_network_bridge_ip_v4 if libvirt_network_ipv4|bool else external_network_bridge_ip_v6 }}"
           hostnames:
             - imagecache.local
 
@@ -92,4 +95,4 @@ num_worker_hosts: 1
 vbmc_username: "admin"
 vbmc_password: "password"
 vbmc_port: "{{ sushy_tools_port | default(8000) }}"
-vbmc_ip: "{{ external_network_bridge_ip }}"
+vbmc_ip: "{{ external_network_bridge_ip_v4 if libvirt_network_ipv4|bool else external_network_bridge_ip_v6 }}"

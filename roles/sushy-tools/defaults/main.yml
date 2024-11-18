@@ -5,6 +5,8 @@ sushy_ignore_boot_device: False
 # This matches how real hardware behaves
 sushy_vmedia_verify_ssl: False
 
+libvirt_network_ipv4: true
+
 # BMC credentials
 vbmc_username: "admin"
 vbmc_password: "password"
