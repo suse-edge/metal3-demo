@@ -21,6 +21,7 @@ eib_git_version: ""
 
 libvirt_network_dhcp: true
 libvirt_network_ipv6: false
+libvirt_network_ipv4: true
 
 cluster_rke2_version: "v1.31.2+rke2r1"
 cluster_cni: cilium
