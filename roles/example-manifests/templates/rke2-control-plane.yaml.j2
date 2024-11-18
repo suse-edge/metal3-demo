@@ -111,16 +111,3 @@ spec:
         object: machine
       - key: local_hostname
         object: machine
-{% if libvirt_network_dhcp|bool != false %}
-  networkData:
-    links:
-      ethernets:
-        - id: enp1s0
-          macAddress:
-            fromHostInterface: enp1s0
-          type: phy
-    networks:
-      ipv4DHCP:
-        - id: enp1s0
-          link: enp1s0
-{% endif %}
