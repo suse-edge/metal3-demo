@@ -4,9 +4,16 @@ example_manifest_dir: "{{ working_dir }}/example-manifests"
 num_controlplane_hosts: 1
 num_worker_hosts: 1
 
-cluster_network_cidr: "192.168.0.0/18"
-service_network_cidr: "10.96.0.0/12"
-controlplane_endpoint: "192.168.125.200"
+libvirt_network_ipv6: false
+libvirt_network_ipv4: true
+
+cluster_network_cidr_v4: "192.168.0.0/18"
+service_network_cidr_v4: "10.96.0.0/12"
+controlplane_endpoint_v4: "192.168.125.200"
+
+cluster_network_cidr_v6: "2001:cafe:44::/56"
+service_network_cidr_v6: "2001:cafe:45::/112"
+controlplane_endpoint_v6: "fd55::200"
 
 cluster_name: "sample-cluster"
 cluster_namespace: "default"
