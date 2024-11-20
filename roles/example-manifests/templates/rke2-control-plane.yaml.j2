@@ -7,10 +7,20 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-        - {{ cluster_network_cidr }}
+{% if libvirt_network_ipv4|bool %}
+        - {{ cluster_network_cidr_v4 }}
+{% endif %}
+{% if libvirt_network_ipv6|bool %}
+        - {{ cluster_network_cidr_v6 }}
+{% endif %}
     services:
       cidrBlocks:
-        - {{ service_network_cidr }}
+{% if libvirt_network_ipv4|bool %}
+        - {{ service_network_cidr_v4 }}
+{% endif %}
+{% if libvirt_network_ipv6|bool %}
+        - {{ service_network_cidr_v6 }}
+{% endif %}
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     kind: RKE2ControlPlane
@@ -27,7 +37,7 @@ metadata:
   namespace: {{ cluster_namespace }}
 spec:
   controlPlaneEndpoint:
-    host: {{ controlplane_endpoint }}
+    host: {{ controlplane_endpoint_v4 if libvirt_network_ipv4|bool else controlplane_endpoint_v6 }}
     port: 6443
   noCloudProvider: true
 ---
