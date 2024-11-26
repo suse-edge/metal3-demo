@@ -21,15 +21,14 @@ eib_git_version: ""
 
 libvirt_network_dhcp: true
 
-cluster_rke2_version: "v1.30.3+rke2r1"
+cluster_rke2_version: "v1.31.2+rke2r1"
 
 rancher_helm_repo: https://releases.rancher.com/server-charts/latest
 suse_edge_helm_repo: https://suse-edge.github.io/charts
-local_path_provisioner_url: "https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.28/deploy/local-path-storage.yaml"
-rancher_version: 2.9.1
-rancher_turtles_version: "0.3.2+up0.11.0"
+rancher_version: 2.10.0
+rancher_turtles_version: "0.4.0+up0.13.0"
 cert_manager_version: 1.14.2
-metal3_version: 0.8.1
+metal3_version: 0.9.0
 
 rancher_bootstrap_password: rancher
 

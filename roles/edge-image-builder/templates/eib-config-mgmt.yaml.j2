@@ -22,9 +22,6 @@ operatingSystem:
 {% endif %}
 kubernetes:
   version: {{ cluster_rke2_version }}
-  manifests:
-    urls:
-      - "{{ local_path_provisioner_url }}"
   helm:
     charts:
       - name: cert-manager
