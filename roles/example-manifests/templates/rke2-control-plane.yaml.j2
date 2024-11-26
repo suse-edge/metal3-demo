@@ -12,7 +12,7 @@ spec:
       cidrBlocks:
         - {{ service_network_cidr }}
   controlPlaneRef:
-    apiVersion: controlplane.cluster.x-k8s.io/v1alpha1
+    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
     kind: RKE2ControlPlane
     name: {{ cluster_name }}
   infrastructureRef:
@@ -31,7 +31,7 @@ spec:
     port: 6443
   noCloudProvider: true
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1alpha1
+apiVersion: controlplane.cluster.x-k8s.io/v1beta1
 kind: RKE2ControlPlane
 metadata:
   name: {{ cluster_name }}
@@ -42,6 +42,12 @@ spec:
     kind: Metal3MachineTemplate
     name: {{ cluster_name }}-controlplane
   replicas: {{ num_controlplane_hosts }}
+  version: {{ cluster_rke2_version }}
+  rolloutStrategy:
+    type: "RollingUpdate"
+    rollingUpdate:
+      maxSurge: 0
+  registrationMethod: "control-plane-endpoint"
   agentConfig:
     format: ignition
     kubelet:
@@ -70,7 +76,6 @@ spec:
                 ExecStartPost=/bin/sh -c "umount /mnt"
                 [Install]
                 WantedBy=multi-user.target
-    version: {{ cluster_rke2_version }}
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
 kind: Metal3MachineTemplate
