@@ -18,7 +18,7 @@ spec:
     spec:
       bootstrap:
         configRef:
-          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha1
+          apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
           kind: RKE2ConfigTemplate
           name: {{ cluster_name }}-workers
       clusterName: {{ cluster_name }}
@@ -29,7 +29,7 @@ spec:
       nodeDrainTimeout: 0s
       version: {{ cluster_rke2_version }}
 ---
-apiVersion: bootstrap.cluster.x-k8s.io/v1alpha1
+apiVersion: bootstrap.cluster.x-k8s.io/v1beta1
 kind: RKE2ConfigTemplate
 metadata:
   name: {{ cluster_name }}-workers
@@ -39,7 +39,6 @@ spec:
     spec:
       agentConfig:
         format: ignition
-        version: {{ cluster_rke2_version }}
         kubelet:
           extraArgs:
             - provider-id=metal3://BAREMETALHOST_UUID
