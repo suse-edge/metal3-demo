@@ -61,14 +61,14 @@ Command-line flags may be passed to Ansible via the script, for example to disab
   ./03_build_images.sh
   ```
 
-Note this configures the environment to deploy management and downstream clusters with [openSUSE Leap Micro 5.5](https://get.opensuse.org/leapmicro/5.5/),
-for [SLEMicro 5.5](https://documentation.suse.com/sle-micro/5.5/) follow the additional steps below.
+Note this configures the environment to deploy management and downstream clusters with [openSUSE Leap Micro 6.0](https://get.opensuse.org/leapmicro/6.0/),
+for [SLMicro 6.0](https://documentation.suse.com/sle-micro/6.0/) follow the additional steps below.
 
 ### Enable deploying with SLEMicro
 
 If you want to use SLEMicro then a few additional steps are required:
 
-1. Download the SLE Micro image from the [SUSE Customer Center](https://www.suse.com/download/sle-micro/). The version must be 5.5 in raw format.
+1. Download the SLE Micro image from the [SUSE Customer Center](https://www.suse.com/download/sle-micro/). The version must be 6.0 in raw format.
 
 **Note** The file downloaded is a xz compressed file. It must be uncompressed before using it as a valid image.
 
