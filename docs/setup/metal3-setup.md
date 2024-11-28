@@ -9,7 +9,7 @@ the Kubernetes native API. (see https://metal3.io/)
 
 Currently requires one of the following OS choices:
 
-- [OpenSuse Leap 15.5](https://get.opensuse.org/leap/15.5/)
+- [OpenSuse Leap 15.6](https://get.opensuse.org/leap/15.6/)
 - Ubuntu (22.04 LTS) (to enable testing on Equinix)
 
 1. Create a non-root user with sudo access

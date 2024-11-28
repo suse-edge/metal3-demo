@@ -42,4 +42,4 @@ packages:
 
 repos:
   opensuse:
-    - "https://download.opensuse.org/repositories/devel:/languages:/python:/backports/15.5/devel:languages:python:backports.repo"
+    - "https://download.opensuse.org/repositories/devel:/languages:/python:/backports/15.6/devel:languages:python:backports.repo"
