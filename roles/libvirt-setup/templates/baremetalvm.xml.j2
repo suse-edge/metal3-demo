@@ -5,9 +5,6 @@
 
   <os firmware='{{libvirt_firmware}}'>
     <type arch='{{ libvirt_arch }}' machine='q35'>hvm</type>
-{# FIXME - this fails validation with the libvirt version in Leap 15.5
-    <loader secure='{{ 'yes' if libvirt_secure_boot else 'no' }}'/>
-#}
     <firmware>
 {% if libvirt_secure_boot %}
       <feature enabled='yes' name='secure-boot'/>
