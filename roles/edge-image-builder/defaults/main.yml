@@ -10,9 +10,9 @@ image_cache_dir: "{{ working_dir }}/image-cache"
 libvirt_images_dir: "/var/lib/libvirt/images"
 
 # We add a registration code for image names which start with SLE-Micro e.g
-# SLE-Micro.x86_64-5.5.0-Default-GM.raw - for test images with a different name it will be
+# SL-Micro.x86_64-6.0-Base-GM2.raw - for test images with a different name it will be
 # necessary to override the eib_source_image_slemicro flag (or align with SLE-Micro* naming)
-eib_source_image_slemicro: "{{ True if eib_source_image_name.startswith('SLE-Micro') else False }}"
+eib_source_image_slemicro: "{{ True if eib_source_image_name.startswith('SL-Micro') else False }}"
 eib_registration_code: "{{ lookup('env', 'EIB_REGISTRATION_CODE') }}"
 
 # If eib_git_version is specified we build a local image
