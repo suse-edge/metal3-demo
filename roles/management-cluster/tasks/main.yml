@@ -75,3 +75,4 @@
     host: "{{ vm_public_network_ip }}"
     port: 6443
     delay: 60
+    timeout: 3600 # Adding a timeout to allow deployment on machines with slower disks
