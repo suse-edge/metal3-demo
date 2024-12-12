@@ -1,5 +1,6 @@
 {% set resource_name = item.name | replace('_', '-') %}
-{% set net_cidr = libvirt_networks[0].address_v4 + "/" + libvirt_networks[0].netmask_v4 %}
+{% set net_cidr_v4 = libvirt_networks[0].address_v4 + "/" + libvirt_networks[0].netmask_v4 %}
+{% set net_cidr_v6 = libvirt_networks[0].address_v6 + "/" + libvirt_networks[0].prefix_v6 %}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -37,18 +38,39 @@ stringData:
       type: ethernet
       state: up
       ipv4:
+{% if libvirt_network_ipv4|bool %}
         address:
-        - ip:  "{{ node_ip_map.get(item.name).get(libvirt_networks[0].name) }}"
-          prefix-length: "{{ net_cidr | ansible.utils.ipaddr('prefix') }}"
+        - ip:  "{{ node_ip_map.get(item.name).get(libvirt_networks[0].name + '_v4') }}"
+          prefix-length: "{{ net_cidr_v4 | ansible.utils.ipaddr('prefix') }}"
         enabled: true
         dhcp: false
+{% else %}
+        enabled: false
+{% endif %}
+      ipv6:
+{% if libvirt_network_ipv6|bool %}
+        address:
+        - ip:  "{{ node_ip_map.get(item.name).get(libvirt_networks[0].name + '_v6') }}"
+          prefix-length: "{{ net_cidr_v6 | ansible.utils.ipaddr('prefix') }}"
+        enabled: true
+        dhcp: false
+{% else %}
+        enabled: false
+{% endif %}
     dns-resolver:
       config:
         server:
         - "{{ external_network_bridge_ip_v4 if libvirt_network_ipv4|bool else external_network_bridge_ip_v6 }}"
     routes:
       config:
-      - destination: 0.0.0.0/0
-        next-hop-address: "{{ external_network_bridge_ip_v4 if libvirt_network_ipv4|bool else external_network_bridge_ip_v6 }}"
-        next-hop-interface: enp1s0
+{% if libvirt_network_ipv4|bool %}
+       - destination: 0.0.0.0/0
+         next-hop-address: "{{ external_network_bridge_ip_v4}}"
+         next-hop-interface: enp1s0
+{% endif %}
+{% if libvirt_network_ipv6|bool %}
+       - destination: "::/0"
+         next-hop-address: "{{ external_network_bridge_ip_v6 }}"
+         next-hop-interface: enp1s0
+{% endif %}
 {% endif %}
