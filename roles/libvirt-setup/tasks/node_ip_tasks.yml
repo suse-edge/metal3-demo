@@ -1,9 +1,4 @@
 ---
-- set_fact:
-    node_ip_map: "{{ node_ip_map | combine( {item.name: {network.name: node_ip}}, recursive=true ) }}"
-  vars:
-    node_ip: "{{ network.static_ip_start_v4 | ansible.netcommon.ipmath(ansible_loop.index0) }}"
+- include_tasks: node_ip_map_tasks.yml
   when: network.static_ip_start_v4 != ''
   loop: "{{ vm_nodes }}"
-  loop_control:
-    extended: true
