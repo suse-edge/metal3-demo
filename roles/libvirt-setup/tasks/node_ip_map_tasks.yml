@@ -1,0 +1,33 @@
+---
+- set_fact:
+    node_ip_index: "{{node_ip_index|default(0)|int}}"
+
+- name: "Set {{ item.name}} IP index {{ node_ip_index }}"
+  block:
+  - set_fact:
+      node_ip_map: "{{ node_ip_map | combine( {item.name: {network.name + '_v4': node_ip}}, recursive=true ) }}"
+    vars:
+      node_ip: "{{ network.static_ip_start_v4 | ansible.netcommon.ipmath(node_ip_index) }}"
+    when: libvirt_network_ipv4|bool
+  - set_fact:
+      node_ip_map: "{{ node_ip_map | combine( {item.name: {network.name + '_v6': node_ip}}, recursive=true ) }}"
+    vars:
+      node_ip: "{{ network.static_ip_start_v6 | ansible.netcommon.ipmath(node_ip_index) }}"
+    when: libvirt_network_ipv6|bool
+  - set_fact:
+      node_ip_index: "{{node_ip_index|int + 1 }}"
+  when: item.name not in node_ip_map_override
+
+- name: "Set {{ item.name}} IP from node_ip_map_override"
+  block:
+  - set_fact:
+      node_ip_map: "{{ node_ip_map | combine( {item.name: {network.name + '_v4': node_ip}}, recursive=true ) }}"
+    vars:
+      node_ip: "{{ node_ip_map_override[item.name][network.name + '_v4'] }}"
+    when: libvirt_network_ipv4|bool
+  - set_fact:
+      node_ip_map: "{{ node_ip_map | combine( {item.name: {network.name + '_v6': node_ip}}, recursive=true ) }}"
+    vars:
+      node_ip: "{{ node_ip_map_override[item.name][network.name + '_v6'] }}"
+    when: libvirt_network_ipv6|bool
+  when: item.name in node_ip_map_override

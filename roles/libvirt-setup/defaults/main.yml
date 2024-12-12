@@ -65,6 +65,11 @@ libvirt_networks:
           hostnames:
             - imagecache.local
 
+node_ip_map_override:
+  management_0:
+    external_v4: "{{ management_cluster_public_ip }}"
+    external_v6: "{{ management_cluster_public_ip_v6 }}"
+
 libvirt_flavors:
   management:
     cluster_role: management-cluster
