@@ -12,3 +12,6 @@ disk_image_file: "{{ libvirt_images_dir }}/{{ image_os_name }}-{{ vm_instance_na
 
 # size of the disk image
 disk_image_size: 40G
+
+# Timeout for task "Wait for VM to be up and running Kubernetes", increase in case of older hardware
+timeout_vm_k8s: 600
