@@ -1,0 +1,8 @@
+cni: {{cluster_cni}}
+{% if libvirt_network_ipv6|bool %}
+cluster-cidr: "10.42.0.0/16,2001:cafe:42::/56"
+service-cidr: "10.43.0.0/16,2001:cafe:43::/112"
+{% else %}
+cluster-cidr: "10.42.0.0/16"
+service-cidr: "10.43.0.0/16"
+{% endif %}
