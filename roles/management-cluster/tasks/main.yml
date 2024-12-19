@@ -75,4 +75,4 @@
     host: "{{ vm_public_network_ip }}"
     port: 6443
     delay: 60
-    timeout: {{ timeout_vm_k8s }}
+    timeout: "{{ timeout_vm_k8s }}"
