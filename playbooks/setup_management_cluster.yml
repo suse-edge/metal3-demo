@@ -46,7 +46,7 @@
       register: rollout_result
       until: rollout_result.rc == 0
       retries: 12
-      delay: 10
+      delay: 30
       with_items:
         - {'deployment': 'capi-controller-manager', 'namespace': 'capi-system'}
         - {'deployment': 'capm3-controller-manager', 'namespace': 'capm3-system'}
