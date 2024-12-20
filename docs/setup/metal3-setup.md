@@ -39,7 +39,16 @@ cd metal3-demo
 
 1. (optional) customize extra_vars.yml
 
-If desired the defaults from `extra_vars.yml` can be customized, copy the file and export `EXTRA_VARS_FILE` to reference the copied file location.
+If desired the defaults from `extra_vars.yml` can be customized, copy the file and export `EXTRA_VARS_FILE` to reference the copied file location:
+
+For example to test a dual-stack deployment with static-ips:
+
+```
+cp extra_vars.yml ~
+echo "libvirt_network_dhcp: false" >> ~/extra_vars.yml
+echo "libvirt_network_ipv6: true" >> ~/extra_vars.yml
+export EXTRA_VARS_FILE="~/extra_vars.yml"
+```
 
 2. Configure the host
 
@@ -47,12 +56,6 @@ If desired the defaults from `extra_vars.yml` can be customized, copy the file a
 
   ```shell
   ./02_configure_host.sh
-  ```
-
-Command-line flags may be passed to Ansible via the script, for example to disable DHCP for testing with static-ips you can do:
-
-  ```shell
-  ./02_configure_host.sh -vvv -e "libvirt_network_dhcp=false"
   ```
 
 ## Build images
@@ -115,11 +118,7 @@ worker-0         available              true             9m44s
 
 ## Testing with Static IPs
 
-It is possible to disable the libvirt DHCP server via the `libvirt_network_dhcp` ansible variable, for example when configuring the host:
-
-  ```shell
-  ./02_configure_host.sh -vvv -e "libvirt_network_dhcp=false"
-  ```
+It is possible to disable the libvirt DHCP server via the `libvirt_network_dhcp` ansible variable, as mentioned earlier in the `EXTRA_VARS_FILE` example.
 
 This disables the `<dhcp>` stanza in the `external` network (check with `virsh net-dumpxml external`), and configures the BareMetalHost resources with a static IP via a secret containing nmstate syntax, e.g:
 
@@ -180,3 +179,9 @@ This networkData is consumed by [nm-configurator](https://github.com/suse-edge/n
 - For more information about the BareMetalHost resource states refer to the [Metal3 documentation](https://github.com/metal3-io/baremetal-operator/blob/main/docs/BaremetalHost_ProvisioningState.png)
 - If a BareMetalHost resource is stuck in the inspecting state, `virsh console` can be useful to view the inspection ramdisk output
 - Note that you may need to `export LIBVIRT_DEFAULT_URI="qemu:///system"` to access the VMs via `virsh` as a non-root user
+
+## Testing with ipv6/dual-stack
+
+It is possible to ipv4/ipv6 networks via the `libvirt_network_ipv4` and `libvirt_network_ipv6` ansible variables, as mentioned earlier in the `EXTRA_VARS_FILE` example.
+
+This enables/disables the relevant libvirt network, and also where appropriate configures networking for the deployed cluster and hosts manifests.
