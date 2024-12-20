@@ -78,6 +78,19 @@
       src: "configure-network.sh"
       dest: "{{ eib_path }}/metal3/network"
 
+- name: Copy NM configuration file if ipv6 enabled
+  when: libvirt_network_ipv6 != false
+  block:
+  - name: Create os-files directory
+    file:
+      path: "{{ eib_path }}/metal3/os-files/etc/NetworkManager/conf.d"
+      state: directory
+  - name: Copy network-manager-v6.conf
+    copy:
+      mode: 0644
+      src: "network-manager-v6.conf"
+      dest: "{{ eib_path }}/metal3/os-files/etc/NetworkManager/conf.d"
+
 - name: Run EIB container to generate the metal3 image
   become: true
   containers.podman.podman_container:
