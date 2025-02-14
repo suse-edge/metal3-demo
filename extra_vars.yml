@@ -15,8 +15,8 @@ vm_authorized_ssh_keys:
  - "{{ lookup('file', public_key_file) }}"
 
 # OS image
-os_image_url: https://download.opensuse.org/distribution/leap-micro/6.0/appliances/openSUSE-Leap-Micro.x86_64-Default.raw.xz
-os_image_checksum: sha256:https://download.opensuse.org/distribution/leap-micro/6.0/appliances/openSUSE-Leap-Micro.x86_64-Default.raw.xz.sha256
+os_image_url: https://download.opensuse.org/distribution/leap-micro/6.1/appliances/openSUSE-Leap-Micro.x86_64-Default.raw.xz
+os_image_checksum: sha256:https://download.opensuse.org/distribution/leap-micro/6.1/appliances/openSUSE-Leap-Micro.x86_64-Default.raw.xz.sha256
 
 # Alternatively a local image e.g SLEMicro can be specified e.g
 # export OS_LOCAL_IMAGE=/home/foo/SLE-Micro.x86_64-5.5.0-Default-GM.raw
