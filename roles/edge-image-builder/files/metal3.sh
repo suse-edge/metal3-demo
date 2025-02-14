@@ -37,7 +37,7 @@ if [ $(${KUBECTL} get pods -n ${RANCHER_CHART_TARGETNAMESPACE} -l app=rancher -o
     name: embedded-cluster-api
   spec:
     value: false
-  EOF
+EOF
 
   # Disable Rancher webhooks for CAPI
   ${KUBECTL} delete mutatingwebhookconfiguration.admissionregistration.k8s.io mutating-webhook-configuration
