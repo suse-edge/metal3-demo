@@ -9,6 +9,8 @@ operatingSystem:
   - ignition.platform.id=openstack
   - net.ifnames=1
   users:
+  - username: root
+    encryptedPassword: "{{ vm_user_plain_text_password | password_hash }}"
   - username: {{ vm_user }}
     sshKeys: {{ vm_authorized_ssh_keys | to_yaml }}
     encryptedPassword: "{{ vm_user_plain_text_password | password_hash }}"
