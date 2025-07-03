@@ -48,13 +48,12 @@
       retries: 12
       delay: 30
       with_items:
-        - {'deployment': 'capi-controller-manager', 'namespace': 'capi-system'}
+        - {'deployment': 'capi-controller-manager', 'namespace': 'cattle-capi-system'}
         - {'deployment': 'capm3-controller-manager', 'namespace': 'capm3-system'}
-        - {'deployment': 'ipam-controller-manager', 'namespace': 'capm3-system'}
+        - {'deployment': 'ipam-controller-manager', 'namespace': 'metal3-ipam-system'}
         - {'deployment': 'rke2-bootstrap-controller-manager', 'namespace': 'rke2-bootstrap-system'}
         - {'deployment': 'rke2-control-plane-controller-manager', 'namespace': 'rke2-control-plane-system'}
         - {'deployment': 'cert-manager', 'namespace': 'cert-manager'}
         - {'deployment': 'baremetal-operator-controller-manager', 'namespace': 'metal3-system'}
         - {'deployment': 'metal3-metal3-ironic', 'namespace': 'metal3-system'}
-        - {'deployment': 'rancher-turtles-cluster-api-operator', 'namespace': 'rancher-turtles-system'}
-        - {'deployment': 'rancher-turtles-controller-manager', 'namespace': 'rancher-turtles-system'}
+        - {'deployment': 'rancher-turtles-controller-manager', 'namespace': 'cattle-turtles-system'}

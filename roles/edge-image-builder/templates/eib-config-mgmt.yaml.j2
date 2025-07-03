@@ -47,13 +47,12 @@ kubernetes:
         createNamespace: true
         installationNamespace: kube-system
         valuesFile: rancher-values.yaml
-      - name: rancher-turtles
-        version: {{ rancher_turtles_version }}
+      - name: rancher-turtles-providers
+        version: {{ rancher_turtles_providers_version }}
         repositoryName: suse-edge-charts
-        targetNamespace: rancher-turtles-system
+        targetNamespace: cattle-turtles-system
         createNamespace: true
         installationNamespace: kube-system
-        valuesFile: turtles-values.yaml
     repositories:
       - name: jetstack
         url: https://charts.jetstack.io
