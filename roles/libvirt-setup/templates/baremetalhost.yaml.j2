@@ -1,6 +1,6 @@
 {% set resource_name = item.name | replace('_', '-') %}
 {% set net_cidr_v4 = libvirt_networks[0].address_v4 + "/" + libvirt_networks[0].netmask_v4 %}
-{% set net_cidr_v6 = libvirt_networks[0].address_v6 + "/" + libvirt_networks[0].prefix_v6 %}
+{% set net_cidr_v6 = libvirt_networks[0].address_v6 + "/" + libvirt_networks[0].prefix_v6|string %}
 apiVersion: v1
 kind: Secret
 metadata:
