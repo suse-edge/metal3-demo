@@ -56,7 +56,7 @@
         {% set host_name = libvirt_host_prefix + flavor + "_" + num|string -%}
         {% set hostname_format = lookup('vars', flavor + '_hostname_format', default=flavor + '-%d') %}
         {% set hostname = hostname_format % num %}
-        <host id='00:03:00:01:{{ node_mac_map.get(host_name).get(item.name)}}' name='{{hostname}}' ip='{{item.dhcp_range_v6[0]|ipmath(ns.index|int)}}' />
+        <host id='00:03:00:01:{{ node_mac_map.get(host_name).get(item.name)}}' name='{{hostname}}' ip='{{item.dhcp_range_v6[0]|ansible.utils.ipmath(ns.index|int)}}' />
         {% set ns.index = ns.index + 1 %}
       {% endfor %}
     {% endfor %}
