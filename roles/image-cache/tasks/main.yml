@@ -5,7 +5,7 @@
     state: directory
 
 - name: Check if local path exists and copy to the image-cache directory
-  when: os_local_image
+  when: os_local_image != ''
   block:
   - name: Check if the local image exists
     stat:
