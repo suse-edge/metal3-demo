@@ -7,6 +7,6 @@ configure_host:
 	./02_configure_host.sh
 
 launch_mgmt_cluster:
-	./03_launch_mgmt_cluster.sh
+	./04_launch_mgmt_cluster.sh
 
 .PHONY: all install_requirements configure_host launch_mgmt_cluster
