@@ -11,12 +11,16 @@ fi
 # Check OS type and version
 source /etc/os-release
 export DISTRO="${ID}${VERSION_ID%.*}"
+# Tumbleweed is rolling, exclude the version as it is a date string
+if [[ "$ID" = "opensuse-tumbleweed" ]]; then
+  DISTRO="$ID"
+fi
 export OS="${ID}"
 export OS_VERSION_ID="${VERSION_ID}"
-export SUPPORTED_DISTROS=(ubuntu22 opensuse-leap15)
+export SUPPORTED_DISTROS=(ubuntu22 opensuse-leap15 opensuse-tumbleweed*)
 
 if [[ ! "${SUPPORTED_DISTROS[*]}" =~ ${DISTRO} ]]; then
-  echo "Supported OS distros for the host are: Ubuntu 22.04"
+  echo "Supported OS distros for the host are: ${SUPPORTED_DISTROS[*]}"
   exit 1
 fi
 
@@ -32,13 +36,17 @@ if [[ "${OS}" = "ubuntu" ]]; then
   if [[ "${DISTRO}" = "ubuntu22" ]]; then
     sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
   fi
+  sudo python -m pip install ansible
+elif [[ "${OS}" = "opensuse-tumbleweed" ]]; then
+  sudo zypper -n update
+  sudo zypper -n install python313 python313-pip jq curl wget pkg-config bash-completion ansible
 elif [[ "${OS}" = "opensuse-leap" ]]; then
   sudo zypper -n update
   sudo zypper -n install python311 python311-pip jq curl wget pkg-config bash-completion
   sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+  sudo python -m pip install ansible
 fi
 
-sudo python -m pip install ansible
 
 # Install requirements
 ansible-galaxy install -r requirements.yml
