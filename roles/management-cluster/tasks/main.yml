@@ -17,8 +17,8 @@
   when: vm_instance_name in list_vms_result.list_vms
 
 - name: Ensure virsh is installed
-  command:
-   cmd: which virsh
+  ansible.builtin.shell: command -v virsh
+  changed_when: false
 
 - name: Detach OS disk from VM
   become: yes
