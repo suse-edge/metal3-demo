@@ -3,15 +3,22 @@
     community.general.zypper_repository:
       repo: "{{ item }}"
       auto_import_keys: true
-    when: ansible_facts['distribution'] == 'openSUSE Leap'
+    when: ansible_facts['distribution'] == 'openSUSE Leap' and ansible_facts['distribution_major_version'] == '15'
     loop: "{{ repos.opensuse }}"
   - name: Install required packages on {{ ansible_facts['distribution'] }}
     community.general.zypper:
-      name: "{{ packages.opensuse }}"
+      name: "{{ packages.leap15 }}"
       state: present
       force_resolution: true
       replacefiles: true
-    when: ansible_facts['distribution'] == 'openSUSE Leap'
+    when: ansible_facts['distribution'] == 'openSUSE Leap' and ansible_facts['distribution_major_version'] == '15'
+  - name: Install required packages on {{ ansible_facts['distribution'] }}
+    community.general.zypper:
+      name: "{{ packages.leap16 }}"
+      state: present
+      force_resolution: true
+      replacefiles: true
+    when: ansible_facts['distribution'] == 'openSUSE Leap' and ansible_facts['distribution_major_version'] == '16'
   - name: Install required packages on {{ ansible_facts['distribution'] }}
     community.general.zypper:
       name: "{{ packages.tumbleweed }}"
