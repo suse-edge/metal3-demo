@@ -7,10 +7,9 @@ the Kubernetes native API. (see https://metal3.io/)
 
 ### Pre-requisite Dependencies
 
-Currently requires one of the following OS choices:
-
-- [OpenSuse Leap 15.6](https://get.opensuse.org/leap/15.6/)
-- Ubuntu (22.04 LTS) (to enable testing on Equinix)
+Please check [README.md](../../README.md) for supported operating systems. If you use openSUSE, please
+ensure you have "kernel-default" (not kernel-default-base) installed as kernel-default-base does not provide
+the modules necessary for starting virtual machines.
 
 1. Create a non-root user with sudo access
 
