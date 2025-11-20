@@ -17,7 +17,7 @@ if [[ "$ID" = "opensuse-tumbleweed" ]]; then
 fi
 export OS="${ID}"
 export OS_VERSION_ID="${VERSION_ID}"
-export SUPPORTED_DISTROS=(ubuntu22 opensuse-leap15 opensuse-tumbleweed*)
+export SUPPORTED_DISTROS=(ubuntu22 opensuse-leap15 opensuse-leap16 opensuse-tumbleweed*)
 
 if [[ ! "${SUPPORTED_DISTROS[*]}" =~ ${DISTRO} ]]; then
   echo "Supported OS distros for the host are: ${SUPPORTED_DISTROS[*]}"
@@ -37,10 +37,10 @@ if [[ "${OS}" = "ubuntu" ]]; then
     sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
   fi
   sudo python -m pip install ansible
-elif [[ "${OS}" = "opensuse-tumbleweed" ]]; then
+elif [[ "${OS}" = "opensuse-tumbleweed" ]] || [[ "${DISTRO}" = "opensuse-leap16" ]]; then
   sudo zypper -n update
   sudo zypper -n install python313 python313-pip jq curl wget pkg-config bash-completion ansible
-elif [[ "${OS}" = "opensuse-leap" ]]; then
+elif [[ "${DISTRO}" = "opensuse-leap15" ]]; then
   sudo zypper -n update
   sudo zypper -n install python311 python311-pip jq curl wget pkg-config bash-completion
   sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
