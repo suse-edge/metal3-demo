@@ -16,22 +16,22 @@ eib_source_image_slemicro: "{{ True if eib_source_image_name.startswith('SL-Micr
 eib_registration_code: "{{ lookup('env', 'EIB_REGISTRATION_CODE') }}"
 
 # If eib_git_version is specified we build a local image
-eib_container_image: "registry.suse.com/edge/3.3/edge-image-builder:1.2.0"
+eib_container_image: "registry.suse.com/edge/3.3/edge-image-builder:1.2.1"
 eib_git_version: ""
 
 libvirt_network_dhcp: true
 libvirt_network_ipv6: false
 libvirt_network_ipv4: true
 
-cluster_rke2_version: "v1.32.3+rke2r1"
+cluster_rke2_version: "v1.32.9+rke2r1"
 cluster_cni: calico
 
-rancher_helm_repo: https://releases.rancher.com/server-charts/latest
-suse_edge_helm_repo: https://suse-edge.github.io/charts
-rancher_version: 2.11.1
-rancher_turtles_version: "0.8.0+up0.19.0"
+rancher_helm_repo: https://charts.rancher.com/server-charts/prime
+suse_edge_helm_repo: oci://registry.suse.com/edge/charts
+rancher_version: 2.11.6
+rancher_turtles_version: "303.0.5+up0.21.0"
 cert_manager_version: 1.15.3
-metal3_version: 0.11.3
+metal3_version: "303.0.7+up0.11.5"
 
 rancher_bootstrap_password: rancher
 

@@ -8,7 +8,7 @@ k9s_download_archive: https://github.com/derailed/k9s/releases/download/{{ k9s_v
 kustomize_download_archive: https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F{{ kustomize_version }}/kustomize_{{ kustomize_version }}_linux_amd64.tar.gz
 kubetail_download_url: https://raw.githubusercontent.com/johanhaleby/kubetail/master/kubetail
 
-kubectl_version: v1.32.3
+kubectl_version: v1.32.9
 kubectl_download_url: https://cdn.dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl
 
 # CAPI release version
@@ -16,4 +16,4 @@ kubectl_download_url: https://cdn.dl.k8s.io/release/{{ kubectl_version }}/bin/li
 # See https://github.com/kubernetes-sigs/cluster-api/releases
 #
 # NOTE: please include the 'v' prefix as it affects the URLs we are using.
-capi_core_version: v1.9.5
+capi_core_version: v1.11.3
