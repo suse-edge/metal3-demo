@@ -114,6 +114,7 @@
     privatekey_path: "{{ image_cache_conf_dir }}/server.key"
     subject_alt_name:
       - "DNS:imagecache.local"
+    subject_alt_name_critical: true
   register: csr
 
 - name: Generate cert for image-cache server
