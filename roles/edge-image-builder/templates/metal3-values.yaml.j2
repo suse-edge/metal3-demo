@@ -1,7 +1,7 @@
 global:
   ironicIP: {{ management_cluster_public_ip }}
-  # Mounts tls-ca-additional Secret
-  additionalTrustedCAs: true
+  # Mounts tls-ca-bundle ConfigMap
+  trustedCAs: tls-ca-bundle
 
 metal3-mariadb:
   persistence:

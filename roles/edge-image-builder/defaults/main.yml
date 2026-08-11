@@ -36,7 +36,7 @@ metal3_version: "305.0.21+up0.13.0"
 rancher_bootstrap_password: rancher
 
 image_cache_conf_dir: "{{ working_dir }}/image-cache-conf"
-additional_ca_cert: "{{ lookup('ansible.builtin.file', image_cache_conf_dir + '/ca-certificate.pem') }}"
+additional_ca_cert: "{{ lookup('ansible.builtin.file', image_cache_conf_dir + '/ca-certificate.pem', rstrip=False) }}"
 
 # Only used for the management-cluster image currently, to ensure we have
 # enough space for RKE2 and other dependencies
