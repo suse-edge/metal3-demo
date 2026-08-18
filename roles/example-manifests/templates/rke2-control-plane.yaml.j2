@@ -1,4 +1,4 @@
-apiVersion: cluster.x-k8s.io/v1beta1
+apiVersion: cluster.x-k8s.io/v1beta2
 kind: Cluster
 metadata:
   name: {{ cluster_name }}
@@ -22,11 +22,11 @@ spec:
         - {{ service_network_cidr_v6 }}
 {% endif %}
   controlPlaneRef:
-    apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+    apiGroup: controlplane.cluster.x-k8s.io
     kind: RKE2ControlPlane
     name: {{ cluster_name }}
   infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
+    apiGroup: infrastructure.cluster.x-k8s.io
     kind: Metal3Cluster
     name: {{ cluster_name }}
 ---
@@ -41,16 +41,18 @@ spec:
     port: 6443
   noCloudProvider: true
 ---
-apiVersion: controlplane.cluster.x-k8s.io/v1beta1
+apiVersion: controlplane.cluster.x-k8s.io/v1beta2
 kind: RKE2ControlPlane
 metadata:
   name: {{ cluster_name }}
   namespace: {{ cluster_namespace }}
 spec:
-  infrastructureRef:
-    apiVersion: infrastructure.cluster.x-k8s.io/v1beta1
-    kind: Metal3MachineTemplate
-    name: {{ cluster_name }}-controlplane
+  machineTemplate:
+    spec:
+      infrastructureRef:
+        apiGroup: infrastructure.cluster.x-k8s.io
+        kind: Metal3MachineTemplate
+        name: {{ cluster_name }}-controlplane
   replicas: {{ num_controlplane_hosts }}
   version: {{ cluster_rke2_version }}
   rolloutStrategy:
